@@ -133,6 +133,7 @@ export default function EmployeeTable() {
       </Group>
 
       <Paper withBorder>
+        <Table.ScrollContainer minWidth={500}>
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
@@ -216,6 +217,7 @@ export default function EmployeeTable() {
             ))}
           </Table.Tbody>
         </Table>
+        </Table.ScrollContainer>
       </Paper>
 
       {data && data.pagination.totalPages > 1 && (

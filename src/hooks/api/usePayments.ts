@@ -10,6 +10,7 @@ interface Payment {
   tuitionId: string;
   employeeId: string;
   amount: string;
+  scholarshipAmount: string;
   paymentDate: string;
   notes?: string | null;
   createdAt: string;
@@ -59,6 +60,8 @@ interface PaymentResponse {
       newPaidAmount: number;
       remainingAmount: number;
       feeAmount: number;
+      scholarshipAmount: number;
+      effectiveFeeAmount: number;
     };
   };
 }

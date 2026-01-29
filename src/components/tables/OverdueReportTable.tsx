@@ -259,6 +259,7 @@ export default function OverdueReportTable() {
                   </Paper>
 
                   {/* Overdue Months Table */}
+                  <Table.ScrollContainer minWidth={700}>
                   <Table striped highlightOnHover withTableBorder>
                     <Table.Thead>
                       <Table.Tr>
@@ -327,6 +328,7 @@ export default function OverdueReportTable() {
                       ))}
                     </Table.Tbody>
                   </Table>
+                  </Table.ScrollContainer>
                 </Stack>
               </Accordion.Panel>
             </Accordion.Item>

@@ -20,6 +20,7 @@ import {
   IconCheck,
   IconClock,
   IconFilter,
+  IconGift,
   IconUsers,
 } from "@tabler/icons-react";
 import { useState } from "react";
@@ -42,9 +43,10 @@ export default function ClassSummaryCards() {
       label: `${ay.year}${ay.isActive ? " (Active)" : ""}`,
     })) || [];
 
+  // Use effective fees (after scholarships) for percentage calculation
   const overallPercentage =
-    data && data.totals.totalFees > 0
-      ? (data.totals.totalPaid / data.totals.totalFees) * 100
+    data && data.totals.totalEffectiveFees > 0
+      ? (data.totals.totalPaid / data.totals.totalEffectiveFees) * 100
       : 0;
 
   return (
@@ -120,7 +122,7 @@ export default function ClassSummaryCards() {
         <Card withBorder>
           <Stack gap="md">
             <Text fw={600}>Overall Payment Progress</Text>
-            <SimpleGrid cols={{ base: 1, sm: 3 }}>
+            <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }}>
               <div>
                 <Text size="xs" c="dimmed">
                   Total Fees
@@ -128,6 +130,37 @@ export default function ClassSummaryCards() {
                 <Text size="lg" fw={600}>
                   <NumberFormatter
                     value={data.totals.totalFees}
+                    prefix="Rp "
+                    thousandSeparator="."
+                    decimalSeparator=","
+                  />
+                </Text>
+              </div>
+              {data.totals.totalScholarships > 0 && (
+                <div>
+                  <Group gap={4}>
+                    <IconGift size={14} color="var(--mantine-color-teal-6)" />
+                    <Text size="xs" c="dimmed">
+                      Scholarships
+                    </Text>
+                  </Group>
+                  <Text size="lg" fw={600} c="teal">
+                    -<NumberFormatter
+                      value={data.totals.totalScholarships}
+                      prefix="Rp "
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  </Text>
+                </div>
+              )}
+              <div>
+                <Text size="xs" c="dimmed">
+                  {data.totals.totalScholarships > 0 ? "Net Amount Due" : "Total Collected"}
+                </Text>
+                <Text size="lg" fw={600} c={data.totals.totalScholarships > 0 ? "blue" : "green"}>
+                  <NumberFormatter
+                    value={data.totals.totalScholarships > 0 ? data.totals.totalEffectiveFees : data.totals.totalPaid}
                     prefix="Rp "
                     thousandSeparator="."
                     decimalSeparator=","
@@ -164,14 +197,14 @@ export default function ClassSummaryCards() {
             <div>
               <Group justify="space-between" mb={4}>
                 <Text size="sm" c="dimmed">
-                  Collection Rate
+                  Collection Rate {data.totals.totalScholarships > 0 && "(after scholarships)"}
                 </Text>
                 <Text size="sm" fw={600}>
                   {overallPercentage.toFixed(1)}%
                 </Text>
               </Group>
               <Progress
-                value={overallPercentage}
+                value={Math.min(overallPercentage, 100)}
                 color={
                   overallPercentage >= 80
                     ? "green"
@@ -213,16 +246,26 @@ export default function ClassSummaryCards() {
       {!isLoading && data && (
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
           {data.classes.map((cls) => {
+            // Use effective fees (after scholarships) for percentage
+            const effectiveFees = cls.statistics.totalEffectiveFees || cls.statistics.totalFees;
             const paidPercentage =
-              cls.statistics.totalFees > 0
-                ? (cls.statistics.totalPaid / cls.statistics.totalFees) * 100
+              effectiveFees > 0
+                ? (cls.statistics.totalPaid / effectiveFees) * 100
                 : 0;
+            const hasScholarship = cls.statistics.totalScholarships > 0;
 
             return (
               <Card key={cls.class.id} withBorder>
                 <Stack gap="sm">
                   <Group justify="space-between">
-                    <Text fw={600}>{cls.class.className}</Text>
+                    <Group gap="xs">
+                      <Text fw={600}>{cls.class.className}</Text>
+                      {hasScholarship && (
+                        <ThemeIcon size="sm" color="teal" variant="light">
+                          <IconGift size={12} />
+                        </ThemeIcon>
+                      )}
+                    </Group>
                     <Badge
                       color={
                         paidPercentage >= 80
@@ -232,7 +275,7 @@ export default function ClassSummaryCards() {
                             : "red"
                       }
                     >
-                      {paidPercentage.toFixed(0)}%
+                      {Math.min(paidPercentage, 100).toFixed(0)}%
                     </Badge>
                   </Group>
 
@@ -255,7 +298,7 @@ export default function ClassSummaryCards() {
                     </div>
                   </SimpleGrid>
 
-                  <Group gap="xs">
+                  <Group gap="xs" wrap="wrap">
                     <Badge color="green" variant="light" size="sm">
                       Paid: {cls.statistics.paid}
                     </Badge>
@@ -265,10 +308,15 @@ export default function ClassSummaryCards() {
                     <Badge color="red" variant="light" size="sm">
                       Unpaid: {cls.statistics.unpaid}
                     </Badge>
+                    {hasScholarship && (
+                      <Badge color="teal" variant="light" size="sm" leftSection={<IconGift size={10} />}>
+                        Scholarship
+                      </Badge>
+                    )}
                   </Group>
 
                   <Progress
-                    value={paidPercentage}
+                    value={Math.min(paidPercentage, 100)}
                     color={
                       paidPercentage >= 80
                         ? "green"
@@ -278,6 +326,22 @@ export default function ClassSummaryCards() {
                     }
                     size="sm"
                   />
+
+                  {hasScholarship && (
+                    <Group justify="space-between">
+                      <Text size="xs" c="dimmed">
+                        Scholarship Discount:
+                      </Text>
+                      <Text size="xs" fw={500} c="teal">
+                        -<NumberFormatter
+                          value={cls.statistics.totalScholarships}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                    </Group>
+                  )}
 
                   <SimpleGrid cols={2}>
                     <div>

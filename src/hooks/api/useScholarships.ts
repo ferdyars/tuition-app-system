@@ -8,6 +8,7 @@ interface Scholarship {
   id: string;
   studentNis: string;
   classAcademicId: string;
+  name: string;
   nominal: string;
   isFullScholarship: boolean;
   createdAt: string;
@@ -104,6 +105,7 @@ export function useCreateScholarship() {
     mutationFn: async (scholarship: {
       studentNis: string;
       classAcademicId: string;
+      name?: string;
       nominal: number;
     }) => {
       const { data } = await apiClient.post<ScholarshipResponse>(

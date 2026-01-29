@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Avatar,
   Burger,
   Group,
   Menu,
+  Skeleton,
   Text,
   Title,
   UnstyledButton,
@@ -25,7 +27,12 @@ export default function Header({
   toggleMobile,
   toggleDesktop,
 }: HeaderProps) {
-  const { user, logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const { user, logout, isLoading } = useAuth();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <Group h="100%" px="md" justify="space-between">
@@ -49,17 +56,29 @@ export default function Header({
         <Menu.Target>
           <UnstyledButton>
             <Group gap="xs">
-              <Avatar size="sm" radius="xl" color="blue">
-                {user?.name?.charAt(0).toUpperCase()}
-              </Avatar>
-              <div>
-                <Text size="sm" fw={500}>
-                  {user?.name}
-                </Text>
-                <Text size="xs" c="dimmed">
-                  {user?.role}
-                </Text>
-              </div>
+              {!mounted || isLoading ? (
+                <>
+                  <Skeleton circle height={30} width={30} />
+                  <div>
+                    <Skeleton height={14} width={80} mb={4} />
+                    <Skeleton height={10} width={50} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Avatar size="sm" radius="xl" color="blue">
+                    {user?.name?.charAt(0).toUpperCase() || "?"}
+                  </Avatar>
+                  <div>
+                    <Text size="sm" fw={500}>
+                      {user?.name || "User"}
+                    </Text>
+                    <Text size="xs" c="dimmed">
+                      {user?.role || "Guest"}
+                    </Text>
+                  </div>
+                </>
+              )}
             </Group>
           </UnstyledButton>
         </Menu.Target>

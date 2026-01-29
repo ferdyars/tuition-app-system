@@ -143,18 +143,19 @@ model StudentClass {
 // ============================================
 
 model Tuition {
-  id              String        @id @default(uuid())
-  classAcademicId String        @map("class_academic_id")
-  studentNis      String        @map("student_nis")
-  month           Month
-  year            Int
-  feeAmount       Decimal       @map("fee_amount") @db.Decimal(10, 2)
-  paidAmount      Decimal       @default(0) @map("paid_amount") @db.Decimal(10, 2)
-  status          PaymentStatus @default(UNPAID)
-  dueDate         DateTime      @map("due_date")
-  generatedAt     DateTime      @default(now()) @map("generated_at")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  id                String        @id @default(uuid())
+  classAcademicId   String        @map("class_academic_id")
+  studentNis        String        @map("student_nis")
+  month             Month
+  year              Int
+  feeAmount         Decimal       @map("fee_amount") @db.Decimal(10, 2)
+  scholarshipAmount Decimal       @default(0) @map("scholarship_amount") @db.Decimal(10, 2)
+  paidAmount        Decimal       @default(0) @map("paid_amount") @db.Decimal(10, 2)
+  status            PaymentStatus @default(UNPAID)
+  dueDate           DateTime      @map("due_date")
+  generatedAt       DateTime      @default(now()) @map("generated_at")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
 
   classAcademic ClassAcademic @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
   student       Student       @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
@@ -176,6 +177,7 @@ model Scholarship {
   id                String   @id @default(uuid())
   studentNis        String   @map("student_nis")
   classAcademicId   String   @map("class_academic_id")
+  name              String   @default("Scholarship") // e.g., "Academic", "Sports", "Need-based"
   nominal           Decimal  @db.Decimal(10, 2)
   isFullScholarship Boolean  @default(false) @map("is_full_scholarship")
   createdAt         DateTime @default(now()) @map("created_at")
@@ -184,9 +186,10 @@ model Scholarship {
   student       Student       @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
   classAcademic ClassAcademic @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
 
-  @@unique([studentNis, classAcademicId])
+  // Removed unique constraint to allow multiple scholarships per student per class
   @@index([studentNis])
   @@index([classAcademicId])
+  @@index([studentNis, classAcademicId])
   @@map("scholarships")
 }
 
@@ -195,14 +198,15 @@ model Scholarship {
 // ============================================
 
 model Payment {
-  id          String   @id @default(uuid())
-  tuitionId   String   @map("tuition_id")
-  employeeId  String   @map("employee_id")
-  amount      Decimal  @db.Decimal(10, 2)
-  paymentDate DateTime @default(now()) @map("payment_date")
-  notes       String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id                String   @id @default(uuid())
+  tuitionId         String   @map("tuition_id")
+  employeeId        String   @map("employee_id")
+  amount            Decimal  @db.Decimal(10, 2)
+  scholarshipAmount Decimal  @default(0) @map("scholarship_amount") @db.Decimal(10, 2)
+  paymentDate       DateTime @default(now()) @map("payment_date")
+  notes             String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   tuition  Tuition  @relation(fields: [tuitionId], references: [id], onDelete: Cascade)
   employee Employee @relation(fields: [employeeId], references: [employeeId], onDelete: Restrict)

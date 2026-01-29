@@ -13,8 +13,10 @@ export async function GET(request: NextRequest) {
   const limit = Number(searchParams.get("limit") || "10");
   const classAcademicId = searchParams.get("classAcademicId") || undefined;
   const studentNis = searchParams.get("studentNis") || undefined;
-  const status = searchParams.get("status") || undefined;
-  const month = searchParams.get("month") || undefined;
+  const statusParam = searchParams.get("status");
+  const status = statusParam && statusParam !== "null" ? statusParam : undefined;
+  const monthParam = searchParams.get("month");
+  const month = monthParam && monthParam !== "null" ? monthParam : undefined;
   const year = searchParams.get("year")
     ? Number(searchParams.get("year"))
     : undefined;
@@ -76,44 +78,61 @@ export async function GET(request: NextRequest) {
       take: limit,
       orderBy: [
         { year: "desc" },
-        { month: "asc" },
+        { month: "desc" },
         { student: { name: "asc" } },
       ],
     }),
     prisma.tuition.count({ where }),
   ]);
 
-  // Fetch scholarship info for each tuition's student+class combination
-  const tuitionsWithScholarship = await Promise.all(
+  // Fetch all scholarships for each tuition's student+class combination
+  const tuitionsWithScholarships = await Promise.all(
     tuitions.map(async (tuition) => {
-      const scholarship = await prisma.scholarship.findUnique({
+      const scholarships = await prisma.scholarship.findMany({
         where: {
-          studentNis_classAcademicId: {
-            studentNis: tuition.studentNis,
-            classAcademicId: tuition.classAcademicId,
-          },
+          studentNis: tuition.studentNis,
+          classAcademicId: tuition.classAcademicId,
         },
         select: {
           id: true,
+          name: true,
           nominal: true,
           isFullScholarship: true,
         },
+        orderBy: { createdAt: "asc" },
       });
+
+      // Calculate total scholarship amount
+      const totalScholarshipAmount = scholarships.reduce(
+        (sum, s) => sum + Number(s.nominal),
+        0
+      );
+      const feeAmount = Number(tuition.feeAmount);
+      // Calculate if total scholarships cover the full fee (not based on DB flag)
+      const hasFullScholarship = totalScholarshipAmount >= feeAmount;
+
       return {
         ...tuition,
-        scholarship: scholarship
-          ? {
-              id: scholarship.id,
-              nominal: scholarship.nominal.toString(),
-              isFullScholarship: scholarship.isFullScholarship,
-            }
-          : null,
+        scholarships: scholarships.map((s) => ({
+          id: s.id,
+          name: s.name,
+          nominal: s.nominal.toString(),
+          isFullScholarship: s.isFullScholarship,
+        })),
+        scholarshipSummary:
+          scholarships.length > 0
+            ? {
+                count: scholarships.length,
+                totalAmount: totalScholarshipAmount.toString(),
+                hasFullScholarship,
+              }
+            : null,
       };
     }),
   );
 
   return successResponse({
-    tuitions: tuitionsWithScholarship,
+    tuitions: tuitionsWithScholarships,
     pagination: {
       page,
       limit,

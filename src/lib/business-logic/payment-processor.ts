@@ -15,10 +15,13 @@ export interface PaymentResult {
   newPaidAmount: number;
   remainingAmount: number;
   feeAmount: number;
+  scholarshipAmount: number;
+  effectiveFeeAmount: number;
 }
 
 /**
  * Process payment and update tuition status
+ * Considers scholarship discount when determining if tuition is fully paid
  */
 export async function processPayment(
   params: PaymentParams,
@@ -39,16 +42,32 @@ export async function processPayment(
     throw new Error("Tuition is already fully paid");
   }
 
+  // Check for all scholarships (student can have multiple)
+  const scholarships = await prisma.scholarship.findMany({
+    where: {
+      studentNis: tuition.studentNis,
+      classAcademicId: tuition.classAcademicId,
+    },
+  });
+
   const feeAmount = Number(tuition.feeAmount);
+  // Sum all scholarship amounts
+  const scholarshipAmount = scholarships.reduce(
+    (sum, s) => sum + Number(s.nominal),
+    0
+  );
+  // Effective fee is the original fee minus scholarship discount
+  const effectiveFeeAmount = Math.max(feeAmount - scholarshipAmount, 0);
+
   const previousPaidAmount = Number(tuition.paidAmount);
   const previousStatus = tuition.status;
 
   // Calculate new paid amount
   const newPaidAmount = previousPaidAmount + amount;
 
-  // Determine new status
+  // Determine new status based on effective fee amount (considering scholarship)
   let newStatus: PaymentStatus;
-  if (newPaidAmount >= feeAmount) {
+  if (newPaidAmount >= effectiveFeeAmount) {
     newStatus = "PAID";
   } else if (newPaidAmount > 0) {
     newStatus = "PARTIAL";
@@ -56,21 +75,23 @@ export async function processPayment(
     newStatus = "UNPAID";
   }
 
-  // Create payment record
+  // Create payment record with scholarship info
   const payment = await prisma.payment.create({
     data: {
       tuitionId,
       employeeId,
       amount,
+      scholarshipAmount,
       notes: notes || null,
     },
   });
 
-  // Update tuition
+  // Update tuition with scholarship amount tracked
   await prisma.tuition.update({
     where: { id: tuitionId },
     data: {
       paidAmount: newPaidAmount,
+      scholarshipAmount,
       status: newStatus,
     },
   });
@@ -81,13 +102,16 @@ export async function processPayment(
     previousStatus,
     previousPaidAmount,
     newPaidAmount,
-    remainingAmount: Math.max(feeAmount - newPaidAmount, 0),
+    remainingAmount: Math.max(effectiveFeeAmount - newPaidAmount, 0),
     feeAmount,
+    scholarshipAmount,
+    effectiveFeeAmount,
   };
 }
 
 /**
  * Reverse/delete payment and update tuition status
+ * Considers scholarship discount when determining new status
  */
 export async function reversePayment(
   paymentId: string,
@@ -108,16 +132,31 @@ export async function reversePayment(
   }
 
   const tuition = payment.tuition;
+
+  // Check for all scholarships (student can have multiple)
+  const scholarships = await prisma.scholarship.findMany({
+    where: {
+      studentNis: tuition.studentNis,
+      classAcademicId: tuition.classAcademicId,
+    },
+  });
+
   const paymentAmount = Number(payment.amount);
   const currentPaidAmount = Number(tuition.paidAmount);
   const feeAmount = Number(tuition.feeAmount);
+  // Sum all scholarship amounts
+  const scholarshipAmount = scholarships.reduce(
+    (sum, s) => sum + Number(s.nominal),
+    0
+  );
+  const effectiveFeeAmount = Math.max(feeAmount - scholarshipAmount, 0);
 
   // Calculate new paid amount
   const newPaidAmount = Math.max(currentPaidAmount - paymentAmount, 0);
 
-  // Determine new status
+  // Determine new status based on effective fee amount
   let newStatus: PaymentStatus;
-  if (newPaidAmount >= feeAmount) {
+  if (newPaidAmount >= effectiveFeeAmount) {
     newStatus = "PAID";
   } else if (newPaidAmount > 0) {
     newStatus = "PARTIAL";

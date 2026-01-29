@@ -17,12 +17,15 @@ export interface ScholarshipApplicationResult {
 }
 
 /**
- * Apply scholarship and auto-pay tuitions if full scholarship
+ * Apply scholarship to tuitions
+ * - For full scholarships: mark UNPAID tuitions as PAID with scholarshipAmount = fee
+ * - For partial scholarships: just update scholarshipAmount on UNPAID/PARTIAL tuitions
+ * - Does NOT create fake payment records - scholarship is tracked separately
  */
 export async function applyScholarship(
   params: ScholarshipApplicationParams,
   prisma: PrismaClient,
-  systemEmployeeId: string,
+  _systemEmployeeId: string, // No longer needed, kept for API compatibility
 ): Promise<ScholarshipApplicationResult> {
   const { studentNis, classAcademicId, nominal, monthlyFee } = params;
 
@@ -35,47 +38,47 @@ export async function applyScholarship(
     autoPayments: [],
   };
 
-  if (isFullScholarship) {
-    // Find all unpaid tuitions for this student in this class
-    const unpaidTuitions = await prisma.tuition.findMany({
-      where: {
-        studentNis,
-        classAcademicId,
-        status: "UNPAID",
+  // Find all unpaid/partial tuitions for this student in this class
+  const tuitions = await prisma.tuition.findMany({
+    where: {
+      studentNis,
+      classAcademicId,
+      status: { in: ["UNPAID", "PARTIAL"] },
+    },
+  });
+
+  // Update tuitions with scholarship amount
+  for (const tuition of tuitions) {
+    const feeAmount = Number(tuition.feeAmount);
+    const paidAmount = Number(tuition.paidAmount);
+    const effectiveFee = Math.max(feeAmount - nominal, 0);
+
+    // Determine new status
+    let newStatus: "PAID" | "PARTIAL" | "UNPAID";
+    if (paidAmount >= effectiveFee) {
+      newStatus = "PAID";
+    } else if (paidAmount > 0) {
+      newStatus = "PARTIAL";
+    } else {
+      newStatus = "UNPAID";
+    }
+
+    // Update tuition with scholarship tracking
+    await prisma.tuition.update({
+      where: { id: tuition.id },
+      data: {
+        scholarshipAmount: nominal,
+        status: newStatus,
       },
     });
 
-    // Create auto-payments for all unpaid tuitions
-    for (const tuition of unpaidTuitions) {
-      const feeAmount = Number(tuition.feeAmount);
-
-      // Update tuition to PAID
-      await prisma.tuition.update({
-        where: { id: tuition.id },
-        data: {
-          status: "PAID",
-          paidAmount: feeAmount,
-        },
-      });
-
-      // Create system payment record
-      await prisma.payment.create({
-        data: {
-          tuitionId: tuition.id,
-          employeeId: systemEmployeeId,
-          amount: feeAmount,
-          notes: `Auto-paid via full scholarship (Rp ${nominal.toLocaleString("id-ID")})`,
-        },
-      });
-
-      result.autoPayments.push({
-        tuitionId: tuition.id,
-        amount: feeAmount,
-      });
-    }
-
-    result.tuitionsAffected = unpaidTuitions.length;
+    result.autoPayments.push({
+      tuitionId: tuition.id,
+      amount: 0, // No actual payment, just scholarship
+    });
   }
+
+  result.tuitionsAffected = tuitions.length;
 
   return result;
 }

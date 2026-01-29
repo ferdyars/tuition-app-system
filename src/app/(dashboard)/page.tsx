@@ -255,6 +255,7 @@ export default function DashboardPage() {
               ))}
             </Stack>
           ) : stats?.recentPayments && stats.recentPayments.length > 0 ? (
+            <Table.ScrollContainer minWidth={700}>
             <Table striped highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
@@ -303,6 +304,7 @@ export default function DashboardPage() {
                 ))}
               </Table.Tbody>
             </Table>
+            </Table.ScrollContainer>
           ) : (
             <Text c="dimmed" ta="center" py="md">
               No recent payments

@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { studentNis, classAcademicId, nominal } = body;
+    const { studentNis, classAcademicId, name, nominal } = body;
 
     if (!studentNis || !classAcademicId || nominal === undefined) {
       return errorResponse(
@@ -113,36 +113,29 @@ export async function POST(request: NextRequest) {
       return errorResponse("Class not found", "NOT_FOUND", 404);
     }
 
-    // Check if scholarship already exists
-    const existing = await prisma.scholarship.findUnique({
-      where: {
-        studentNis_classAcademicId: {
-          studentNis,
-          classAcademicId,
-        },
-      },
-    });
-
-    if (existing) {
-      return errorResponse(
-        "Scholarship already exists for this student in this class",
-        "DUPLICATE_ENTRY",
-        409,
-      );
-    }
-
     // Get fee amount from existing tuitions
     const feeAmount = await getClassFeeAmount(classAcademicId, prisma);
-    const monthlyFee = feeAmount || nominal; // Use nominal as fallback
 
-    // Determine if full scholarship
-    const isFullScholarship = nominal >= monthlyFee;
+    // Get existing scholarships for this student+class to calculate total
+    const existingScholarships = await prisma.scholarship.findMany({
+      where: { studentNis, classAcademicId },
+    });
+    const existingTotal = existingScholarships.reduce(
+      (sum, s) => sum + Number(s.nominal),
+      0
+    );
+    const newTotal = existingTotal + nominal;
+
+    // Determine if this makes it a full scholarship (total >= fee)
+    // Only mark as full if we know the actual fee and scholarship covers it
+    const isFullScholarship = feeAmount ? newTotal >= feeAmount : false;
 
     // Create scholarship
     const scholarship = await prisma.scholarship.create({
       data: {
         studentNis,
         classAcademicId,
+        name: name || "Scholarship",
         nominal,
         isFullScholarship,
       },
@@ -152,7 +145,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Apply scholarship (auto-pay tuitions if full scholarship)
+    // Apply scholarship (auto-pay tuitions if total scholarships cover the fee)
     let applicationResult = null;
     if (isFullScholarship && feeAmount) {
       // Get admin employee for system payment
@@ -165,8 +158,8 @@ export async function POST(request: NextRequest) {
           {
             studentNis,
             classAcademicId,
-            nominal,
-            monthlyFee,
+            nominal: newTotal, // Use total scholarship amount
+            monthlyFee: feeAmount,
           },
           prisma,
           adminEmployee.employeeId,

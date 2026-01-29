@@ -1,0 +1,505 @@
+"use client";
+
+import {
+  Accordion,
+  Alert,
+  Badge,
+  Button,
+  Card,
+  Center,
+  Container,
+  Group,
+  Loader,
+  NumberFormatter,
+  Paper,
+  Progress,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Title,
+} from "@mantine/core";
+import {
+  IconAlertCircle,
+  IconCalendar,
+  IconCheck,
+  IconClock,
+  IconGift,
+  IconReceipt,
+  IconSchool,
+  IconSearch,
+  IconUser,
+} from "@tabler/icons-react";
+import dayjs from "dayjs";
+import { useState } from "react";
+import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
+
+interface PaymentData {
+  student: {
+    nis: string;
+    name: string;
+    parentName: string;
+    parentPhone: string;
+  };
+  academicYears: Array<{
+    academicYear: { id: string; year: string };
+    class: { id: string; className: string; grade: number; section: string };
+    tuitions: Array<{
+      id: string;
+      month: string;
+      year: number;
+      feeAmount: number;
+      scholarshipAmount: number;
+      paidAmount: number;
+      effectiveFee: number;
+      remainingAmount: number;
+      status: string;
+      dueDate: string;
+      payments: Array<{
+        id: string;
+        amount: number;
+        paymentDate: string;
+        notes: string | null;
+      }>;
+    }>;
+    summary: {
+      totalFees: number;
+      totalScholarships: number;
+      totalEffectiveFees: number;
+      totalPaid: number;
+      totalOutstanding: number;
+      paidCount: number;
+      partialCount: number;
+      unpaidCount: number;
+    };
+  }>;
+  scholarships: Array<{
+    id: string;
+    name: string;
+    nominal: number;
+    isFullScholarship: boolean;
+    academicYear: string;
+    className: string;
+  }>;
+}
+
+export default function StudentPortalPage() {
+  const [nis, setNis] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<PaymentData | null>(null);
+
+  const handleSearch = async () => {
+    if (!nis.trim()) {
+      setError("Please enter your NIS");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/v1/student-portal/${nis.trim()}`);
+      const result = await response.json();
+
+      if (!result.success) {
+        setError(result.error?.message || "Student not found");
+        setData(null);
+      } else {
+        setData(result.data);
+      }
+    } catch {
+      setError("Failed to fetch data. Please try again.");
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "PAID":
+        return "green";
+      case "PARTIAL":
+        return "yellow";
+      default:
+        return "red";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "PAID":
+        return <IconCheck size={14} />;
+      case "PARTIAL":
+        return <IconClock size={14} />;
+      default:
+        return <IconAlertCircle size={14} />;
+    }
+  };
+
+  return (
+    <Container size="lg" py="xl">
+      <Stack gap="xl">
+        {/* Header */}
+        <Center>
+          <Stack align="center" gap="xs">
+            <IconSchool size={48} color="var(--mantine-color-dark-6)" />
+            <Title order={1} c="dark">Student Payment Portal</Title>
+            <Text c="dark.4">Check your tuition payment status</Text>
+          </Stack>
+        </Center>
+
+        {/* Search Box */}
+        <Paper withBorder p="lg" radius="md" bg="dark.0">
+          <Stack gap="md">
+            <Text fw={500} c="dark">Enter your Student ID (NIS)</Text>
+            <Group>
+              <TextInput
+                placeholder="e.g., 2024001"
+                leftSection={<IconUser size={18} />}
+                value={nis}
+                onChange={(e) => setNis(e.currentTarget.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                style={{ flex: 1 }}
+                size="md"
+              />
+              <Button
+                leftSection={<IconSearch size={18} />}
+                onClick={handleSearch}
+                loading={loading}
+                size="md"
+              >
+                Search
+              </Button>
+            </Group>
+          </Stack>
+        </Paper>
+
+        {/* Error */}
+        {error && (
+          <Alert icon={<IconAlertCircle size={18} />} color="red" variant="light">
+            {error}
+          </Alert>
+        )}
+
+        {/* Loading */}
+        {loading && (
+          <Center py="xl">
+            <Loader size="lg" />
+          </Center>
+        )}
+
+        {/* Results */}
+        {data && !loading && (
+          <Stack gap="lg">
+            {/* Student Info */}
+            <Card withBorder bg="dark.0">
+              <Group justify="space-between" wrap="wrap">
+                <Stack gap={4}>
+                  <Text size="sm" c="dark.4">Student Name</Text>
+                  <Text size="lg" fw={600} c="dark">{data.student.name}</Text>
+                </Stack>
+                <Stack gap={4}>
+                  <Text size="sm" c="dark.4">NIS</Text>
+                  <Badge size="lg" variant="filled" color="dark">{data.student.nis}</Badge>
+                </Stack>
+                <Stack gap={4}>
+                  <Text size="sm" c="dark.4">Parent/Guardian</Text>
+                  <Text c="dark">{data.student.parentName}</Text>
+                </Stack>
+                <Stack gap={4}>
+                  <Text size="sm" c="dark.4">Contact</Text>
+                  <Text c="dark">{data.student.parentPhone}</Text>
+                </Stack>
+              </Group>
+            </Card>
+
+            {/* Scholarships */}
+            {data.scholarships.length > 0 && (
+              <Alert
+                icon={<IconGift size={18} />}
+                color="teal"
+                variant="light"
+                title="Active Scholarships"
+              >
+                <Stack gap="xs">
+                  {data.scholarships.map((s) => (
+                    <Group key={s.id} justify="space-between">
+                      <Group gap="xs">
+                        <Badge
+                          color={s.isFullScholarship ? "green" : "teal"}
+                          variant="light"
+                          size="sm"
+                        >
+                          {s.isFullScholarship ? "Full" : "Partial"}
+                        </Badge>
+                        <Text size="sm">{s.name}</Text>
+                        <Text size="sm" c="dimmed">
+                          ({s.academicYear} - {s.className})
+                        </Text>
+                      </Group>
+                      <Text size="sm" fw={600} c="teal">
+                        <NumberFormatter
+                          value={s.nominal}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                        /month
+                      </Text>
+                    </Group>
+                  ))}
+                </Stack>
+              </Alert>
+            )}
+
+            {/* No Data */}
+            {data.academicYears.length === 0 && (
+              <Alert icon={<IconReceipt size={18} />} color="blue" variant="light">
+                No tuition records found for this student.
+              </Alert>
+            )}
+
+            {/* Academic Years */}
+            {data.academicYears.map((yearData) => (
+              <Card key={yearData.academicYear.id} withBorder>
+                <Stack gap="md">
+                  {/* Year Header */}
+                  <Group justify="space-between" wrap="wrap">
+                    <Group gap="xs">
+                      <IconCalendar size={20} color="var(--mantine-color-dark-6)" />
+                      <Title order={4} c="dark">{yearData.academicYear.year}</Title>
+                      <Badge variant="filled" color="dark">{yearData.class.className}</Badge>
+                    </Group>
+                    <Group gap="md">
+                      <Badge color="green" variant="light">
+                        {yearData.summary.paidCount} Paid
+                      </Badge>
+                      {yearData.summary.partialCount > 0 && (
+                        <Badge color="yellow" variant="light">
+                          {yearData.summary.partialCount} Partial
+                        </Badge>
+                      )}
+                      {yearData.summary.unpaidCount > 0 && (
+                        <Badge color="red" variant="light">
+                          {yearData.summary.unpaidCount} Unpaid
+                        </Badge>
+                      )}
+                    </Group>
+                  </Group>
+
+                  {/* Summary Cards */}
+                  <SimpleGrid cols={{ base: 2, sm: 4 }}>
+                    <Paper withBorder p="sm" radius="sm" bg="dark.0">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dark.4">Total Fees</Text>
+                        <Text fw={600} c="dark">
+                          <NumberFormatter
+                            value={yearData.summary.totalFees}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Text>
+                      </Stack>
+                    </Paper>
+                    {yearData.summary.totalScholarships > 0 && (
+                      <Paper withBorder p="sm" radius="sm" bg="dark.1">
+                        <Stack gap={2}>
+                          <Text size="xs" c="dark.4">Scholarship</Text>
+                          <Text fw={600} c="dark.6">
+                            -<NumberFormatter
+                              value={yearData.summary.totalScholarships}
+                              prefix="Rp "
+                              thousandSeparator="."
+                              decimalSeparator=","
+                            />
+                          </Text>
+                        </Stack>
+                      </Paper>
+                    )}
+                    <Paper withBorder p="sm" radius="sm" bg="dark.1">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dark.4">Total Paid</Text>
+                        <Text fw={600} c="dark.6">
+                          <NumberFormatter
+                            value={yearData.summary.totalPaid}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Text>
+                      </Stack>
+                    </Paper>
+                    <Paper
+                      withBorder
+                      p="sm"
+                      radius="sm"
+                      bg={yearData.summary.totalOutstanding > 0 ? "red.0" : "dark.1"}
+                    >
+                      <Stack gap={2}>
+                        <Text size="xs" c="dark.4">Outstanding</Text>
+                        <Text
+                          fw={600}
+                          c={yearData.summary.totalOutstanding > 0 ? "red.7" : "dark.6"}
+                        >
+                          <NumberFormatter
+                            value={yearData.summary.totalOutstanding}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Text>
+                      </Stack>
+                    </Paper>
+                  </SimpleGrid>
+
+                  {/* Progress */}
+                  <div>
+                    <Group justify="space-between" mb={4}>
+                      <Text size="sm" c="dark.4">Payment Progress</Text>
+                      <Text size="sm" fw={500} c="dark">
+                        {yearData.summary.totalEffectiveFees > 0
+                          ? Math.round(
+                              (yearData.summary.totalPaid /
+                                yearData.summary.totalEffectiveFees) *
+                                100
+                            )
+                          : 100}
+                        %
+                      </Text>
+                    </Group>
+                    <Progress
+                      value={
+                        yearData.summary.totalEffectiveFees > 0
+                          ? (yearData.summary.totalPaid /
+                              yearData.summary.totalEffectiveFees) *
+                            100
+                          : 100
+                      }
+                      color={
+                        yearData.summary.totalOutstanding === 0
+                          ? "dark"
+                          : yearData.summary.totalPaid > 0
+                            ? "dark.4"
+                            : "red"
+                      }
+                      size="lg"
+                    />
+                  </div>
+
+                  {/* Tuitions Table */}
+                  <Accordion variant="separated">
+                    <Accordion.Item value="details">
+                      <Accordion.Control>
+                        <Text size="sm" fw={500}>View Monthly Details</Text>
+                      </Accordion.Control>
+                      <Accordion.Panel>
+                        <Table.ScrollContainer minWidth={600}>
+                          <Table striped highlightOnHover>
+                            <Table.Thead>
+                              <Table.Tr>
+                                <Table.Th>Month</Table.Th>
+                                <Table.Th ta="right">Fee</Table.Th>
+                                <Table.Th ta="right">Scholarship</Table.Th>
+                                <Table.Th ta="right">Paid</Table.Th>
+                                <Table.Th ta="right">Remaining</Table.Th>
+                                <Table.Th>Due Date</Table.Th>
+                                <Table.Th>Status</Table.Th>
+                              </Table.Tr>
+                            </Table.Thead>
+                            <Table.Tbody>
+                              {yearData.tuitions.map((tuition) => (
+                                <Table.Tr key={tuition.id}>
+                                  <Table.Td>
+                                    <Text size="sm" fw={500}>
+                                      {getMonthDisplayName(tuition.month as any)}{" "}
+                                      {tuition.year}
+                                    </Text>
+                                  </Table.Td>
+                                  <Table.Td ta="right">
+                                    <NumberFormatter
+                                      value={tuition.feeAmount}
+                                      prefix="Rp "
+                                      thousandSeparator="."
+                                      decimalSeparator=","
+                                    />
+                                  </Table.Td>
+                                  <Table.Td ta="right">
+                                    {tuition.scholarshipAmount > 0 ? (
+                                      <Text c="teal" size="sm">
+                                        -<NumberFormatter
+                                          value={tuition.scholarshipAmount}
+                                          prefix="Rp "
+                                          thousandSeparator="."
+                                          decimalSeparator=","
+                                        />
+                                      </Text>
+                                    ) : (
+                                      <Text c="dimmed" size="sm">-</Text>
+                                    )}
+                                  </Table.Td>
+                                  <Table.Td ta="right">
+                                    <Text c="green" size="sm">
+                                      <NumberFormatter
+                                        value={tuition.paidAmount}
+                                        prefix="Rp "
+                                        thousandSeparator="."
+                                        decimalSeparator=","
+                                      />
+                                    </Text>
+                                  </Table.Td>
+                                  <Table.Td ta="right">
+                                    <Text
+                                      c={tuition.remainingAmount > 0 ? "red" : "green"}
+                                      fw={500}
+                                      size="sm"
+                                    >
+                                      <NumberFormatter
+                                        value={tuition.remainingAmount}
+                                        prefix="Rp "
+                                        thousandSeparator="."
+                                        decimalSeparator=","
+                                      />
+                                    </Text>
+                                  </Table.Td>
+                                  <Table.Td>
+                                    <Text size="sm">
+                                      {dayjs(tuition.dueDate).format("DD/MM/YYYY")}
+                                    </Text>
+                                  </Table.Td>
+                                  <Table.Td>
+                                    <Badge
+                                      color={getStatusColor(tuition.status)}
+                                      variant="light"
+                                      leftSection={getStatusIcon(tuition.status)}
+                                    >
+                                      {tuition.status}
+                                    </Badge>
+                                  </Table.Td>
+                                </Table.Tr>
+                              ))}
+                            </Table.Tbody>
+                          </Table>
+                        </Table.ScrollContainer>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  </Accordion>
+                </Stack>
+              </Card>
+            ))}
+          </Stack>
+        )}
+
+        {/* Footer */}
+        <Center>
+          <Text size="sm" c="dimmed">
+            For payment inquiries, please contact the school administration.
+          </Text>
+        </Center>
+      </Stack>
+    </Container>
+  );
+}

@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
+import { IconFilter, IconGift, IconSearch, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
@@ -141,6 +141,7 @@ export default function PaymentTable() {
       </Paper>
 
       <Paper withBorder>
+        <Table.ScrollContainer minWidth={900}>
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
@@ -204,14 +205,52 @@ export default function PaymentTable() {
                   </Text>
                 </Table.Td>
                 <Table.Td>
-                  <Text size="sm" fw={600} c="green">
-                    <NumberFormatter
-                      value={payment.amount}
-                      prefix="Rp "
-                      thousandSeparator="."
-                      decimalSeparator=","
-                    />
-                  </Text>
+                  <Stack gap={2}>
+                    <Text size="sm" fw={600} c="green">
+                      <NumberFormatter
+                        value={payment.amount}
+                        prefix="Rp "
+                        thousandSeparator="."
+                        decimalSeparator=","
+                      />
+                    </Text>
+                    {Number(payment.scholarshipAmount) > 0 && (() => {
+                      const scholarshipAmt = Number(payment.scholarshipAmount);
+                      const feeAmt = Number(payment.tuition?.feeAmount || 0);
+                      const isFullScholarship = scholarshipAmt >= feeAmt;
+
+                      return (
+                        <Tooltip
+                          label={
+                            <Stack gap={2}>
+                              <Text size="xs">
+                                Scholarship: <NumberFormatter
+                                  value={payment.scholarshipAmount}
+                                  prefix="Rp "
+                                  thousandSeparator="."
+                                  decimalSeparator=","
+                                />
+                              </Text>
+                              {isFullScholarship && (
+                                <Text size="xs" c="teal">
+                                  Full scholarship covers entire fee
+                                </Text>
+                              )}
+                            </Stack>
+                          }
+                        >
+                          <Badge
+                            size="xs"
+                            color={isFullScholarship ? "green" : "teal"}
+                            variant="light"
+                            leftSection={<IconGift size={10} />}
+                          >
+                            {isFullScholarship ? "Full Scholarship" : "Partial Scholarship"}
+                          </Badge>
+                        </Tooltip>
+                      );
+                    })()}
+                  </Stack>
                 </Table.Td>
                 <Table.Td>
                   <Text size="sm">{payment.employee?.name}</Text>
@@ -256,6 +295,7 @@ export default function PaymentTable() {
             ))}
           </Table.Tbody>
         </Table>
+        </Table.ScrollContainer>
       </Paper>
 
       {data && data.pagination.totalPages > 1 && (

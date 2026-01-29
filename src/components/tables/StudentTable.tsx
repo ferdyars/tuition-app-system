@@ -77,6 +77,7 @@ export default function StudentTable() {
       />
 
       <Paper withBorder>
+        <Table.ScrollContainer minWidth={700}>
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
@@ -139,6 +140,7 @@ export default function StudentTable() {
             ))}
           </Table.Tbody>
         </Table>
+        </Table.ScrollContainer>
       </Paper>
 
       {data && data.pagination.totalPages > 1 && (

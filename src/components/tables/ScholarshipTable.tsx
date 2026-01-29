@@ -123,6 +123,7 @@ export default function ScholarshipTable() {
       </Paper>
 
       <Paper withBorder>
+        <Table.ScrollContainer minWidth={700}>
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
@@ -212,6 +213,7 @@ export default function ScholarshipTable() {
             ))}
           </Table.Tbody>
         </Table>
+        </Table.ScrollContainer>
       </Paper>
 
       {data && data.pagination.totalPages > 1 && (

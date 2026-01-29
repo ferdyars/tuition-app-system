@@ -104,6 +104,7 @@ export default function AcademicYearTable() {
   return (
     <Stack gap="md">
       <Paper withBorder>
+        <Table.ScrollContainer minWidth={600}>
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
@@ -190,6 +191,7 @@ export default function AcademicYearTable() {
             ))}
           </Table.Tbody>
         </Table>
+        </Table.ScrollContainer>
       </Paper>
 
       {data && data.pagination.totalPages > 1 && (

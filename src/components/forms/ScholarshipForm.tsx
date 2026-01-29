@@ -4,21 +4,25 @@ import {
   Alert,
   Badge,
   Button,
+  Card,
   Group,
+  NumberFormatter,
   NumberInput,
   Paper,
   Select,
   Stack,
   Text,
+  TextInput,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconAlertCircle, IconCheck, IconGift } from "@tabler/icons-react";
+import { IconAlertCircle, IconCheck, IconGift, IconInfoCircle } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import { useClassAcademics } from "@/hooks/api/useClassAcademics";
 import { useCreateScholarship } from "@/hooks/api/useScholarships";
 import { useStudents } from "@/hooks/api/useStudents";
+import { useTuitions } from "@/hooks/api/useTuitions";
 
 interface CreationResult {
   scholarship: {
@@ -34,11 +38,21 @@ interface CreationResult {
   };
 }
 
+const SCHOLARSHIP_TYPES = [
+  { value: "Academic", label: "Academic Scholarship" },
+  { value: "Sports", label: "Sports Scholarship" },
+  { value: "Arts", label: "Arts Scholarship" },
+  { value: "Need-based", label: "Need-based Scholarship" },
+  { value: "Merit", label: "Merit Scholarship" },
+  { value: "Other", label: "Other" },
+];
+
 export default function ScholarshipForm() {
   const router = useRouter();
   const [academicYearId, setAcademicYearId] = useState<string | null>(null);
   const [classAcademicId, setClassAcademicId] = useState<string | null>(null);
   const [studentNis, setStudentNis] = useState<string | null>(null);
+  const [scholarshipName, setScholarshipName] = useState<string | null>("Academic");
   const [nominal, setNominal] = useState<number | string>(500000);
   const [result, setResult] = useState<CreationResult | null>(null);
 
@@ -57,10 +71,22 @@ export default function ScholarshipForm() {
     limit: 1000,
   });
 
+  // Fetch tuitions for the selected class to get the fee amount
+  const { data: tuitionsData } = useTuitions({
+    classAcademicId: classAcademicId || undefined,
+    limit: 1,
+  });
+
+  // Get the tuition fee for the selected class
+  const classTuitionFee = useMemo(() => {
+    if (!tuitionsData?.tuitions?.length) return null;
+    return Number(tuitionsData.tuitions[0].feeAmount);
+  }, [tuitionsData]);
+
   const createScholarship = useCreateScholarship();
 
   const handleSubmit = () => {
-    if (!studentNis || !classAcademicId || !nominal) {
+    if (!studentNis || !classAcademicId || !nominal || !scholarshipName) {
       notifications.show({
         title: "Validation Error",
         message: "Please fill in all required fields",
@@ -73,6 +99,7 @@ export default function ScholarshipForm() {
       {
         studentNis,
         classAcademicId,
+        name: scholarshipName,
         nominal: Number(nominal),
       },
       {
@@ -153,29 +180,117 @@ export default function ScholarshipForm() {
           required
         />
 
+        <Select
+          label="Scholarship Type"
+          placeholder="Select scholarship type"
+          data={SCHOLARSHIP_TYPES}
+          value={scholarshipName}
+          onChange={setScholarshipName}
+          searchable
+          required
+        />
+
+        {/* Tuition Fee Reference Card */}
+        {classAcademicId && (
+          <Card withBorder bg="gray.0">
+            <Group gap="xs" mb="xs">
+              <IconInfoCircle size={18} color="var(--mantine-color-blue-6)" />
+              <Text size="sm" fw={600}>
+                Class Tuition Reference
+              </Text>
+            </Group>
+            {classTuitionFee ? (
+              <Stack gap="xs">
+                <Group justify="space-between">
+                  <Text size="sm" c="dimmed">
+                    Monthly Tuition Fee:
+                  </Text>
+                  <Text size="sm" fw={600}>
+                    <NumberFormatter
+                      value={classTuitionFee}
+                      prefix="Rp "
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  </Text>
+                </Group>
+                <Text size="xs" c="dimmed">
+                  Set scholarship nominal up to this amount for full scholarship,
+                  or less for partial scholarship.
+                </Text>
+              </Stack>
+            ) : (
+              <Text size="sm" c="dimmed">
+                No tuitions generated yet for this class. Create tuitions first to see the fee amount.
+              </Text>
+            )}
+          </Card>
+        )}
+
         <NumberInput
           label="Scholarship Nominal (Monthly)"
           placeholder="Enter scholarship amount"
+          description={
+            classTuitionFee
+              ? `Max: Rp ${classTuitionFee.toLocaleString("id-ID")} (full scholarship)`
+              : undefined
+          }
           value={nominal}
           onChange={setNominal}
           min={0}
+          max={classTuitionFee || undefined}
           prefix="Rp "
           thousandSeparator="."
           decimalSeparator=","
           required
         />
 
-        <Alert
-          icon={<IconAlertCircle size={18} />}
-          color="blue"
-          variant="light"
-        >
-          <Text size="sm">
-            If the scholarship nominal covers the full monthly fee, all unpaid
-            tuitions for this student in this class will be automatically marked
-            as paid.
-          </Text>
-        </Alert>
+        {classTuitionFee && Number(nominal) > 0 && (
+          <Alert
+            icon={
+              Number(nominal) >= classTuitionFee ? (
+                <IconGift size={18} />
+              ) : (
+                <IconInfoCircle size={18} />
+              )
+            }
+            color={Number(nominal) >= classTuitionFee ? "green" : "blue"}
+            variant="light"
+          >
+            <Text size="sm">
+              {Number(nominal) >= classTuitionFee ? (
+                <>
+                  <strong>Full Scholarship:</strong> All unpaid tuitions for this
+                  student in this class will be automatically marked as paid.
+                </>
+              ) : (
+                <>
+                  <strong>Partial Scholarship:</strong> Student will pay{" "}
+                  <NumberFormatter
+                    value={classTuitionFee - Number(nominal)}
+                    prefix="Rp "
+                    thousandSeparator="."
+                    decimalSeparator=","
+                  />{" "}
+                  per month (original fee minus scholarship).
+                </>
+              )}
+            </Text>
+          </Alert>
+        )}
+
+        {!classTuitionFee && (
+          <Alert
+            icon={<IconAlertCircle size={18} />}
+            color="yellow"
+            variant="light"
+          >
+            <Text size="sm">
+              Select a class with generated tuitions to see fee reference and
+              automatically determine if this is a full or partial scholarship.
+            </Text>
+          </Alert>
+        )}
 
         <Group>
           <Button

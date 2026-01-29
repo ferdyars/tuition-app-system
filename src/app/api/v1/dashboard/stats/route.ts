@@ -45,9 +45,9 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  // Get total outstanding amount
+  // Get total outstanding amount (considering scholarships)
   const outstandingData = await prisma.tuition.aggregate({
-    _sum: { feeAmount: true, paidAmount: true },
+    _sum: { feeAmount: true, scholarshipAmount: true, paidAmount: true },
     where: {
       status: { in: ["UNPAID", "PARTIAL"] },
       ...(activeYear
@@ -56,9 +56,10 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  const totalOutstanding =
-    Number(outstandingData._sum.feeAmount || 0) -
-    Number(outstandingData._sum.paidAmount || 0);
+  const totalFees = Number(outstandingData._sum.feeAmount || 0);
+  const totalScholarships = Number(outstandingData._sum.scholarshipAmount || 0);
+  const totalPaid = Number(outstandingData._sum.paidAmount || 0);
+  const totalOutstanding = Math.max(totalFees - totalScholarships - totalPaid, 0);
 
   // Get tuition stats for active year
   const tuitionStats = activeYear

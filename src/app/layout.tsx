@@ -22,7 +22,7 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>
-          <MantineProvider defaultColorScheme="dark">
+          <MantineProvider defaultColorScheme="light">
             <ModalsProvider>
               <Notifications position="top-right" />
               {children}

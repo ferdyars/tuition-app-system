@@ -117,22 +117,55 @@ export async function getOverdueTuitions(
     orderBy: [{ dueDate: "asc" }, { student: { name: "asc" } }],
   });
 
-  return tuitions.map((t) => ({
-    tuitionId: t.id,
+  // Fetch scholarships for all relevant student+class combinations
+  const scholarshipMap = new Map<string, number>();
+  const studentClassPairs = tuitions.map((t) => ({
     studentNis: t.studentNis,
-    studentName: t.student.name,
-    parentPhone: t.student.parentPhone,
-    className: t.classAcademic.className,
-    grade: t.classAcademic.grade,
-    section: t.classAcademic.section,
-    month: t.month,
-    year: t.year,
-    feeAmount: Number(t.feeAmount),
-    paidAmount: Number(t.paidAmount),
-    outstandingAmount: Number(t.feeAmount) - Number(t.paidAmount),
-    dueDate: t.dueDate,
-    daysOverdue: calculateDaysOverdue(t.dueDate),
+    classAcademicId: t.classAcademicId,
   }));
+
+  if (studentClassPairs.length > 0) {
+    const scholarships = await prisma.scholarship.findMany({
+      where: {
+        OR: studentClassPairs.map((pair) => ({
+          studentNis: pair.studentNis,
+          classAcademicId: pair.classAcademicId,
+        })),
+      },
+    });
+
+    // Sum scholarships per student+class
+    scholarships.forEach((s) => {
+      const key = `${s.studentNis}-${s.classAcademicId}`;
+      const current = scholarshipMap.get(key) || 0;
+      scholarshipMap.set(key, current + Number(s.nominal));
+    });
+  }
+
+  return tuitions.map((t) => {
+    const scholarshipKey = `${t.studentNis}-${t.classAcademicId}`;
+    const scholarshipAmount = scholarshipMap.get(scholarshipKey) || 0;
+    const feeAmount = Number(t.feeAmount);
+    const effectiveFee = Math.max(feeAmount - scholarshipAmount, 0);
+    const paidAmount = Number(t.paidAmount);
+
+    return {
+      tuitionId: t.id,
+      studentNis: t.studentNis,
+      studentName: t.student.name,
+      parentPhone: t.student.parentPhone,
+      className: t.classAcademic.className,
+      grade: t.classAcademic.grade,
+      section: t.classAcademic.section,
+      month: t.month,
+      year: t.year,
+      feeAmount,
+      paidAmount,
+      outstandingAmount: Math.max(effectiveFee - paidAmount, 0),
+      dueDate: t.dueDate,
+      daysOverdue: calculateDaysOverdue(t.dueDate),
+    };
+  });
 }
 
 /**
@@ -221,6 +254,8 @@ export async function getClassSummary(
       unpaid: number;
       partial: number;
       totalFees: number;
+      totalScholarships: number;
+      totalEffectiveFees: number;
       totalPaid: number;
       totalOutstanding: number;
     };
@@ -238,6 +273,7 @@ export async function getClassSummary(
         select: {
           studentNis: true,
           feeAmount: true,
+          scholarshipAmount: true,
           paidAmount: true,
           status: true,
         },
@@ -251,14 +287,28 @@ export async function getClassSummary(
     const paid = cls.tuitions.filter((t) => t.status === "PAID").length;
     const unpaid = cls.tuitions.filter((t) => t.status === "UNPAID").length;
     const partial = cls.tuitions.filter((t) => t.status === "PARTIAL").length;
+
     const totalFees = cls.tuitions.reduce(
       (sum, t) => sum + Number(t.feeAmount),
       0,
     );
+
+    // Use tracked scholarship amount from each tuition
+    const totalScholarships = cls.tuitions.reduce(
+      (sum, t) => sum + Number(t.scholarshipAmount),
+      0,
+    );
+
     const totalPaid = cls.tuitions.reduce(
       (sum, t) => sum + Number(t.paidAmount),
       0,
     );
+
+    // Effective fees = total fees - scholarships applied
+    const totalEffectiveFees = totalFees - totalScholarships;
+
+    // Outstanding = effective fees - what's been paid
+    const totalOutstanding = Math.max(totalEffectiveFees - totalPaid, 0);
 
     return {
       class: {
@@ -274,8 +324,10 @@ export async function getClassSummary(
         unpaid,
         partial,
         totalFees,
+        totalScholarships,
+        totalEffectiveFees,
         totalPaid,
-        totalOutstanding: totalFees - totalPaid,
+        totalOutstanding,
       },
     };
   });

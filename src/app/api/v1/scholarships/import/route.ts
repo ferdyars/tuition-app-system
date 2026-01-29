@@ -93,44 +93,41 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // Check if scholarship already exists
-        const existing = await prisma.scholarship.findUnique({
-          where: {
-            studentNis_classAcademicId: {
-              studentNis: row.studentNis,
-              classAcademicId,
-            },
-          },
-        });
-
-        if (existing) {
-          skipped++;
-          continue;
-        }
-
         // Get fee amount for this class
         const feeAmount = await getClassFeeAmount(classAcademicId, prisma);
-        const monthlyFee = feeAmount || row.nominal;
-        const isFullScholarship = row.nominal >= monthlyFee;
 
-        // Create scholarship
+        // Get existing scholarships for this student+class to calculate total
+        const existingScholarships = await prisma.scholarship.findMany({
+          where: { studentNis: row.studentNis, classAcademicId },
+        });
+        const existingTotal = existingScholarships.reduce(
+          (sum, s) => sum + Number(s.nominal),
+          0
+        );
+        const newTotal = existingTotal + row.nominal;
+        // Only mark as full if we know the actual fee and scholarship covers it
+        const isFullScholarship = feeAmount ? newTotal >= feeAmount : false;
+
+        // Create scholarship (multiple scholarships allowed per student per class)
         await prisma.scholarship.create({
           data: {
             studentNis: row.studentNis,
             classAcademicId,
+            name: (row as { name?: string }).name || "Imported Scholarship",
             nominal: row.nominal,
             isFullScholarship,
           },
         });
 
-        // Apply scholarship (auto-pay if full)
-        if (isFullScholarship && feeAmount) {
+        // Apply scholarship (auto-pay if total now covers the fee)
+        if (isFullScholarship && feeAmount && existingTotal < feeAmount) {
+          // Only auto-pay if this scholarship pushed it over the threshold
           const result = await applyScholarship(
             {
               studentNis: row.studentNis,
               classAcademicId,
-              nominal: row.nominal,
-              monthlyFee,
+              nominal: newTotal,
+              monthlyFee: feeAmount,
             },
             prisma,
             adminEmployee.employeeId,

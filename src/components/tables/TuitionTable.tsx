@@ -157,6 +157,7 @@ export default function TuitionTable() {
       </Paper>
 
       <Paper withBorder>
+        <Table.ScrollContainer minWidth={900}>
         <Table striped highlightOnHover>
           <Table.Thead>
             <Table.Tr>
@@ -260,6 +261,7 @@ export default function TuitionTable() {
             ))}
           </Table.Tbody>
         </Table>
+        </Table.ScrollContainer>
       </Paper>
 
       {data && data.pagination.totalPages > 1 && (

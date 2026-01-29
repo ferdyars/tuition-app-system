@@ -12,6 +12,7 @@ interface Tuition {
   month: Month;
   year: number;
   feeAmount: string;
+  scholarshipAmount: string;
   paidAmount: string;
   status: PaymentStatus;
   dueDate: string;
@@ -34,10 +35,16 @@ interface Tuition {
   _count?: {
     payments: number;
   };
-  scholarship?: {
+  scholarships?: Array<{
     id: string;
+    name: string;
     nominal: string;
     isFullScholarship: boolean;
+  }>;
+  scholarshipSummary?: {
+    count: number;
+    totalAmount: string;
+    hasFullScholarship: boolean;
   } | null;
 }
 

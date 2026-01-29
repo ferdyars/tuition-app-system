@@ -65,6 +65,8 @@ interface ClassSummaryItem {
     unpaid: number;
     partial: number;
     totalFees: number;
+    totalScholarships: number;
+    totalEffectiveFees: number;
     totalPaid: number;
     totalOutstanding: number;
   };
@@ -81,6 +83,8 @@ interface ClassSummaryResponse {
       unpaid: number;
       partial: number;
       totalFees: number;
+      totalScholarships: number;
+      totalEffectiveFees: number;
       totalPaid: number;
       totalOutstanding: number;
     };
