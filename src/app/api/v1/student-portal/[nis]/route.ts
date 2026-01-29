@@ -49,7 +49,7 @@ export async function GET(
     orderBy: [
       { classAcademic: { academicYear: { year: "desc" } } },
       { year: "desc" },
-      { month: "asc" },
+      { period: "asc" },
     ],
   });
 
@@ -61,10 +61,11 @@ export async function GET(
       class: { id: string; className: string; grade: number; section: string };
       tuitions: Array<{
         id: string;
-        month: string;
+        period: string;
         year: number;
         feeAmount: number;
         scholarshipAmount: number;
+        discountAmount: number;
         paidAmount: number;
         effectiveFee: number;
         remainingAmount: number;
@@ -80,6 +81,7 @@ export async function GET(
       summary: {
         totalFees: number;
         totalScholarships: number;
+        totalDiscounts: number;
         totalEffectiveFees: number;
         totalPaid: number;
         totalOutstanding: number;
@@ -109,6 +111,7 @@ export async function GET(
         summary: {
           totalFees: 0,
           totalScholarships: 0,
+          totalDiscounts: 0,
           totalEffectiveFees: 0,
           totalPaid: 0,
           totalOutstanding: 0,
@@ -121,16 +124,18 @@ export async function GET(
 
     const feeAmount = Number(tuition.feeAmount);
     const scholarshipAmount = Number(tuition.scholarshipAmount);
+    const discountAmount = Number(tuition.discountAmount) || 0;
     const paidAmount = Number(tuition.paidAmount);
-    const effectiveFee = Math.max(feeAmount - scholarshipAmount, 0);
+    const effectiveFee = Math.max(feeAmount - scholarshipAmount - discountAmount, 0);
     const remainingAmount = Math.max(effectiveFee - paidAmount, 0);
 
     groupedByYear[yearKey].tuitions.push({
       id: tuition.id,
-      month: tuition.month,
+      period: tuition.period,
       year: tuition.year,
       feeAmount,
       scholarshipAmount,
+      discountAmount,
       paidAmount,
       effectiveFee,
       remainingAmount,
@@ -148,6 +153,7 @@ export async function GET(
     const summary = groupedByYear[yearKey].summary;
     summary.totalFees += feeAmount;
     summary.totalScholarships += scholarshipAmount;
+    summary.totalDiscounts += discountAmount;
     summary.totalEffectiveFees += effectiveFee;
     summary.totalPaid += paidAmount;
     summary.totalOutstanding += remainingAmount;

@@ -7,6 +7,7 @@ import {
   IconCalendar,
   IconCash,
   IconChartBar,
+  IconDiscount,
   IconGift,
   IconHome,
   IconReceipt,
@@ -33,6 +34,7 @@ const adminLinks: NavItem[] = [
   { icon: IconBuilding, label: "Classes", href: "/classes" },
   { icon: IconCash, label: "Tuitions", href: "/tuitions" },
   { icon: IconGift, label: "Scholarships", href: "/scholarships" },
+  { icon: IconDiscount, label: "Discounts", href: "/discounts" },
   { icon: IconReceipt, label: "Payments", href: "/payments" },
   {
     icon: IconReportAnalytics,

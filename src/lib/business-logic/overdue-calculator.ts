@@ -1,8 +1,4 @@
-import type {
-  Month,
-  PaymentStatus,
-  PrismaClient,
-} from "@/generated/prisma/client";
+import type { PaymentStatus, PrismaClient } from "@/generated/prisma/client";
 
 export interface OverdueItem {
   tuitionId: string;
@@ -12,7 +8,7 @@ export interface OverdueItem {
   className: string;
   grade: number;
   section: string;
-  month: Month;
+  period: string;
   year: number;
   feeAmount: number;
   paidAmount: number;
@@ -33,9 +29,9 @@ export interface OverdueByStudent {
     grade: number;
     section: string;
   };
-  overdueMonths: Array<{
+  overduePeriods: Array<{
     tuitionId: string;
-    month: Month;
+    period: string;
     year: number;
     feeAmount: number;
     paidAmount: number;
@@ -146,7 +142,8 @@ export async function getOverdueTuitions(
     const scholarshipKey = `${t.studentNis}-${t.classAcademicId}`;
     const scholarshipAmount = scholarshipMap.get(scholarshipKey) || 0;
     const feeAmount = Number(t.feeAmount);
-    const effectiveFee = Math.max(feeAmount - scholarshipAmount, 0);
+    const discountAmount = Number(t.discountAmount) || 0;
+    const effectiveFee = Math.max(feeAmount - scholarshipAmount - discountAmount, 0);
     const paidAmount = Number(t.paidAmount);
 
     return {
@@ -157,7 +154,7 @@ export async function getOverdueTuitions(
       className: t.classAcademic.className,
       grade: t.classAcademic.grade,
       section: t.classAcademic.section,
-      month: t.month,
+      period: t.period,
       year: t.year,
       feeAmount,
       paidAmount,
@@ -194,16 +191,16 @@ export function groupOverdueByStudent(
           grade: item.grade,
           section: item.section,
         },
-        overdueMonths: [],
+        overduePeriods: [],
         totalOverdue: 0,
         overdueCount: 0,
       });
     }
 
     const student = grouped.get(key)!;
-    student.overdueMonths.push({
+    student.overduePeriods.push({
       tuitionId: item.tuitionId,
-      month: item.month,
+      period: item.period,
       year: item.year,
       feeAmount: item.feeAmount,
       paidAmount: item.paidAmount,
@@ -255,6 +252,7 @@ export async function getClassSummary(
       partial: number;
       totalFees: number;
       totalScholarships: number;
+      totalDiscounts: number;
       totalEffectiveFees: number;
       totalPaid: number;
       totalOutstanding: number;
@@ -274,6 +272,7 @@ export async function getClassSummary(
           studentNis: true,
           feeAmount: true,
           scholarshipAmount: true,
+          discountAmount: true,
           paidAmount: true,
           status: true,
         },
@@ -283,29 +282,36 @@ export async function getClassSummary(
   });
 
   return classes.map((cls) => {
-    const uniqueStudents = new Set(cls.tuitions.map((t) => t.studentNis));
-    const paid = cls.tuitions.filter((t) => t.status === "PAID").length;
-    const unpaid = cls.tuitions.filter((t) => t.status === "UNPAID").length;
-    const partial = cls.tuitions.filter((t) => t.status === "PARTIAL").length;
+    const tuitions = cls.tuitions || [];
+    const uniqueStudents = new Set(tuitions.map((t) => t.studentNis));
+    const paid = tuitions.filter((t) => t.status === "PAID").length;
+    const unpaid = tuitions.filter((t) => t.status === "UNPAID").length;
+    const partial = tuitions.filter((t) => t.status === "PARTIAL").length;
 
-    const totalFees = cls.tuitions.reduce(
+    const totalFees = tuitions.reduce(
       (sum, t) => sum + Number(t.feeAmount),
       0,
     );
 
     // Use tracked scholarship amount from each tuition
-    const totalScholarships = cls.tuitions.reduce(
+    const totalScholarships = tuitions.reduce(
       (sum, t) => sum + Number(t.scholarshipAmount),
       0,
     );
 
-    const totalPaid = cls.tuitions.reduce(
+    // Use tracked discount amount from each tuition
+    const totalDiscounts = tuitions.reduce(
+      (sum, t) => sum + Number(t.discountAmount || 0),
+      0,
+    );
+
+    const totalPaid = tuitions.reduce(
       (sum, t) => sum + Number(t.paidAmount),
       0,
     );
 
-    // Effective fees = total fees - scholarships applied
-    const totalEffectiveFees = totalFees - totalScholarships;
+    // Effective fees = total fees - scholarships - discounts
+    const totalEffectiveFees = Math.max(totalFees - totalScholarships - totalDiscounts, 0);
 
     // Outstanding = effective fees - what's been paid
     const totalOutstanding = Math.max(totalEffectiveFees - totalPaid, 0);
@@ -319,12 +325,13 @@ export async function getClassSummary(
       },
       statistics: {
         totalStudents: uniqueStudents.size,
-        totalTuitions: cls.tuitions.length,
+        totalTuitions: tuitions.length,
         paid,
         unpaid,
         partial,
         totalFees,
         totalScholarships,
+        totalDiscounts,
         totalEffectiveFees,
         totalPaid,
         totalOutstanding,

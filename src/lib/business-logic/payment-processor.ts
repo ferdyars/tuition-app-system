@@ -16,6 +16,7 @@ export interface PaymentResult {
   remainingAmount: number;
   feeAmount: number;
   scholarshipAmount: number;
+  discountAmount: number;
   effectiveFeeAmount: number;
 }
 
@@ -56,8 +57,10 @@ export async function processPayment(
     (sum, s) => sum + Number(s.nominal),
     0,
   );
-  // Effective fee is the original fee minus scholarship discount
-  const effectiveFeeAmount = Math.max(feeAmount - scholarshipAmount, 0);
+  // Get discount amount from tuition
+  const discountAmount = Number(tuition.discountAmount) || 0;
+  // Effective fee is the original fee minus scholarship and discount
+  const effectiveFeeAmount = Math.max(feeAmount - scholarshipAmount - discountAmount, 0);
 
   const previousPaidAmount = Number(tuition.paidAmount);
   const previousStatus = tuition.status;
@@ -105,6 +108,7 @@ export async function processPayment(
     remainingAmount: Math.max(effectiveFeeAmount - newPaidAmount, 0),
     feeAmount,
     scholarshipAmount,
+    discountAmount,
     effectiveFeeAmount,
   };
 }
@@ -149,7 +153,9 @@ export async function reversePayment(
     (sum, s) => sum + Number(s.nominal),
     0,
   );
-  const effectiveFeeAmount = Math.max(feeAmount - scholarshipAmount, 0);
+  // Get discount amount from tuition
+  const discountAmount = Number(tuition.discountAmount) || 0;
+  const effectiveFeeAmount = Math.max(feeAmount - scholarshipAmount - discountAmount, 0);
 
   // Calculate new paid amount
   const newPaidAmount = Math.max(currentPaidAmount - paymentAmount, 0);

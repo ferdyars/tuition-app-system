@@ -33,7 +33,8 @@ export interface TuitionFilters {
   classAcademicId?: string;
   studentNis?: string;
   status?: "UNPAID" | "PAID" | "PARTIAL";
-  month?: string;
+  period?: string;
+  month?: string; // Backward compatibility
   year?: number;
   dueDateFrom?: string;
   dueDateTo?: string;
@@ -65,6 +66,14 @@ export interface OverdueFilters {
 
 export interface ClassSummaryFilters {
   academicYearId?: string;
+}
+
+export interface DiscountFilters {
+  page?: number;
+  limit?: number;
+  academicYearId?: string;
+  classAcademicId?: string;
+  isActive?: boolean;
 }
 
 export const queryKeys = {
@@ -152,5 +161,14 @@ export const queryKeys = {
       [...queryKeys.reports.all, "overdue", filters] as const,
     classSummary: (filters: ClassSummaryFilters) =>
       [...queryKeys.reports.all, "class-summary", filters] as const,
+  },
+
+  discounts: {
+    all: ["discounts"] as const,
+    lists: () => [...queryKeys.discounts.all, "list"] as const,
+    list: (filters: DiscountFilters) =>
+      [...queryKeys.discounts.lists(), filters] as const,
+    details: () => [...queryKeys.discounts.all, "detail"] as const,
+    detail: (id: string) => [...queryKeys.discounts.details(), id] as const,
   },
 } as const;

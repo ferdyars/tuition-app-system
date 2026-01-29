@@ -92,6 +92,34 @@ export async function PUT(
 
     const className = generateClassName(grade, section, academicYear.year);
 
+    // Handle payment frequency and fee updates
+    const paymentFrequency =
+      body.paymentFrequency ?? existing.paymentFrequency;
+    const monthlyFee =
+      body.monthlyFee !== undefined ? body.monthlyFee : existing.monthlyFee;
+
+    // Calculate default quarterly/semester fees if monthlyFee changed and they weren't explicitly set
+    let quarterlyFee = body.quarterlyFee;
+    let semesterFee = body.semesterFee;
+
+    if (quarterlyFee === undefined) {
+      // If monthlyFee was updated but quarterlyFee wasn't, recalculate
+      if (body.monthlyFee !== undefined && monthlyFee) {
+        quarterlyFee = monthlyFee * 3;
+      } else {
+        quarterlyFee = existing.quarterlyFee;
+      }
+    }
+
+    if (semesterFee === undefined) {
+      // If monthlyFee was updated but semesterFee wasn't, recalculate
+      if (body.monthlyFee !== undefined && monthlyFee) {
+        semesterFee = monthlyFee * 6;
+      } else {
+        semesterFee = existing.semesterFee;
+      }
+    }
+
     const classAcademic = await prisma.classAcademic.update({
       where: { id },
       data: {
@@ -99,6 +127,10 @@ export async function PUT(
         section,
         academicYearId,
         className,
+        paymentFrequency,
+        monthlyFee,
+        quarterlyFee,
+        semesterFee,
       },
       include: {
         academicYear: { select: { year: true } },

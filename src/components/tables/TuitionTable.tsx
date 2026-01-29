@@ -20,11 +20,14 @@ import { notifications } from "@mantine/notifications";
 import { IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
-import type { Month, PaymentStatus } from "@/generated/prisma/client";
+import type { PaymentStatus } from "@/generated/prisma/client";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import { useClassAcademics } from "@/hooks/api/useClassAcademics";
 import { useDeleteTuition, useTuitions } from "@/hooks/api/useTuitions";
-import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
+import {
+  getPeriodDisplayName,
+  PERIODS,
+} from "@/lib/business-logic/tuition-generator";
 
 const STATUS_COLORS: Record<PaymentStatus, string> = {
   UNPAID: "red",
@@ -32,26 +35,11 @@ const STATUS_COLORS: Record<PaymentStatus, string> = {
   PAID: "green",
 };
 
-const MONTHS: Month[] = [
-  "JULY",
-  "AUGUST",
-  "SEPTEMBER",
-  "OCTOBER",
-  "NOVEMBER",
-  "DECEMBER",
-  "JANUARY",
-  "FEBRUARY",
-  "MARCH",
-  "APRIL",
-  "MAY",
-  "JUNE",
-];
-
 export default function TuitionTable() {
   const [page, setPage] = useState(1);
   const [classAcademicId, setClassAcademicId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
-  const [month, setMonth] = useState<string | null>(null);
+  const [period, setPeriod] = useState<string | null>(null);
   const [studentSearch, setStudentSearch] = useState("");
 
   const { data: academicYearsData } = useAcademicYears({ limit: 100 });
@@ -67,7 +55,7 @@ export default function TuitionTable() {
     limit: 10,
     classAcademicId: classAcademicId || undefined,
     status: status as PaymentStatus | undefined,
-    month: month || undefined,
+    period: period || undefined,
     studentNis: studentSearch || undefined,
   });
 
@@ -111,10 +99,30 @@ export default function TuitionTable() {
       label: c.className,
     })) || [];
 
-  const monthOptions = MONTHS.map((m) => ({
-    value: m,
-    label: getMonthDisplayName(m),
-  }));
+  // Build period options grouped by frequency type
+  const periodOptions = [
+    {
+      group: "Monthly",
+      items: PERIODS.MONTHLY.map((p) => ({
+        value: p,
+        label: getPeriodDisplayName(p),
+      })),
+    },
+    {
+      group: "Quarterly",
+      items: PERIODS.QUARTERLY.map((p) => ({
+        value: p,
+        label: getPeriodDisplayName(p),
+      })),
+    },
+    {
+      group: "Semester",
+      items: PERIODS.SEMESTER.map((p) => ({
+        value: p,
+        label: getPeriodDisplayName(p),
+      })),
+    },
+  ];
 
   return (
     <Stack gap="md">
@@ -141,11 +149,12 @@ export default function TuitionTable() {
             clearable
           />
           <Select
-            placeholder="Filter by month"
-            data={monthOptions}
-            value={month}
-            onChange={setMonth}
+            placeholder="Filter by period"
+            data={periodOptions}
+            value={period}
+            onChange={setPeriod}
             clearable
+            searchable
           />
           <TextInput
             placeholder="Search student NIS"
@@ -163,8 +172,9 @@ export default function TuitionTable() {
               <Table.Tr>
                 <Table.Th>Student</Table.Th>
                 <Table.Th>Class</Table.Th>
-                <Table.Th>Month</Table.Th>
+                <Table.Th>Period</Table.Th>
                 <Table.Th>Fee Amount</Table.Th>
+                <Table.Th>Discount</Table.Th>
                 <Table.Th>Paid Amount</Table.Th>
                 <Table.Th>Due Date</Table.Th>
                 <Table.Th>Status</Table.Th>
@@ -175,7 +185,7 @@ export default function TuitionTable() {
               {isLoading &&
                 Array.from({ length: 5 }).map((_, i) => (
                   <Table.Tr key={`skeleton-${i}`}>
-                    {Array.from({ length: 8 }).map((_, j) => (
+                    {Array.from({ length: 9 }).map((_, j) => (
                       <Table.Td key={`skeleton-cell-${j}`}>
                         <Skeleton height={20} />
                       </Table.Td>
@@ -184,7 +194,7 @@ export default function TuitionTable() {
                 ))}
               {!isLoading && data?.tuitions.length === 0 && (
                 <Table.Tr>
-                  <Table.Td colSpan={8}>
+                  <Table.Td colSpan={9}>
                     <Text ta="center" c="dimmed" py="md">
                       No tuitions found
                     </Text>
@@ -208,7 +218,7 @@ export default function TuitionTable() {
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm">
-                      {getMonthDisplayName(tuition.month)} {tuition.year}
+                      {getPeriodDisplayName(tuition.period)} {tuition.year}
                     </Text>
                   </Table.Td>
                   <Table.Td>
@@ -218,6 +228,25 @@ export default function TuitionTable() {
                       thousandSeparator="."
                       decimalSeparator=","
                     />
+                  </Table.Td>
+                  <Table.Td>
+                    {tuition.discount ? (
+                      <Tooltip label={tuition.discount.name}>
+                        <Badge color="green" variant="light" size="sm">
+                          -
+                          <NumberFormatter
+                            value={tuition.discountAmount}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Badge>
+                      </Tooltip>
+                    ) : (
+                      <Text size="sm" c="dimmed">
+                        -
+                      </Text>
+                    )}
                   </Table.Td>
                   <Table.Td>
                     <NumberFormatter
@@ -250,7 +279,7 @@ export default function TuitionTable() {
                             handleDelete(
                               tuition.id,
                               tuition.student?.name || "",
-                              getMonthDisplayName(tuition.month),
+                              getPeriodDisplayName(tuition.period),
                             )
                           }
                           disabled={(tuition._count?.payments ?? 0) > 0}

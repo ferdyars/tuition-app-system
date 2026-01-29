@@ -21,6 +21,7 @@ import {
   IconAlertCircle,
   IconCash,
   IconCheck,
+  IconDiscount,
   IconGift,
   IconReceipt,
   IconUser,
@@ -31,7 +32,7 @@ import type { PaymentStatus } from "@/generated/prisma/client";
 import { useCreatePayment } from "@/hooks/api/usePayments";
 import { useStudents } from "@/hooks/api/useStudents";
 import { useTuitions } from "@/hooks/api/useTuitions";
-import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
+import { getPeriodDisplayName } from "@/lib/business-logic/tuition-generator";
 
 interface PaymentResult {
   payment: {
@@ -46,6 +47,7 @@ interface PaymentResult {
     remainingAmount: number;
     feeAmount: number;
     scholarshipAmount: number;
+    discountAmount: number;
     effectiveFeeAmount: number;
   };
 }
@@ -84,14 +86,15 @@ export default function PaymentForm() {
     return tuitionsData.tuitions.find((t) => t.id === tuitionId);
   }, [tuitionId, tuitionsData]);
 
-  // Calculate effective fee (considering all scholarships)
+  // Calculate effective fee (considering scholarships AND discounts)
   const effectiveFeeAmount = useMemo(() => {
     if (!selectedTuition) return 0;
     const fee = Number(selectedTuition.feeAmount);
     const totalScholarship = selectedTuition.scholarshipSummary
       ? Number(selectedTuition.scholarshipSummary.totalAmount)
       : 0;
-    return Math.max(fee - totalScholarship, 0);
+    const discountAmount = Number(selectedTuition.discountAmount) || 0;
+    return Math.max(fee - totalScholarship - discountAmount, 0);
   }, [selectedTuition]);
 
   // Remaining amount considers scholarship discount
@@ -154,7 +157,7 @@ export default function PaymentForm() {
 
   const tuitionOptions = unpaidTuitions.map((t) => ({
     value: t.id,
-    label: `${getMonthDisplayName(t.month)} ${t.year} - ${t.classAcademic?.className} (${t.status})`,
+    label: `${getPeriodDisplayName(t.period)} ${t.year} - ${t.classAcademic?.className} (${t.status})`,
   }));
 
   // Calculate progress based on effective fee (after scholarship)
@@ -225,10 +228,10 @@ export default function PaymentForm() {
                 </div>
                 <div>
                   <Text size="xs" c="dimmed">
-                    Month
+                    Period
                   </Text>
                   <Text size="sm">
-                    {getMonthDisplayName(selectedTuition.month)}{" "}
+                    {getPeriodDisplayName(selectedTuition.period)}{" "}
                     {selectedTuition.year}
                   </Text>
                 </div>
@@ -304,7 +307,7 @@ export default function PaymentForm() {
                           }}
                         >
                           <Text size="sm" fw={600}>
-                            Total Discount:
+                            Total Scholarship:
                           </Text>
                           <Text size="sm" fw={600} c="teal">
                             -
@@ -319,25 +322,31 @@ export default function PaymentForm() {
                           </Text>
                         </Group>
                       )}
+                    </Stack>
+                  </Alert>
+                )}
 
+              {/* Discount Information */}
+              {selectedTuition.discount &&
+                Number(selectedTuition.discountAmount) > 0 && (
+                  <Alert
+                    icon={<IconDiscount size={18} />}
+                    color="green"
+                    variant="light"
+                    title="Discount Applied"
+                  >
+                    <Stack gap="xs">
                       <Group justify="space-between">
-                        <Text size="sm">Original Fee:</Text>
-                        <Text size="sm" td="line-through" c="dimmed">
-                          <NumberFormatter
-                            value={selectedTuition.feeAmount}
-                            prefix="Rp "
-                            thousandSeparator="."
-                            decimalSeparator=","
-                          />
+                        <Text size="sm" c="dimmed">
+                          {selectedTuition.discount.name}
+                          {selectedTuition.discount.reason &&
+                            ` (${selectedTuition.discount.reason})`}
+                          :
                         </Text>
-                      </Group>
-                      <Group justify="space-between">
-                        <Text size="sm" fw={600}>
-                          Amount to Pay:
-                        </Text>
-                        <Text size="sm" fw={600} c="teal">
+                        <Text size="sm" c="green">
+                          -
                           <NumberFormatter
-                            value={effectiveFeeAmount}
+                            value={selectedTuition.discountAmount}
                             prefix="Rp "
                             thousandSeparator="."
                             decimalSeparator=","
@@ -347,6 +356,39 @@ export default function PaymentForm() {
                     </Stack>
                   </Alert>
                 )}
+
+              {/* Summary when discounts/scholarships applied */}
+              {(Number(selectedTuition.discountAmount) > 0 ||
+                selectedTuition.scholarshipSummary) && (
+                <Card withBorder bg="gray.0" p="sm">
+                  <Stack gap="xs">
+                    <Group justify="space-between">
+                      <Text size="sm">Original Fee:</Text>
+                      <Text size="sm" td="line-through" c="dimmed">
+                        <NumberFormatter
+                          value={selectedTuition.feeAmount}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                    </Group>
+                    <Group justify="space-between">
+                      <Text size="sm" fw={600}>
+                        Amount to Pay:
+                      </Text>
+                      <Text size="sm" fw={600} c="blue">
+                        <NumberFormatter
+                          value={effectiveFeeAmount}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                    </Group>
+                  </Stack>
+                </Card>
+              )}
 
               <div>
                 <Group justify="space-between" mb={4}>
@@ -461,6 +503,11 @@ export default function PaymentForm() {
                     Scholarship Applied
                   </Badge>
                 )}
+                {result.result.discountAmount > 0 && (
+                  <Badge color="green" variant="light" size="lg">
+                    Discount Applied
+                  </Badge>
+                )}
               </Group>
               <SimpleGrid cols={2}>
                 <Text size="sm">
@@ -481,7 +528,8 @@ export default function PaymentForm() {
                     decimalSeparator=","
                   />
                 </Text>
-                {result.result.scholarshipAmount > 0 && (
+                {(result.result.scholarshipAmount > 0 ||
+                  result.result.discountAmount > 0) && (
                   <>
                     <Text size="sm" c="dimmed">
                       Original Fee:{" "}
@@ -492,15 +540,37 @@ export default function PaymentForm() {
                         decimalSeparator=","
                       />
                     </Text>
-                    <Text size="sm" c="teal">
-                      Scholarship: -
+                    <Text size="sm" c="dimmed">
+                      Effective Fee:{" "}
                       <NumberFormatter
-                        value={result.result.scholarshipAmount}
+                        value={result.result.effectiveFeeAmount}
                         prefix="Rp "
                         thousandSeparator="."
                         decimalSeparator=","
                       />
                     </Text>
+                    {result.result.scholarshipAmount > 0 && (
+                      <Text size="sm" c="teal">
+                        Scholarship: -
+                        <NumberFormatter
+                          value={result.result.scholarshipAmount}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                    )}
+                    {result.result.discountAmount > 0 && (
+                      <Text size="sm" c="green">
+                        Discount: -
+                        <NumberFormatter
+                          value={result.result.discountAmount}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                    )}
                   </>
                 )}
               </SimpleGrid>

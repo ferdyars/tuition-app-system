@@ -1,6 +1,13 @@
 "use client";
 
-import { Button, NumberInput, Select, Stack, TextInput } from "@mantine/core";
+import {
+  Button,
+  Group,
+  NumberInput,
+  Select,
+  Stack,
+  TextInput,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 
@@ -60,20 +67,23 @@ export default function ClassAcademicForm({
           searchable
           {...form.getInputProps("academicYearId")}
         />
-        <NumberInput
-          label="Grade"
-          placeholder="1-12"
-          required
-          min={1}
-          max={12}
-          {...form.getInputProps("grade")}
-        />
-        <TextInput
-          label="Section"
-          placeholder="A, B, IPA, IPS, etc."
-          required
-          {...form.getInputProps("section")}
-        />
+        <Group grow>
+          <NumberInput
+            label="Grade"
+            placeholder="1-12"
+            required
+            min={1}
+            max={12}
+            {...form.getInputProps("grade")}
+          />
+          <TextInput
+            label="Section"
+            placeholder="A, B, IPA, IPS, etc."
+            required
+            {...form.getInputProps("section")}
+          />
+        </Group>
+
         <Button type="submit" loading={isLoading}>
           {isEdit ? "Update Class" : "Create Class"}
         </Button>

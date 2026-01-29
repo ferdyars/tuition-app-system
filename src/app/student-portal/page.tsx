@@ -33,7 +33,7 @@ import {
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
+import { getPeriodDisplayName } from "@/lib/business-logic/tuition-generator";
 
 interface PaymentData {
   student: {
@@ -47,10 +47,11 @@ interface PaymentData {
     class: { id: string; className: string; grade: number; section: string };
     tuitions: Array<{
       id: string;
-      month: string;
+      period: string;
       year: number;
       feeAmount: number;
       scholarshipAmount: number;
+      discountAmount: number;
       paidAmount: number;
       effectiveFee: number;
       remainingAmount: number;
@@ -66,6 +67,7 @@ interface PaymentData {
     summary: {
       totalFees: number;
       totalScholarships: number;
+      totalDiscounts: number;
       totalEffectiveFees: number;
       totalPaid: number;
       totalOutstanding: number;
@@ -120,9 +122,9 @@ export default function StudentPortalPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "PAID":
-        return "green";
+        return "dark";
       case "PARTIAL":
-        return "yellow";
+        return "gray";
       default:
         return "red";
     }
@@ -305,11 +307,11 @@ export default function StudentPortalPage() {
                       </Badge>
                     </Group>
                     <Group gap="md">
-                      <Badge color="green" variant="light">
+                      <Badge color="dark" variant="filled">
                         {yearData.summary.paidCount} Paid
                       </Badge>
                       {yearData.summary.partialCount > 0 && (
-                        <Badge color="yellow" variant="light">
+                        <Badge color="gray" variant="light">
                           {yearData.summary.partialCount} Partial
                         </Badge>
                       )}
@@ -364,6 +366,21 @@ export default function StudentPortalPage() {
                         <Text fw={600} c="dark.6">
                           <NumberFormatter
                             value={yearData.summary.totalPaid}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Text>
+                      </Stack>
+                    </Paper>
+                    <Paper withBorder p="sm" radius="sm" bg="dark.1">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dark.4">
+                          Total Discounts
+                        </Text>
+                        <Text fw={600} c="dark.6">
+                          <NumberFormatter
+                            value={yearData.summary.totalDiscounts}
                             prefix="Rp "
                             thousandSeparator="."
                             decimalSeparator=","
@@ -453,10 +470,11 @@ export default function StudentPortalPage() {
                           <Table striped highlightOnHover>
                             <Table.Thead>
                               <Table.Tr>
-                                <Table.Th>Month</Table.Th>
+                                <Table.Th>Period</Table.Th>
                                 <Table.Th ta="right">Fee</Table.Th>
                                 <Table.Th ta="right">Scholarship</Table.Th>
                                 <Table.Th ta="right">Paid</Table.Th>
+                                <Table.Th ta="right">Discount</Table.Th>
                                 <Table.Th ta="right">Remaining</Table.Th>
                                 <Table.Th>Due Date</Table.Th>
                                 <Table.Th>Status</Table.Th>
@@ -467,9 +485,7 @@ export default function StudentPortalPage() {
                                 <Table.Tr key={tuition.id}>
                                   <Table.Td>
                                     <Text size="sm" fw={500}>
-                                      {getMonthDisplayName(
-                                        tuition.month as any,
-                                      )}{" "}
+                                      {getPeriodDisplayName(tuition.period)}{" "}
                                       {tuition.year}
                                     </Text>
                                   </Table.Td>
@@ -499,7 +515,7 @@ export default function StudentPortalPage() {
                                     )}
                                   </Table.Td>
                                   <Table.Td ta="right">
-                                    <Text c="green" size="sm">
+                                    <Text c="dark.6" size="sm" fw={500}>
                                       <NumberFormatter
                                         value={tuition.paidAmount}
                                         prefix="Rp "
@@ -509,11 +525,28 @@ export default function StudentPortalPage() {
                                     </Text>
                                   </Table.Td>
                                   <Table.Td ta="right">
+                                    {tuition.discountAmount > 0 ? (
+                                      <Text c="teal" size="sm">
+                                        -
+                                        <NumberFormatter
+                                          value={tuition.discountAmount}
+                                          prefix="Rp "
+                                          thousandSeparator="."
+                                          decimalSeparator=","
+                                        />
+                                      </Text>
+                                    ) : (
+                                      <Text c="dimmed" size="sm">
+                                        -
+                                      </Text>
+                                    )}
+                                  </Table.Td>
+                                  <Table.Td ta="right">
                                     <Text
                                       c={
                                         tuition.remainingAmount > 0
                                           ? "red"
-                                          : "green"
+                                          : "dark.6"
                                       }
                                       fw={500}
                                       size="sm"
@@ -560,7 +593,7 @@ export default function StudentPortalPage() {
 
         {/* Footer */}
         <Center>
-          <Text size="sm" c="dimmed">
+          <Text size="sm" c="dark.4">
             For payment inquiries, please contact the school administration.
           </Text>
         </Center>

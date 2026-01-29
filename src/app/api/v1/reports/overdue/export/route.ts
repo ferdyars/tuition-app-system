@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import * as XLSX from "xlsx";
 import { requireAuth } from "@/lib/api-auth";
 import { getOverdueTuitions } from "@/lib/business-logic/overdue-calculator";
-import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
+import { getPeriodDisplayName } from "@/lib/business-logic/tuition-generator";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     "Parent Phone": item.parentPhone,
     Class: item.className,
     Grade: item.grade,
-    Month: getMonthDisplayName(item.month),
+    Period: getPeriodDisplayName(item.period),
     Year: item.year,
     "Fee Amount": item.feeAmount,
     "Paid Amount": item.paidAmount,

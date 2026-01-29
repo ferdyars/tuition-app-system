@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Month, PaymentStatus } from "@/generated/prisma/client";
+import type { PaymentStatus } from "@/generated/prisma/client";
 import { apiClient } from "@/lib/api-client";
 import { queryKeys, type TuitionFilters } from "@/lib/query-keys";
 
@@ -9,10 +9,12 @@ interface Tuition {
   id: string;
   classAcademicId: string;
   studentNis: string;
-  month: Month;
+  period: string;
   year: number;
   feeAmount: string;
   scholarshipAmount: string;
+  discountAmount: string;
+  discountId: string | null;
   paidAmount: string;
   status: PaymentStatus;
   dueDate: string;
@@ -32,6 +34,12 @@ interface Tuition {
       year: string;
     };
   };
+  discount?: {
+    id: string;
+    name: string;
+    reason: string | null;
+    discountAmount: string;
+  } | null;
   _count?: {
     payments: number;
   };
@@ -77,6 +85,13 @@ interface GenerateResponse {
       studentsWithPartialYear: number;
       className: string;
       academicYear: string;
+      discountsApplied?: Array<{
+        id: string;
+        name: string;
+        amount: number;
+        targetPeriods: string[];
+        scope: string;
+      }>;
     };
   };
 }
@@ -122,6 +137,12 @@ export function useTuition(id: string) {
   });
 }
 
+interface PeriodDiscount {
+  period: string;
+  discountedFee: number;
+  reason?: string;
+}
+
 export function useGenerateTuitions() {
   const queryClient = useQueryClient();
 
@@ -129,6 +150,8 @@ export function useGenerateTuitions() {
     mutationFn: async (params: {
       classAcademicId: string;
       feeAmount: number;
+      paymentFrequency?: "MONTHLY" | "QUARTERLY" | "SEMESTER";
+      periodDiscounts?: PeriodDiscount[];
       studentNisList?: string[];
     }) => {
       const { data } = await apiClient.post<GenerateResponse>(

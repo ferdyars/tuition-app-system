@@ -1,8 +1,20 @@
-import type { Month } from "@/generated/prisma/client";
+import type { Month, PaymentFrequency } from "@/generated/prisma/client";
+
+// ============================================
+// TYPES
+// ============================================
+
+export interface PeriodDiscount {
+  period: string;
+  discountedFee: number;
+  reason?: string;
+}
 
 export interface TuitionGenerationParams {
   classAcademicId: string;
+  frequency: PaymentFrequency;
   feeAmount: number;
+  periodDiscounts?: PeriodDiscount[]; // Optional period-specific discounts
   students: Array<{
     nis: string;
     startJoinDate: Date;
@@ -16,12 +28,47 @@ export interface TuitionGenerationParams {
 export interface GeneratedTuition {
   classAcademicId: string;
   studentNis: string;
-  month: Month;
+  period: string;
+  month?: Month; // For backward compatibility with MONTHLY
   year: number;
   feeAmount: number;
   dueDate: Date;
   status: "UNPAID";
 }
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+export const PERIODS = {
+  MONTHLY: [
+    "JULY",
+    "AUGUST",
+    "SEPTEMBER",
+    "OCTOBER",
+    "NOVEMBER",
+    "DECEMBER",
+    "JANUARY",
+    "FEBRUARY",
+    "MARCH",
+    "APRIL",
+    "MAY",
+    "JUNE",
+  ] as const,
+  QUARTERLY: ["Q1", "Q2", "Q3", "Q4"] as const,
+  SEMESTER: ["SEM1", "SEM2"] as const,
+};
+
+export const PERIOD_MONTHS: Record<string, Month[]> = {
+  // Quarterly periods
+  Q1: ["JULY", "AUGUST", "SEPTEMBER"],
+  Q2: ["OCTOBER", "NOVEMBER", "DECEMBER"],
+  Q3: ["JANUARY", "FEBRUARY", "MARCH"],
+  Q4: ["APRIL", "MAY", "JUNE"],
+  // Semester periods
+  SEM1: ["JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"],
+  SEM2: ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE"],
+};
 
 const MONTH_TO_NUMBER: Record<Month, number> = {
   JANUARY: 1,
@@ -53,149 +100,148 @@ const NUMBER_TO_MONTH: Record<number, Month> = {
   12: "DECEMBER",
 };
 
-/**
- * Generate tuitions for students based on their join date
- */
-export function generateTuitions(
-  params: TuitionGenerationParams,
-): GeneratedTuition[] {
-  const tuitions: GeneratedTuition[] = [];
-  const { classAcademicId, feeAmount, students, academicYear } = params;
+// ============================================
+// PERIOD DISPLAY NAMES
+// ============================================
 
-  students.forEach((student) => {
-    const studentTuitions = generateTuitionsForStudent({
-      classAcademicId,
-      feeAmount,
-      studentNis: student.nis,
-      startJoinDate: student.startJoinDate,
-      academicYear,
-    });
-
-    tuitions.push(...studentTuitions);
-  });
-
-  return tuitions;
-}
-
-/**
- * Generate tuitions for a single student
- */
-function generateTuitionsForStudent(params: {
-  classAcademicId: string;
-  feeAmount: number;
-  studentNis: string;
-  startJoinDate: Date;
-  academicYear: {
-    startDate: Date;
-    endDate: Date;
+export function getPeriodDisplayName(period: string): string {
+  const names: Record<string, string> = {
+    // Monthly
+    JULY: "July",
+    AUGUST: "August",
+    SEPTEMBER: "September",
+    OCTOBER: "October",
+    NOVEMBER: "November",
+    DECEMBER: "December",
+    JANUARY: "January",
+    FEBRUARY: "February",
+    MARCH: "March",
+    APRIL: "April",
+    MAY: "May",
+    JUNE: "June",
+    // Quarterly
+    Q1: "Q1 (Jul-Sep)",
+    Q2: "Q2 (Oct-Dec)",
+    Q3: "Q3 (Jan-Mar)",
+    Q4: "Q4 (Apr-Jun)",
+    // Semester
+    SEM1: "Semester 1 (Jul-Dec)",
+    SEM2: "Semester 2 (Jan-Jun)",
   };
-}): GeneratedTuition[] {
-  const {
-    classAcademicId,
-    feeAmount,
-    studentNis,
-    startJoinDate,
-    academicYear,
-  } = params;
-
-  const tuitions: GeneratedTuition[] = [];
-
-  const monthsToGenerate = getMonthsToGenerate(
-    startJoinDate,
-    academicYear.startDate,
-    academicYear.endDate,
-  );
-
-  monthsToGenerate.forEach(({ month, year }) => {
-    tuitions.push({
-      classAcademicId,
-      studentNis,
-      month,
-      year,
-      feeAmount,
-      dueDate: getDueDate(month, year),
-      status: "UNPAID",
-    });
-  });
-
-  return tuitions;
+  return names[period] || period;
 }
 
 /**
- * Determine which months a student needs to pay for
- *
- * Example 1:
- * - Academic year: July 2024 - June 2025
- * - Student joins: July 2024
- * - Result: All months (July 2024 - June 2025)
- *
- * Example 2:
- * - Academic year: July 2024 - June 2025
- * - Student joins: January 2025
- * - Result: January 2025 - June 2025 only
+ * Get month display name (for backward compatibility)
  */
-function getMonthsToGenerate(
-  startJoinDate: Date,
-  academicStart: Date,
-  academicEnd: Date,
-): Array<{ month: Month; year: number }> {
-  // If student joined before academic year starts, include all months
-  if (startJoinDate <= academicStart) {
-    return generateAllAcademicMonths(academicStart, academicEnd);
-  }
-
-  // If student joined after academic year ends, no tuitions
-  if (startJoinDate > academicEnd) {
-    return [];
-  }
-
-  // Student joined mid-year - generate from join month to end of academic year
-  const months: Array<{ month: Month; year: number }> = [];
-  const currentDate = new Date(
-    startJoinDate.getFullYear(),
-    startJoinDate.getMonth(),
-    1,
-  );
-  const endDate = new Date(academicEnd);
-
-  while (currentDate <= endDate) {
-    const monthNumber = currentDate.getMonth() + 1;
-    const month = NUMBER_TO_MONTH[monthNumber];
-    const year = currentDate.getFullYear();
-
-    months.push({ month, year });
-
-    currentDate.setMonth(currentDate.getMonth() + 1);
-  }
-
-  return months;
+export function getMonthDisplayName(month: Month): string {
+  return getPeriodDisplayName(month);
 }
 
+// ============================================
+// FEE CALCULATIONS
+// ============================================
+
 /**
- * Generate all months in an academic year (July - June)
+ * Calculate default fees based on monthly fee
  */
-function generateAllAcademicMonths(
-  academicStart: Date,
-  academicEnd: Date,
-): Array<{ month: Month; year: number }> {
-  const months: Array<{ month: Month; year: number }> = [];
-  const currentDate = new Date(academicStart);
-
-  while (currentDate <= academicEnd) {
-    const monthNumber = currentDate.getMonth() + 1;
-    const month = NUMBER_TO_MONTH[monthNumber];
-    const year = currentDate.getFullYear();
-
-    months.push({ month, year });
-
-    currentDate.setMonth(currentDate.getMonth() + 1);
-  }
-
-  return months;
+export function calculateDefaultFees(monthlyFee: number) {
+  return {
+    monthly: monthlyFee,
+    quarterlyDefault: monthlyFee * 3,
+    semesterDefault: monthlyFee * 6,
+  };
 }
 
 /**
- * Get due date for tuition (10th of each month)
+ * Calculate discount between base fee and actual fee
+ */
+export function calculateDiscount(baseFee: number, actualFee: number) {
+  const discount = baseFee - actualFee;
+  const percentage = baseFee > 0 ? (discount / baseFee) * 100 : 0;
+  return { discount, percentage };
+}
+
+/**
+ * Get the appropriate fee amount for a given frequency
+ */
+export function getFeeForFrequency(
+  classAcademic: {
+    paymentFrequency: PaymentFrequency;
+    monthlyFee: number | null;
+    quarterlyFee: number | null;
+    semesterFee: number | null;
+  },
+  overrideFee?: number,
+): number {
+  if (overrideFee !== undefined) {
+    return overrideFee;
+  }
+
+  const monthlyFee = Number(classAcademic.monthlyFee) || 0;
+
+  switch (classAcademic.paymentFrequency) {
+    case "MONTHLY":
+      return monthlyFee;
+    case "QUARTERLY":
+      return Number(classAcademic.quarterlyFee) || monthlyFee * 3;
+    case "SEMESTER":
+      return Number(classAcademic.semesterFee) || monthlyFee * 6;
+    default:
+      return monthlyFee;
+  }
+}
+
+// ============================================
+// DUE DATE CALCULATIONS
+// ============================================
+
+/**
+ * Get due date for a period (10th of first month in period)
+ */
+export function getPeriodDueDate(
+  period: string,
+  academicYear: { startDate: Date },
+): Date {
+  const startYear = academicYear.startDate.getFullYear();
+
+  // Due date config: { month (1-12), yearOffset (0 = start year, 1 = next year) }
+  const dueDateConfig: Record<string, { month: number; yearOffset: number }> = {
+    // Monthly - first semester (start year)
+    JULY: { month: 7, yearOffset: 0 },
+    AUGUST: { month: 8, yearOffset: 0 },
+    SEPTEMBER: { month: 9, yearOffset: 0 },
+    OCTOBER: { month: 10, yearOffset: 0 },
+    NOVEMBER: { month: 11, yearOffset: 0 },
+    DECEMBER: { month: 12, yearOffset: 0 },
+    // Monthly - second semester (next year)
+    JANUARY: { month: 1, yearOffset: 1 },
+    FEBRUARY: { month: 2, yearOffset: 1 },
+    MARCH: { month: 3, yearOffset: 1 },
+    APRIL: { month: 4, yearOffset: 1 },
+    MAY: { month: 5, yearOffset: 1 },
+    JUNE: { month: 6, yearOffset: 1 },
+    // Quarterly
+    Q1: { month: 7, yearOffset: 0 }, // Jul 10
+    Q2: { month: 10, yearOffset: 0 }, // Oct 10
+    Q3: { month: 1, yearOffset: 1 }, // Jan 10 (next year)
+    Q4: { month: 4, yearOffset: 1 }, // Apr 10 (next year)
+    // Semester
+    SEM1: { month: 7, yearOffset: 0 }, // Jul 10
+    SEM2: { month: 1, yearOffset: 1 }, // Jan 10 (next year)
+  };
+
+  const config = dueDateConfig[period];
+  if (!config) {
+    // Fallback to July of start year
+    return new Date(startYear, 6, 10);
+  }
+
+  return new Date(startYear + config.yearOffset, config.month - 1, 10);
+}
+
+/**
+ * Get due date for a monthly tuition (for backward compatibility)
  */
 function getDueDate(month: Month, year: number): Date {
   const monthNumber = MONTH_TO_NUMBER[month];
@@ -203,44 +249,226 @@ function getDueDate(month: Month, year: number): Date {
 }
 
 /**
- * Calculate total tuition for a student in an academic year
+ * Get year for a period
+ */
+function getPeriodYear(
+  period: string,
+  academicYear: { startDate: Date },
+): number {
+  const startYear = academicYear.startDate.getFullYear();
+
+  // Periods in second half of academic year (Jan-Jun) use next year
+  const secondHalfPeriods = [
+    "JANUARY",
+    "FEBRUARY",
+    "MARCH",
+    "APRIL",
+    "MAY",
+    "JUNE",
+    "Q3",
+    "Q4",
+    "SEM2",
+  ];
+
+  return secondHalfPeriods.includes(period) ? startYear + 1 : startYear;
+}
+
+// ============================================
+// PERIOD DETERMINATION
+// ============================================
+
+/**
+ * Get the period that contains a given month
+ */
+function getQuarterForMonth(month: Month): string {
+  if (["JULY", "AUGUST", "SEPTEMBER"].includes(month)) return "Q1";
+  if (["OCTOBER", "NOVEMBER", "DECEMBER"].includes(month)) return "Q2";
+  if (["JANUARY", "FEBRUARY", "MARCH"].includes(month)) return "Q3";
+  return "Q4";
+}
+
+function getSemesterForMonth(month: Month): string {
+  if (
+    ["JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"].includes(
+      month,
+    )
+  ) {
+    return "SEM1";
+  }
+  return "SEM2";
+}
+
+/**
+ * Get the starting period based on student join date
+ */
+function getStartingPeriod(
+  startJoinDate: Date,
+  frequency: PaymentFrequency,
+  academicYear: { startDate: Date; endDate: Date },
+): string | null {
+  // If student joined before academic year, start from first period
+  if (startJoinDate <= academicYear.startDate) {
+    return PERIODS[frequency][0];
+  }
+
+  // If student joined after academic year, no periods
+  if (startJoinDate > academicYear.endDate) {
+    return null;
+  }
+
+  // Get the month of join
+  const joinMonth = NUMBER_TO_MONTH[startJoinDate.getMonth() + 1];
+
+  switch (frequency) {
+    case "MONTHLY":
+      return joinMonth;
+    case "QUARTERLY":
+      return getQuarterForMonth(joinMonth);
+    case "SEMESTER":
+      return getSemesterForMonth(joinMonth);
+    default:
+      return joinMonth;
+  }
+}
+
+/**
+ * Check if a period should be included based on starting period
+ */
+function shouldIncludePeriod(
+  period: string,
+  startPeriod: string | null,
+  frequency: PaymentFrequency,
+): boolean {
+  if (!startPeriod) return false;
+
+  const periods = PERIODS[frequency] as readonly string[];
+  const periodIndex = periods.indexOf(period);
+  const startIndex = periods.indexOf(startPeriod);
+
+  return periodIndex >= startIndex;
+}
+
+// ============================================
+// TUITION GENERATION
+// ============================================
+
+/**
+ * Generate tuitions for students based on payment frequency
+ */
+export function generateTuitions(
+  params: TuitionGenerationParams,
+): GeneratedTuition[] {
+  const tuitions: GeneratedTuition[] = [];
+  const {
+    classAcademicId,
+    frequency,
+    feeAmount,
+    periodDiscounts,
+    students,
+    academicYear,
+  } = params;
+
+  // Create a map for quick discount lookup
+  const discountMap = new Map<string, number>();
+  if (periodDiscounts) {
+    for (const discount of periodDiscounts) {
+      discountMap.set(discount.period, discount.discountedFee);
+    }
+  }
+
+  for (const student of students) {
+    const startPeriod = getStartingPeriod(
+      student.startJoinDate,
+      frequency,
+      academicYear,
+    );
+
+    const periods = PERIODS[frequency] as readonly string[];
+
+    for (const period of periods) {
+      if (shouldIncludePeriod(period, startPeriod, frequency)) {
+        const year = getPeriodYear(period, academicYear);
+        // Use period-specific discounted fee if available, otherwise use default fee
+        const periodFee = discountMap.get(period) ?? feeAmount;
+
+        const tuition: GeneratedTuition = {
+          classAcademicId,
+          studentNis: student.nis,
+          period,
+          year,
+          feeAmount: periodFee,
+          dueDate: getPeriodDueDate(period, academicYear),
+          status: "UNPAID",
+        };
+
+        // For monthly frequency, also set the month field for backward compatibility
+        if (frequency === "MONTHLY") {
+          tuition.month = period as Month;
+        }
+
+        tuitions.push(tuition);
+      }
+    }
+  }
+
+  return tuitions;
+}
+
+/**
+ * Legacy function for backward compatibility - generates monthly tuitions
+ */
+export function generateMonthlyTuitions(params: {
+  classAcademicId: string;
+  feeAmount: number;
+  students: Array<{
+    nis: string;
+    startJoinDate: Date;
+  }>;
+  academicYear: {
+    startDate: Date;
+    endDate: Date;
+  };
+}): GeneratedTuition[] {
+  return generateTuitions({
+    ...params,
+    frequency: "MONTHLY",
+  });
+}
+
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+/**
+ * Calculate total tuition for a student based on frequency
  */
 export function calculateTotalTuition(
   feeAmount: number,
+  frequency: PaymentFrequency,
   startJoinDate: Date,
   academicYear: { startDate: Date; endDate: Date },
-): { total: number; months: number } {
-  const months = getMonthsToGenerate(
-    startJoinDate,
-    academicYear.startDate,
-    academicYear.endDate,
-  );
+): { total: number; periods: number } {
+  const startPeriod = getStartingPeriod(startJoinDate, frequency, academicYear);
+  const periods = PERIODS[frequency] as readonly string[];
+
+  let count = 0;
+  for (const period of periods) {
+    if (shouldIncludePeriod(period, startPeriod, frequency)) {
+      count++;
+    }
+  }
 
   return {
-    total: feeAmount * months.length,
-    months: months.length,
+    total: feeAmount * count,
+    periods: count,
   };
 }
 
 /**
- * Get month display name
+ * Get record count for a frequency
  */
-export function getMonthDisplayName(month: Month): string {
-  const displayNames: Record<Month, string> = {
-    JANUARY: "January",
-    FEBRUARY: "February",
-    MARCH: "March",
-    APRIL: "April",
-    MAY: "May",
-    JUNE: "June",
-    JULY: "July",
-    AUGUST: "August",
-    SEPTEMBER: "September",
-    OCTOBER: "October",
-    NOVEMBER: "November",
-    DECEMBER: "December",
-  };
-  return displayNames[month];
+export function getRecordCountForFrequency(frequency: PaymentFrequency): number {
+  return PERIODS[frequency].length;
 }
 
 /**
@@ -260,3 +488,33 @@ export const ACADEMIC_MONTH_ORDER: Month[] = [
   "MAY",
   "JUNE",
 ];
+
+/**
+ * Check if a period is a monthly period
+ */
+export function isMonthlyPeriod(period: string): period is Month {
+  return (PERIODS.MONTHLY as readonly string[]).includes(period);
+}
+
+/**
+ * Check if a period is a quarterly period
+ */
+export function isQuarterlyPeriod(period: string): boolean {
+  return (PERIODS.QUARTERLY as readonly string[]).includes(period);
+}
+
+/**
+ * Check if a period is a semester period
+ */
+export function isSemesterPeriod(period: string): boolean {
+  return (PERIODS.SEMESTER as readonly string[]).includes(period);
+}
+
+/**
+ * Get frequency type from a period
+ */
+export function getFrequencyFromPeriod(period: string): PaymentFrequency {
+  if (isQuarterlyPeriod(period)) return "QUARTERLY";
+  if (isSemesterPeriod(period)) return "SEMESTER";
+  return "MONTHLY";
+}

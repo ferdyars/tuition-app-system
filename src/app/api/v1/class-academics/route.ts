@@ -70,7 +70,15 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { academicYearId, grade, section } = body;
+    const {
+      academicYearId,
+      grade,
+      section,
+      paymentFrequency = "MONTHLY",
+      monthlyFee,
+      quarterlyFee,
+      semesterFee,
+    } = body;
 
     if (!academicYearId || !grade || !section) {
       return errorResponse(
@@ -83,6 +91,15 @@ export async function POST(request: NextRequest) {
     if (grade < 1 || grade > 12) {
       return errorResponse(
         "Grade must be between 1 and 12",
+        "VALIDATION_ERROR",
+        400,
+      );
+    }
+
+    // Validate payment frequency
+    if (!["MONTHLY", "QUARTERLY", "SEMESTER"].includes(paymentFrequency)) {
+      return errorResponse(
+        "Payment frequency must be MONTHLY, QUARTERLY, or SEMESTER",
         "VALIDATION_ERROR",
         400,
       );
@@ -116,12 +133,22 @@ export async function POST(request: NextRequest) {
 
     const className = generateClassName(grade, section, academicYear.year);
 
+    // Calculate default fees if not provided
+    const calculatedQuarterlyFee =
+      quarterlyFee ?? (monthlyFee ? monthlyFee * 3 : null);
+    const calculatedSemesterFee =
+      semesterFee ?? (monthlyFee ? monthlyFee * 6 : null);
+
     const classAcademic = await prisma.classAcademic.create({
       data: {
         academicYearId,
         grade,
         section,
         className,
+        paymentFrequency,
+        monthlyFee: monthlyFee ?? null,
+        quarterlyFee: calculatedQuarterlyFee,
+        semesterFee: calculatedSemesterFee,
       },
       include: {
         academicYear: { select: { year: true } },

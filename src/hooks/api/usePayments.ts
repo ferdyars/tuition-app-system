@@ -61,6 +61,7 @@ interface PaymentResponse {
       remainingAmount: number;
       feeAmount: number;
       scholarshipAmount: number;
+      discountAmount: number;
       effectiveFeeAmount: number;
     };
   };

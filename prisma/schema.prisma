@@ -37,6 +37,12 @@ enum Month {
   JUNE
 }
 
+enum PaymentFrequency {
+  MONTHLY
+  QUARTERLY
+  SEMESTER
+}
+
 // ============================================
 // EMPLOYEE MANAGEMENT
 // ============================================
@@ -91,6 +97,7 @@ model AcademicYear {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   classAcademics ClassAcademic[]
+  discounts      Discount[]
 
   @@map("academic_years")
 }
@@ -100,18 +107,24 @@ model AcademicYear {
 // ============================================
 
 model ClassAcademic {
-  id             String   @id @default(uuid())
-  academicYearId String   @map("academic_year_id")
-  grade          Int
-  section        String
-  className      String   @map("class_name")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id               String           @id @default(uuid())
+  academicYearId   String           @map("academic_year_id")
+  grade            Int
+  section          String
+  className        String           @map("class_name")
+  // Payment configuration
+  paymentFrequency PaymentFrequency @default(MONTHLY) @map("payment_frequency")
+  monthlyFee       Decimal?         @map("monthly_fee") @db.Decimal(10, 2)
+  quarterlyFee     Decimal?         @map("quarterly_fee") @db.Decimal(10, 2)
+  semesterFee      Decimal?         @map("semester_fee") @db.Decimal(10, 2)
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
 
-  academicYear  AcademicYear   @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
-  tuitions      Tuition[]
-  scholarships  Scholarship[]
+  academicYear   AcademicYear   @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  tuitions       Tuition[]
+  scholarships   Scholarship[]
   studentClasses StudentClass[]
+  discounts      Discount[]
 
   @@unique([academicYearId, grade, section])
   @@map("class_academics")
@@ -146,10 +159,13 @@ model Tuition {
   id                String        @id @default(uuid())
   classAcademicId   String        @map("class_academic_id")
   studentNis        String        @map("student_nis")
-  month             Month
+  period            String        // JULY, AUGUST, ..., Q1, Q2, Q3, Q4, SEM1, SEM2
+  month             Month?        // Kept for backward compatibility (nullable)
   year              Int
   feeAmount         Decimal       @map("fee_amount") @db.Decimal(10, 2)
   scholarshipAmount Decimal       @default(0) @map("scholarship_amount") @db.Decimal(10, 2)
+  discountAmount    Decimal       @default(0) @map("discount_amount") @db.Decimal(10, 2)
+  discountId        String?       @map("discount_id")
   paidAmount        Decimal       @default(0) @map("paid_amount") @db.Decimal(10, 2)
   status            PaymentStatus @default(UNPAID)
   dueDate           DateTime      @map("due_date")
@@ -159,13 +175,16 @@ model Tuition {
 
   classAcademic ClassAcademic @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
   student       Student       @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
+  discount      Discount?     @relation(fields: [discountId], references: [id], onDelete: SetNull)
   payments      Payment[]
 
-  @@unique([classAcademicId, studentNis, month, year])
+  @@unique([classAcademicId, studentNis, period, year])
   @@index([studentNis])
   @@index([classAcademicId])
   @@index([status])
   @@index([dueDate])
+  @@index([period])
+  @@index([discountId])
   @@map("tuitions")
 }
 
@@ -215,4 +234,31 @@ model Payment {
   @@index([employeeId])
   @@index([paymentDate])
   @@map("payments")
+}
+
+// ============================================
+// DISCOUNT MANAGEMENT
+// ============================================
+
+model Discount {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  reason          String?  // e.g., "COVID Relief", "School Anniversary"
+  discountAmount  Decimal  @map("discount_amount") @db.Decimal(10, 2)
+  targetPeriods   String[] @map("target_periods") // e.g., ["JULY", "AUGUST"] or ["Q1"] or ["SEM1"]
+  academicYearId  String   @map("academic_year_id")
+  classAcademicId String?  @map("class_academic_id") // null = school-wide
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  academicYear  AcademicYear   @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  classAcademic ClassAcademic? @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
+  tuitions      Tuition[]
+
+  @@index([academicYearId])
+  @@index([classAcademicId])
+  @@index([isActive])
+  @@map("discounts")
 }

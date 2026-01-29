@@ -1,7 +1,14 @@
 import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
 import { errorResponse, successResponse } from "@/lib/api-response";
-import { generateTuitions } from "@/lib/business-logic/tuition-generator";
+import {
+  calculatePeriodDiscount,
+  getApplicableDiscounts,
+} from "@/lib/business-logic/discount-processor";
+import {
+  generateTuitions,
+  getRecordCountForFrequency,
+} from "@/lib/business-logic/tuition-generator";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
@@ -10,19 +17,25 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { classAcademicId, feeAmount, studentNisList } = body;
+    const {
+      classAcademicId,
+      feeAmount,
+      paymentFrequency = "MONTHLY",
+      periodDiscounts,
+      studentNisList,
+    } = body;
 
-    if (!classAcademicId || !feeAmount) {
+    if (!classAcademicId) {
       return errorResponse(
-        "Class and fee amount are required",
+        "Class is required",
         "VALIDATION_ERROR",
         400,
       );
     }
 
-    if (feeAmount <= 0) {
+    if (!feeAmount || feeAmount <= 0) {
       return errorResponse(
-        "Fee amount must be greater than 0",
+        "Fee amount is required and must be greater than 0",
         "VALIDATION_ERROR",
         400,
       );
@@ -40,9 +53,7 @@ export async function POST(request: NextRequest) {
       return errorResponse("Class not found", "NOT_FOUND", 404);
     }
 
-    // Get students - either specified ones or all students
-    // Note: In a real app, you'd have a student-class relationship
-    // For now, we'll get students from existing tuitions or all students
+    // Get students - either specified ones or all students in the class
     let students;
     if (studentNisList && studentNisList.length > 0) {
       students = await prisma.student.findMany({
@@ -50,10 +61,23 @@ export async function POST(request: NextRequest) {
         select: { nis: true, startJoinDate: true },
       });
     } else {
-      // Get all students (you might want to filter by some criteria)
-      students = await prisma.student.findMany({
-        select: { nis: true, startJoinDate: true },
+      // Get students enrolled in this class
+      const studentClasses = await prisma.studentClass.findMany({
+        where: { classAcademicId },
+        include: {
+          student: {
+            select: { nis: true, startJoinDate: true },
+          },
+        },
       });
+      students = studentClasses.map((sc) => sc.student);
+
+      // Fallback: if no student classes, get all students
+      if (students.length === 0) {
+        students = await prisma.student.findMany({
+          select: { nis: true, startJoinDate: true },
+        });
+      }
     }
 
     if (students.length === 0) {
@@ -64,10 +88,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate tuition records
+    // Generate tuition records using the specified payment frequency
     const tuitionsToCreate = generateTuitions({
       classAcademicId,
+      frequency: paymentFrequency,
       feeAmount,
+      periodDiscounts,
       students: students.map((s) => ({
         nis: s.nis,
         startJoinDate: s.startJoinDate,
@@ -78,7 +104,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Check for existing tuitions to avoid duplicates
+    // Check for existing tuitions to avoid duplicates (using period instead of month)
     const existingTuitions = await prisma.tuition.findMany({
       where: {
         classAcademicId,
@@ -86,33 +112,52 @@ export async function POST(request: NextRequest) {
       },
       select: {
         studentNis: true,
-        month: true,
+        period: true,
         year: true,
       },
     });
 
     const existingKeys = new Set(
-      existingTuitions.map((t) => `${t.studentNis}-${t.month}-${t.year}`),
+      existingTuitions.map((t) => `${t.studentNis}-${t.period}-${t.year}`),
     );
 
     const newTuitions = tuitionsToCreate.filter(
-      (t) => !existingKeys.has(`${t.studentNis}-${t.month}-${t.year}`),
+      (t) => !existingKeys.has(`${t.studentNis}-${t.period}-${t.year}`),
     );
 
     const skippedCount = tuitionsToCreate.length - newTuitions.length;
 
-    // Create new tuitions
+    // Fetch applicable discounts for this class
+    const applicableDiscounts = await getApplicableDiscounts(
+      classAcademicId,
+      classAcademic.academicYearId,
+      prisma,
+    );
+
+    // Create new tuitions with discount applied
     if (newTuitions.length > 0) {
       await prisma.tuition.createMany({
-        data: newTuitions.map((t) => ({
-          classAcademicId: t.classAcademicId,
-          studentNis: t.studentNis,
-          month: t.month,
-          year: t.year,
-          feeAmount: t.feeAmount,
-          dueDate: t.dueDate,
-          status: t.status,
-        })),
+        data: newTuitions.map((t) => {
+          // Calculate discount for this period
+          const { discountAmount, discountId } = calculatePeriodDiscount(
+            t.period,
+            applicableDiscounts,
+            classAcademicId,
+          );
+
+          return {
+            classAcademicId: t.classAcademicId,
+            studentNis: t.studentNis,
+            period: t.period,
+            month: t.month, // For backward compatibility with MONTHLY frequency
+            year: t.year,
+            feeAmount: t.feeAmount,
+            dueDate: t.dueDate,
+            status: t.status,
+            discountAmount,
+            discountId,
+          };
+        }),
       });
     }
 
@@ -121,6 +166,18 @@ export async function POST(request: NextRequest) {
       (s) => s.startJoinDate <= classAcademic.academicYear.startDate,
     ).length;
     const studentsWithPartialYear = students.length - studentsWithFullYear;
+    const recordsPerStudent = getRecordCountForFrequency(paymentFrequency);
+
+    // Calculate discount summary
+    const discountsApplied = applicableDiscounts.length > 0
+      ? applicableDiscounts.map((d) => ({
+          id: d.id,
+          name: d.name,
+          amount: Number(d.discountAmount),
+          targetPeriods: d.targetPeriods,
+          scope: d.classAcademicId ? "Class-specific" : "School-wide",
+        }))
+      : [];
 
     return successResponse({
       generated: newTuitions.length,
@@ -131,6 +188,10 @@ export async function POST(request: NextRequest) {
         studentsWithPartialYear,
         className: classAcademic.className,
         academicYear: classAcademic.academicYear.year,
+        paymentFrequency,
+        feeAmount,
+        recordsPerStudent,
+        discountsApplied,
       },
     });
   } catch (error) {

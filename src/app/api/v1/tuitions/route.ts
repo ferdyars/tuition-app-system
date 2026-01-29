@@ -16,6 +16,9 @@ export async function GET(request: NextRequest) {
   const statusParam = searchParams.get("status");
   const status =
     statusParam && statusParam !== "null" ? statusParam : undefined;
+  const periodParam = searchParams.get("period");
+  const period = periodParam && periodParam !== "null" ? periodParam : undefined;
+  // Keep month for backward compatibility
   const monthParam = searchParams.get("month");
   const month = monthParam && monthParam !== "null" ? monthParam : undefined;
   const year = searchParams.get("year")
@@ -38,8 +41,11 @@ export async function GET(request: NextRequest) {
     where.status = status as "UNPAID" | "PAID" | "PARTIAL";
   }
 
-  if (month) {
-    where.month = month as Prisma.EnumMonthFilter["equals"];
+  if (period) {
+    where.period = period;
+  } else if (month) {
+    // Backward compatibility: if month is provided, filter by period
+    where.period = month;
   }
 
   if (year) {
@@ -71,6 +77,14 @@ export async function GET(request: NextRequest) {
             academicYear: { select: { year: true } },
           },
         },
+        discount: {
+          select: {
+            id: true,
+            name: true,
+            reason: true,
+            discountAmount: true,
+          },
+        },
         _count: {
           select: { payments: true },
         },
@@ -79,7 +93,7 @@ export async function GET(request: NextRequest) {
       take: limit,
       orderBy: [
         { year: "desc" },
-        { month: "desc" },
+        { period: "desc" },
         { student: { name: "asc" } },
       ],
     }),

@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
       totalFees: acc.totalFees + cls.statistics.totalFees,
       totalScholarships:
         acc.totalScholarships + cls.statistics.totalScholarships,
+      totalDiscounts: acc.totalDiscounts + cls.statistics.totalDiscounts,
       totalEffectiveFees:
         acc.totalEffectiveFees + cls.statistics.totalEffectiveFees,
       totalPaid: acc.totalPaid + cls.statistics.totalPaid,
@@ -37,6 +38,7 @@ export async function GET(request: NextRequest) {
       partial: 0,
       totalFees: 0,
       totalScholarships: 0,
+      totalDiscounts: 0,
       totalEffectiveFees: 0,
       totalPaid: 0,
       totalOutstanding: 0,
