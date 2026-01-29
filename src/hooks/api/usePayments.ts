@@ -17,16 +17,26 @@ interface Payment {
   updatedAt?: string;
   tuition?: {
     id: string;
+    classAcademicId: string;
+    studentNis: string;
+    period: string;
     month: Month;
     year: number;
     feeAmount: string;
+    scholarshipAmount: string;
+    discountAmount: string;
+    discountId: string;
     paidAmount: string;
-    status: PaymentStatus;
-    student?: {
+    status: string;
+    dueDate: string;
+    generatedAt: string;
+    createdAt: string;
+    updatedAt: string;
+    student: {
       nis: string;
       name: string;
     };
-    classAcademic?: {
+    classAcademic: {
       className: string;
     };
   };

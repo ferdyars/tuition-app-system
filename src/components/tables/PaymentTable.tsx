@@ -18,6 +18,7 @@ import {
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import {
+  IconDiscount,
   IconFilter,
   IconGift,
   IconSearch,
@@ -259,6 +260,35 @@ export default function PaymentTable() {
                                 {isFullScholarship
                                   ? "Full Scholarship"
                                   : "Partial Scholarship"}
+                              </Badge>
+                            </Tooltip>
+                          );
+                        })()}
+                      {Number(payment.tuition?.discountAmount) > 0 &&
+                        (() => {
+                          return (
+                            <Tooltip
+                              label={
+                                <Stack gap={2}>
+                                  <Text size="xs">
+                                    Discounts:{" "}
+                                    <NumberFormatter
+                                      value={payment.tuition?.discountAmount}
+                                      prefix="Rp "
+                                      thousandSeparator="."
+                                      decimalSeparator=","
+                                    />
+                                  </Text>
+                                </Stack>
+                              }
+                            >
+                              <Badge
+                                size="xs"
+                                color={"teal"}
+                                variant="light"
+                                leftSection={<IconDiscount size={10} />}
+                              >
+                                Discount
                               </Badge>
                             </Tooltip>
                           );
