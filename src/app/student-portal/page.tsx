@@ -324,7 +324,7 @@ export default function StudentPortalPage() {
                   </Group>
 
                   {/* Summary Cards */}
-                  <SimpleGrid cols={{ base: 2, sm: 4 }}>
+                  <SimpleGrid cols={{ base: 2, sm: 3 }}>
                     <Paper withBorder p="sm" radius="sm" bg="dark.0">
                       <Stack gap={2}>
                         <Text size="xs" c="dark.4">
@@ -379,6 +379,7 @@ export default function StudentPortalPage() {
                           Total Discounts
                         </Text>
                         <Text fw={600} c="dark.6">
+                          -
                           <NumberFormatter
                             value={yearData.summary.totalDiscounts}
                             prefix="Rp "
