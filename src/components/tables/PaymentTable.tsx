@@ -17,7 +17,12 @@ import {
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconFilter, IconGift, IconSearch, IconTrash } from "@tabler/icons-react";
+import {
+  IconFilter,
+  IconGift,
+  IconSearch,
+  IconTrash,
+} from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
@@ -142,159 +147,167 @@ export default function PaymentTable() {
 
       <Paper withBorder>
         <Table.ScrollContainer minWidth={900}>
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Date</Table.Th>
-              <Table.Th>Student</Table.Th>
-              <Table.Th>Class</Table.Th>
-              <Table.Th>Month</Table.Th>
-              <Table.Th>Amount</Table.Th>
-              <Table.Th>Cashier</Table.Th>
-              <Table.Th>Status</Table.Th>
-              {isAdmin && <Table.Th w={80}>Actions</Table.Th>}
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading &&
-              Array.from({ length: 5 }).map((_, i) => (
-                <Table.Tr key={`skeleton-${i}`}>
-                  {Array.from({ length: isAdmin ? 8 : 7 }).map((_, j) => (
-                    <Table.Td key={`skeleton-cell-${j}`}>
-                      <Skeleton height={20} />
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Date</Table.Th>
+                <Table.Th>Student</Table.Th>
+                <Table.Th>Class</Table.Th>
+                <Table.Th>Month</Table.Th>
+                <Table.Th>Amount</Table.Th>
+                <Table.Th>Cashier</Table.Th>
+                <Table.Th>Status</Table.Th>
+                {isAdmin && <Table.Th w={80}>Actions</Table.Th>}
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading &&
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Table.Tr key={`skeleton-${i}`}>
+                    {Array.from({ length: isAdmin ? 8 : 7 }).map((_, j) => (
+                      <Table.Td key={`skeleton-cell-${j}`}>
+                        <Skeleton height={20} />
+                      </Table.Td>
+                    ))}
+                  </Table.Tr>
+                ))}
+              {!isLoading && data?.payments.length === 0 && (
+                <Table.Tr>
+                  <Table.Td colSpan={isAdmin ? 8 : 7}>
+                    <Text ta="center" c="dimmed" py="md">
+                      No payments found
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              )}
+              {data?.payments.map((payment) => (
+                <Table.Tr key={payment.id}>
+                  <Table.Td>
+                    <Text size="sm">
+                      {dayjs(payment.paymentDate).format("DD/MM/YYYY HH:mm")}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Stack gap={0}>
+                      <Text size="sm" fw={500}>
+                        {payment.tuition?.student?.name}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {payment.tuition?.student?.nis}
+                      </Text>
+                    </Stack>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">
+                      {payment.tuition?.classAcademic?.className}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">
+                      {payment.tuition?.month
+                        ? `${getMonthDisplayName(payment.tuition.month)} ${payment.tuition.year}`
+                        : "-"}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Stack gap={2}>
+                      <Text size="sm" fw={600} c="green">
+                        <NumberFormatter
+                          value={payment.amount}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                      {Number(payment.scholarshipAmount) > 0 &&
+                        (() => {
+                          const scholarshipAmt = Number(
+                            payment.scholarshipAmount,
+                          );
+                          const feeAmt = Number(
+                            payment.tuition?.feeAmount || 0,
+                          );
+                          const isFullScholarship = scholarshipAmt >= feeAmt;
+
+                          return (
+                            <Tooltip
+                              label={
+                                <Stack gap={2}>
+                                  <Text size="xs">
+                                    Scholarship:{" "}
+                                    <NumberFormatter
+                                      value={payment.scholarshipAmount}
+                                      prefix="Rp "
+                                      thousandSeparator="."
+                                      decimalSeparator=","
+                                    />
+                                  </Text>
+                                  {isFullScholarship && (
+                                    <Text size="xs" c="teal">
+                                      Full scholarship covers entire fee
+                                    </Text>
+                                  )}
+                                </Stack>
+                              }
+                            >
+                              <Badge
+                                size="xs"
+                                color={isFullScholarship ? "green" : "teal"}
+                                variant="light"
+                                leftSection={<IconGift size={10} />}
+                              >
+                                {isFullScholarship
+                                  ? "Full Scholarship"
+                                  : "Partial Scholarship"}
+                              </Badge>
+                            </Tooltip>
+                          );
+                        })()}
+                    </Stack>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">{payment.employee?.name}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge
+                      color={
+                        payment.tuition?.status === "PAID"
+                          ? "green"
+                          : payment.tuition?.status === "PARTIAL"
+                            ? "yellow"
+                            : "red"
+                      }
+                      variant="light"
+                      size="sm"
+                    >
+                      {payment.tuition?.status}
+                    </Badge>
+                  </Table.Td>
+                  {isAdmin && (
+                    <Table.Td>
+                      <Group gap="xs">
+                        <Tooltip label="Reverse Payment">
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() =>
+                              handleDelete(
+                                payment.id,
+                                payment.tuition?.student?.name || "",
+                                payment.amount,
+                              )
+                            }
+                          >
+                            <IconTrash size={18} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
                     </Table.Td>
-                  ))}
+                  )}
                 </Table.Tr>
               ))}
-            {!isLoading && data?.payments.length === 0 && (
-              <Table.Tr>
-                <Table.Td colSpan={isAdmin ? 8 : 7}>
-                  <Text ta="center" c="dimmed" py="md">
-                    No payments found
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            )}
-            {data?.payments.map((payment) => (
-              <Table.Tr key={payment.id}>
-                <Table.Td>
-                  <Text size="sm">
-                    {dayjs(payment.paymentDate).format("DD/MM/YYYY HH:mm")}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Stack gap={0}>
-                    <Text size="sm" fw={500}>
-                      {payment.tuition?.student?.name}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {payment.tuition?.student?.nis}
-                    </Text>
-                  </Stack>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">
-                    {payment.tuition?.classAcademic?.className}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">
-                    {payment.tuition?.month
-                      ? `${getMonthDisplayName(payment.tuition.month)} ${payment.tuition.year}`
-                      : "-"}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Stack gap={2}>
-                    <Text size="sm" fw={600} c="green">
-                      <NumberFormatter
-                        value={payment.amount}
-                        prefix="Rp "
-                        thousandSeparator="."
-                        decimalSeparator=","
-                      />
-                    </Text>
-                    {Number(payment.scholarshipAmount) > 0 && (() => {
-                      const scholarshipAmt = Number(payment.scholarshipAmount);
-                      const feeAmt = Number(payment.tuition?.feeAmount || 0);
-                      const isFullScholarship = scholarshipAmt >= feeAmt;
-
-                      return (
-                        <Tooltip
-                          label={
-                            <Stack gap={2}>
-                              <Text size="xs">
-                                Scholarship: <NumberFormatter
-                                  value={payment.scholarshipAmount}
-                                  prefix="Rp "
-                                  thousandSeparator="."
-                                  decimalSeparator=","
-                                />
-                              </Text>
-                              {isFullScholarship && (
-                                <Text size="xs" c="teal">
-                                  Full scholarship covers entire fee
-                                </Text>
-                              )}
-                            </Stack>
-                          }
-                        >
-                          <Badge
-                            size="xs"
-                            color={isFullScholarship ? "green" : "teal"}
-                            variant="light"
-                            leftSection={<IconGift size={10} />}
-                          >
-                            {isFullScholarship ? "Full Scholarship" : "Partial Scholarship"}
-                          </Badge>
-                        </Tooltip>
-                      );
-                    })()}
-                  </Stack>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{payment.employee?.name}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge
-                    color={
-                      payment.tuition?.status === "PAID"
-                        ? "green"
-                        : payment.tuition?.status === "PARTIAL"
-                          ? "yellow"
-                          : "red"
-                    }
-                    variant="light"
-                    size="sm"
-                  >
-                    {payment.tuition?.status}
-                  </Badge>
-                </Table.Td>
-                {isAdmin && (
-                  <Table.Td>
-                    <Group gap="xs">
-                      <Tooltip label="Reverse Payment">
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          onClick={() =>
-                            handleDelete(
-                              payment.id,
-                              payment.tuition?.student?.name || "",
-                              payment.amount,
-                            )
-                          }
-                        >
-                          <IconTrash size={18} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                  </Table.Td>
-                )}
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Tbody>
+          </Table>
         </Table.ScrollContainer>
       </Paper>
 

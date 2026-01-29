@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     });
     const existingTotal = existingScholarships.reduce(
       (sum, s) => sum + Number(s.nominal),
-      0
+      0,
     );
     const newTotal = existingTotal + nominal;
 

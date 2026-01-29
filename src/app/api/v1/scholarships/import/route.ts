@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     // Process scholarships
     let imported = 0;
-    let skipped = 0;
+    const skipped = 0;
     let totalAutoPayments = 0;
     const importErrors: Array<{ row: number; error: string }> = [];
 
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         });
         const existingTotal = existingScholarships.reduce(
           (sum, s) => sum + Number(s.nominal),
-          0
+          0,
         );
         const newTotal = existingTotal + row.nominal;
         // Only mark as full if we know the actual fee and scholarship covers it

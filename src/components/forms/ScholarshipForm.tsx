@@ -15,7 +15,12 @@ import {
   TextInput,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { IconAlertCircle, IconCheck, IconGift, IconInfoCircle } from "@tabler/icons-react";
+import {
+  IconAlertCircle,
+  IconCheck,
+  IconGift,
+  IconInfoCircle,
+} from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
@@ -52,7 +57,9 @@ export default function ScholarshipForm() {
   const [academicYearId, setAcademicYearId] = useState<string | null>(null);
   const [classAcademicId, setClassAcademicId] = useState<string | null>(null);
   const [studentNis, setStudentNis] = useState<string | null>(null);
-  const [scholarshipName, setScholarshipName] = useState<string | null>("Academic");
+  const [scholarshipName, setScholarshipName] = useState<string | null>(
+    "Academic",
+  );
   const [nominal, setNominal] = useState<number | string>(500000);
   const [result, setResult] = useState<CreationResult | null>(null);
 
@@ -215,13 +222,14 @@ export default function ScholarshipForm() {
                   </Text>
                 </Group>
                 <Text size="xs" c="dimmed">
-                  Set scholarship nominal up to this amount for full scholarship,
-                  or less for partial scholarship.
+                  Set scholarship nominal up to this amount for full
+                  scholarship, or less for partial scholarship.
                 </Text>
               </Stack>
             ) : (
               <Text size="sm" c="dimmed">
-                No tuitions generated yet for this class. Create tuitions first to see the fee amount.
+                No tuitions generated yet for this class. Create tuitions first
+                to see the fee amount.
               </Text>
             )}
           </Card>
@@ -260,8 +268,9 @@ export default function ScholarshipForm() {
             <Text size="sm">
               {Number(nominal) >= classTuitionFee ? (
                 <>
-                  <strong>Full Scholarship:</strong> All unpaid tuitions for this
-                  student in this class will be automatically marked as paid.
+                  <strong>Full Scholarship:</strong> All unpaid tuitions for
+                  this student in this class will be automatically marked as
+                  paid.
                 </>
               ) : (
                 <>

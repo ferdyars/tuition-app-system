@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
   const classAcademicId = searchParams.get("classAcademicId") || undefined;
   const studentNis = searchParams.get("studentNis") || undefined;
   const statusParam = searchParams.get("status");
-  const status = statusParam && statusParam !== "null" ? statusParam : undefined;
+  const status =
+    statusParam && statusParam !== "null" ? statusParam : undefined;
   const monthParam = searchParams.get("month");
   const month = monthParam && monthParam !== "null" ? monthParam : undefined;
   const year = searchParams.get("year")
@@ -105,7 +106,7 @@ export async function GET(request: NextRequest) {
       // Calculate total scholarship amount
       const totalScholarshipAmount = scholarships.reduce(
         (sum, s) => sum + Number(s.nominal),
-        0
+        0,
       );
       const feeAmount = Number(tuition.feeAmount);
       // Calculate if total scholarships cover the full fee (not based on DB flag)

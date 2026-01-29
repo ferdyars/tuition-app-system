@@ -256,54 +256,56 @@ export default function DashboardPage() {
             </Stack>
           ) : stats?.recentPayments && stats.recentPayments.length > 0 ? (
             <Table.ScrollContainer minWidth={700}>
-            <Table striped highlightOnHover>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Student</Table.Th>
-                  <Table.Th>Class</Table.Th>
-                  <Table.Th>Amount</Table.Th>
-                  <Table.Th>Date</Table.Th>
-                  <Table.Th>Processed By</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {stats.recentPayments.map((payment) => (
-                  <Table.Tr key={payment.id}>
-                    <Table.Td>
-                      <Stack gap={0}>
-                        <Text size="sm" fw={500}>
-                          {payment.studentName}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {payment.studentNis}
-                        </Text>
-                      </Stack>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">{payment.className}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm" fw={500} c="green">
-                        <NumberFormatter
-                          value={payment.amount}
-                          prefix="Rp "
-                          thousandSeparator="."
-                          decimalSeparator=","
-                        />
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">
-                        {dayjs(payment.paymentDate).format("DD/MM/YYYY HH:mm")}
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm">{payment.processedBy}</Text>
-                    </Table.Td>
+              <Table striped highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Student</Table.Th>
+                    <Table.Th>Class</Table.Th>
+                    <Table.Th>Amount</Table.Th>
+                    <Table.Th>Date</Table.Th>
+                    <Table.Th>Processed By</Table.Th>
                   </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
+                </Table.Thead>
+                <Table.Tbody>
+                  {stats.recentPayments.map((payment) => (
+                    <Table.Tr key={payment.id}>
+                      <Table.Td>
+                        <Stack gap={0}>
+                          <Text size="sm" fw={500}>
+                            {payment.studentName}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            {payment.studentNis}
+                          </Text>
+                        </Stack>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text size="sm">{payment.className}</Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text size="sm" fw={500} c="green">
+                          <NumberFormatter
+                            value={payment.amount}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text size="sm">
+                          {dayjs(payment.paymentDate).format(
+                            "DD/MM/YYYY HH:mm",
+                          )}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text size="sm">{payment.processedBy}</Text>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
             </Table.ScrollContainer>
           ) : (
             <Text c="dimmed" ta="center" py="md">

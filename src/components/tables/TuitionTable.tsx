@@ -158,109 +158,112 @@ export default function TuitionTable() {
 
       <Paper withBorder>
         <Table.ScrollContainer minWidth={900}>
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Student</Table.Th>
-              <Table.Th>Class</Table.Th>
-              <Table.Th>Month</Table.Th>
-              <Table.Th>Fee Amount</Table.Th>
-              <Table.Th>Paid Amount</Table.Th>
-              <Table.Th>Due Date</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th w={80}>Actions</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading &&
-              Array.from({ length: 5 }).map((_, i) => (
-                <Table.Tr key={`skeleton-${i}`}>
-                  {Array.from({ length: 8 }).map((_, j) => (
-                    <Table.Td key={`skeleton-cell-${j}`}>
-                      <Skeleton height={20} />
-                    </Table.Td>
-                  ))}
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Student</Table.Th>
+                <Table.Th>Class</Table.Th>
+                <Table.Th>Month</Table.Th>
+                <Table.Th>Fee Amount</Table.Th>
+                <Table.Th>Paid Amount</Table.Th>
+                <Table.Th>Due Date</Table.Th>
+                <Table.Th>Status</Table.Th>
+                <Table.Th w={80}>Actions</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading &&
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Table.Tr key={`skeleton-${i}`}>
+                    {Array.from({ length: 8 }).map((_, j) => (
+                      <Table.Td key={`skeleton-cell-${j}`}>
+                        <Skeleton height={20} />
+                      </Table.Td>
+                    ))}
+                  </Table.Tr>
+                ))}
+              {!isLoading && data?.tuitions.length === 0 && (
+                <Table.Tr>
+                  <Table.Td colSpan={8}>
+                    <Text ta="center" c="dimmed" py="md">
+                      No tuitions found
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              )}
+              {data?.tuitions.map((tuition) => (
+                <Table.Tr key={tuition.id}>
+                  <Table.Td>
+                    <Stack gap={0}>
+                      <Text size="sm" fw={500}>
+                        {tuition.student?.name}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {tuition.studentNis}
+                      </Text>
+                    </Stack>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">{tuition.classAcademic?.className}</Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">
+                      {getMonthDisplayName(tuition.month)} {tuition.year}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <NumberFormatter
+                      value={tuition.feeAmount}
+                      prefix="Rp "
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <NumberFormatter
+                      value={tuition.paidAmount}
+                      prefix="Rp "
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">
+                      {dayjs(tuition.dueDate).format("DD/MM/YYYY")}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge
+                      color={STATUS_COLORS[tuition.status]}
+                      variant="light"
+                    >
+                      {tuition.status}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap="xs">
+                      <Tooltip label="Delete">
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          onClick={() =>
+                            handleDelete(
+                              tuition.id,
+                              tuition.student?.name || "",
+                              getMonthDisplayName(tuition.month),
+                            )
+                          }
+                          disabled={(tuition._count?.payments ?? 0) > 0}
+                        >
+                          <IconTrash size={18} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  </Table.Td>
                 </Table.Tr>
               ))}
-            {!isLoading && data?.tuitions.length === 0 && (
-              <Table.Tr>
-                <Table.Td colSpan={8}>
-                  <Text ta="center" c="dimmed" py="md">
-                    No tuitions found
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            )}
-            {data?.tuitions.map((tuition) => (
-              <Table.Tr key={tuition.id}>
-                <Table.Td>
-                  <Stack gap={0}>
-                    <Text size="sm" fw={500}>
-                      {tuition.student?.name}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {tuition.studentNis}
-                    </Text>
-                  </Stack>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{tuition.classAcademic?.className}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">
-                    {getMonthDisplayName(tuition.month)} {tuition.year}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <NumberFormatter
-                    value={tuition.feeAmount}
-                    prefix="Rp "
-                    thousandSeparator="."
-                    decimalSeparator=","
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <NumberFormatter
-                    value={tuition.paidAmount}
-                    prefix="Rp "
-                    thousandSeparator="."
-                    decimalSeparator=","
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">
-                    {dayjs(tuition.dueDate).format("DD/MM/YYYY")}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Badge color={STATUS_COLORS[tuition.status]} variant="light">
-                    {tuition.status}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="xs">
-                    <Tooltip label="Delete">
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() =>
-                          handleDelete(
-                            tuition.id,
-                            tuition.student?.name || "",
-                            getMonthDisplayName(tuition.month),
-                          )
-                        }
-                        disabled={(tuition._count?.payments ?? 0) > 0}
-                      >
-                        <IconTrash size={18} />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Tbody>
+          </Table>
         </Table.ScrollContainer>
       </Paper>
 

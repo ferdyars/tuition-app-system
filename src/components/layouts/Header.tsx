@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   Avatar,
   Burger,
@@ -12,6 +11,7 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { IconLogout, IconUser } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderProps {

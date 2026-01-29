@@ -158,9 +158,10 @@ export default function PaymentForm() {
   }));
 
   // Calculate progress based on effective fee (after scholarship)
-  const paidPercentage = selectedTuition && effectiveFeeAmount > 0
-    ? (Number(selectedTuition.paidAmount) / effectiveFeeAmount) * 100
-    : 0;
+  const paidPercentage =
+    selectedTuition && effectiveFeeAmount > 0
+      ? (Number(selectedTuition.paidAmount) / effectiveFeeAmount) * 100
+      : 0;
 
   return (
     <Paper withBorder p="lg" maw={700}>
@@ -260,77 +261,92 @@ export default function PaymentForm() {
               </SimpleGrid>
 
               {/* Scholarship Information */}
-              {selectedTuition.scholarshipSummary && selectedTuition.scholarships && (
-                <Alert
-                  icon={<IconGift size={18} />}
-                  color="teal"
-                  variant="light"
-                  title={
-                    selectedTuition.scholarshipSummary.hasFullScholarship
-                      ? "Full Scholarship"
-                      : `${selectedTuition.scholarshipSummary.count} Scholarship${selectedTuition.scholarshipSummary.count > 1 ? "s" : ""} Applied`
-                  }
-                >
-                  <Stack gap="xs">
-                    {/* List each scholarship */}
-                    {selectedTuition.scholarships.map((scholarship, index) => (
-                      <Group key={scholarship.id} justify="space-between">
-                        <Text size="sm" c="dimmed">
-                          {index + 1}. {scholarship.name}:
-                        </Text>
-                        <Text size="sm" c="teal">
-                          -<NumberFormatter
-                            value={scholarship.nominal}
+              {selectedTuition.scholarshipSummary &&
+                selectedTuition.scholarships && (
+                  <Alert
+                    icon={<IconGift size={18} />}
+                    color="teal"
+                    variant="light"
+                    title={
+                      selectedTuition.scholarshipSummary.hasFullScholarship
+                        ? "Full Scholarship"
+                        : `${selectedTuition.scholarshipSummary.count} Scholarship${selectedTuition.scholarshipSummary.count > 1 ? "s" : ""} Applied`
+                    }
+                  >
+                    <Stack gap="xs">
+                      {/* List each scholarship */}
+                      {selectedTuition.scholarships.map(
+                        (scholarship, index) => (
+                          <Group key={scholarship.id} justify="space-between">
+                            <Text size="sm" c="dimmed">
+                              {index + 1}. {scholarship.name}:
+                            </Text>
+                            <Text size="sm" c="teal">
+                              -
+                              <NumberFormatter
+                                value={scholarship.nominal}
+                                prefix="Rp "
+                                thousandSeparator="."
+                                decimalSeparator=","
+                              />
+                            </Text>
+                          </Group>
+                        ),
+                      )}
+
+                      {/* Total discount if multiple scholarships */}
+                      {selectedTuition.scholarships.length > 1 && (
+                        <Group
+                          justify="space-between"
+                          style={{
+                            borderTop: "1px solid var(--mantine-color-teal-3)",
+                            paddingTop: 8,
+                          }}
+                        >
+                          <Text size="sm" fw={600}>
+                            Total Discount:
+                          </Text>
+                          <Text size="sm" fw={600} c="teal">
+                            -
+                            <NumberFormatter
+                              value={
+                                selectedTuition.scholarshipSummary.totalAmount
+                              }
+                              prefix="Rp "
+                              thousandSeparator="."
+                              decimalSeparator=","
+                            />
+                          </Text>
+                        </Group>
+                      )}
+
+                      <Group justify="space-between">
+                        <Text size="sm">Original Fee:</Text>
+                        <Text size="sm" td="line-through" c="dimmed">
+                          <NumberFormatter
+                            value={selectedTuition.feeAmount}
                             prefix="Rp "
                             thousandSeparator="."
                             decimalSeparator=","
                           />
                         </Text>
                       </Group>
-                    ))}
-
-                    {/* Total discount if multiple scholarships */}
-                    {selectedTuition.scholarships.length > 1 && (
-                      <Group justify="space-between" style={{ borderTop: "1px solid var(--mantine-color-teal-3)", paddingTop: 8 }}>
-                        <Text size="sm" fw={600}>Total Discount:</Text>
+                      <Group justify="space-between">
+                        <Text size="sm" fw={600}>
+                          Amount to Pay:
+                        </Text>
                         <Text size="sm" fw={600} c="teal">
-                          -<NumberFormatter
-                            value={selectedTuition.scholarshipSummary.totalAmount}
+                          <NumberFormatter
+                            value={effectiveFeeAmount}
                             prefix="Rp "
                             thousandSeparator="."
                             decimalSeparator=","
                           />
                         </Text>
                       </Group>
-                    )}
-
-                    <Group justify="space-between">
-                      <Text size="sm">Original Fee:</Text>
-                      <Text size="sm" td="line-through" c="dimmed">
-                        <NumberFormatter
-                          value={selectedTuition.feeAmount}
-                          prefix="Rp "
-                          thousandSeparator="."
-                          decimalSeparator=","
-                        />
-                      </Text>
-                    </Group>
-                    <Group justify="space-between">
-                      <Text size="sm" fw={600}>
-                        Amount to Pay:
-                      </Text>
-                      <Text size="sm" fw={600} c="teal">
-                        <NumberFormatter
-                          value={effectiveFeeAmount}
-                          prefix="Rp "
-                          thousandSeparator="."
-                          decimalSeparator=","
-                        />
-                      </Text>
-                    </Group>
-                  </Stack>
-                </Alert>
-              )}
+                    </Stack>
+                  </Alert>
+                )}
 
               <div>
                 <Group justify="space-between" mb={4}>
@@ -477,7 +493,8 @@ export default function PaymentForm() {
                       />
                     </Text>
                     <Text size="sm" c="teal">
-                      Scholarship: -<NumberFormatter
+                      Scholarship: -
+                      <NumberFormatter
                         value={result.result.scholarshipAmount}
                         prefix="Rp "
                         thousandSeparator="."

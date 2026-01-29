@@ -105,92 +105,94 @@ export default function AcademicYearTable() {
     <Stack gap="md">
       <Paper withBorder>
         <Table.ScrollContainer minWidth={600}>
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Year</Table.Th>
-              <Table.Th>Start Date</Table.Th>
-              <Table.Th>End Date</Table.Th>
-              <Table.Th>Classes</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th w={140}>Actions</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading &&
-              Array.from({ length: 5 }).map((_, i) => (
-                <Table.Tr key={`skeleton-${i}`}>
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <Table.Td key={`skeleton-cell-${j}`}>
-                      <Skeleton height={20} />
-                    </Table.Td>
-                  ))}
-                </Table.Tr>
-              ))}
-            {!isLoading && data?.academicYears.length === 0 && (
+          <Table striped highlightOnHover>
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={6}>
-                  <Text ta="center" c="dimmed" py="md">
-                    No academic years found
-                  </Text>
-                </Table.Td>
+                <Table.Th>Year</Table.Th>
+                <Table.Th>Start Date</Table.Th>
+                <Table.Th>End Date</Table.Th>
+                <Table.Th>Classes</Table.Th>
+                <Table.Th>Status</Table.Th>
+                <Table.Th w={140}>Actions</Table.Th>
               </Table.Tr>
-            )}
-            {data?.academicYears.map((ay) => (
-              <Table.Tr key={ay.id}>
-                <Table.Td fw={600}>{ay.year}</Table.Td>
-                <Table.Td>{dayjs(ay.startDate).format("DD/MM/YYYY")}</Table.Td>
-                <Table.Td>{dayjs(ay.endDate).format("DD/MM/YYYY")}</Table.Td>
-                <Table.Td>{ay._count?.classAcademics ?? 0}</Table.Td>
-                <Table.Td>
-                  {ay.isActive ? (
-                    <Badge color="green" variant="light">
-                      Active
-                    </Badge>
-                  ) : (
-                    <Badge color="gray" variant="light">
-                      Inactive
-                    </Badge>
-                  )}
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="xs">
-                    <Tooltip label={ay.isActive ? "Active" : "Set active"}>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading &&
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Table.Tr key={`skeleton-${i}`}>
+                    {Array.from({ length: 6 }).map((_, j) => (
+                      <Table.Td key={`skeleton-cell-${j}`}>
+                        <Skeleton height={20} />
+                      </Table.Td>
+                    ))}
+                  </Table.Tr>
+                ))}
+              {!isLoading && data?.academicYears.length === 0 && (
+                <Table.Tr>
+                  <Table.Td colSpan={6}>
+                    <Text ta="center" c="dimmed" py="md">
+                      No academic years found
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              )}
+              {data?.academicYears.map((ay) => (
+                <Table.Tr key={ay.id}>
+                  <Table.Td fw={600}>{ay.year}</Table.Td>
+                  <Table.Td>
+                    {dayjs(ay.startDate).format("DD/MM/YYYY")}
+                  </Table.Td>
+                  <Table.Td>{dayjs(ay.endDate).format("DD/MM/YYYY")}</Table.Td>
+                  <Table.Td>{ay._count?.classAcademics ?? 0}</Table.Td>
+                  <Table.Td>
+                    {ay.isActive ? (
+                      <Badge color="green" variant="light">
+                        Active
+                      </Badge>
+                    ) : (
+                      <Badge color="gray" variant="light">
+                        Inactive
+                      </Badge>
+                    )}
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap="xs">
+                      <Tooltip label={ay.isActive ? "Active" : "Set active"}>
+                        <ActionIcon
+                          variant="subtle"
+                          color={ay.isActive ? "yellow" : "gray"}
+                          onClick={() =>
+                            !ay.isActive && handleSetActive(ay.id, ay.year)
+                          }
+                          disabled={ay.isActive}
+                        >
+                          {ay.isActive ? (
+                            <IconStarFilled size={18} />
+                          ) : (
+                            <IconStar size={18} />
+                          )}
+                        </ActionIcon>
+                      </Tooltip>
                       <ActionIcon
                         variant="subtle"
-                        color={ay.isActive ? "yellow" : "gray"}
-                        onClick={() =>
-                          !ay.isActive && handleSetActive(ay.id, ay.year)
-                        }
-                        disabled={ay.isActive}
+                        color="blue"
+                        onClick={() => router.push(`/academic-years/${ay.id}`)}
                       >
-                        {ay.isActive ? (
-                          <IconStarFilled size={18} />
-                        ) : (
-                          <IconStar size={18} />
-                        )}
+                        <IconEdit size={18} />
                       </ActionIcon>
-                    </Tooltip>
-                    <ActionIcon
-                      variant="subtle"
-                      color="blue"
-                      onClick={() => router.push(`/academic-years/${ay.id}`)}
-                    >
-                      <IconEdit size={18} />
-                    </ActionIcon>
-                    <ActionIcon
-                      variant="subtle"
-                      color="red"
-                      onClick={() => handleDelete(ay.id, ay.year)}
-                    >
-                      <IconTrash size={18} />
-                    </ActionIcon>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        onClick={() => handleDelete(ay.id, ay.year)}
+                      >
+                        <IconTrash size={18} />
+                      </ActionIcon>
+                    </Group>
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
         </Table.ScrollContainer>
       </Paper>
 

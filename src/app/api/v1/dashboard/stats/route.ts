@@ -59,7 +59,10 @@ export async function GET(request: NextRequest) {
   const totalFees = Number(outstandingData._sum.feeAmount || 0);
   const totalScholarships = Number(outstandingData._sum.scholarshipAmount || 0);
   const totalPaid = Number(outstandingData._sum.paidAmount || 0);
-  const totalOutstanding = Math.max(totalFees - totalScholarships - totalPaid, 0);
+  const totalOutstanding = Math.max(
+    totalFees - totalScholarships - totalPaid,
+    0,
+  );
 
   // Get tuition stats for active year
   const tuitionStats = activeYear

@@ -116,90 +116,90 @@ export default function ClassAcademicTable() {
 
       <Paper withBorder>
         <Table.ScrollContainer minWidth={700}>
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Class Name</Table.Th>
-              <Table.Th>Grade</Table.Th>
-              <Table.Th>Section</Table.Th>
-              <Table.Th>Academic Year</Table.Th>
-              <Table.Th>Students</Table.Th>
-              <Table.Th w={120}>Actions</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading &&
-              Array.from({ length: 5 }).map((_, i) => (
-                <Table.Tr key={`skeleton-${i}`}>
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <Table.Td key={`skeleton-cell-${j}`}>
-                      <Skeleton height={20} />
-                    </Table.Td>
-                  ))}
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Class Name</Table.Th>
+                <Table.Th>Grade</Table.Th>
+                <Table.Th>Section</Table.Th>
+                <Table.Th>Academic Year</Table.Th>
+                <Table.Th>Students</Table.Th>
+                <Table.Th w={120}>Actions</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading &&
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Table.Tr key={`skeleton-${i}`}>
+                    {Array.from({ length: 6 }).map((_, j) => (
+                      <Table.Td key={`skeleton-cell-${j}`}>
+                        <Skeleton height={20} />
+                      </Table.Td>
+                    ))}
+                  </Table.Tr>
+                ))}
+              {!isLoading && data?.classes.length === 0 && (
+                <Table.Tr>
+                  <Table.Td colSpan={6}>
+                    <Text ta="center" c="dimmed" py="md">
+                      No classes found
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              )}
+              {data?.classes.map((cls) => (
+                <Table.Tr key={cls.id}>
+                  <Table.Td fw={600}>{cls.className}</Table.Td>
+                  <Table.Td>{cls.grade}</Table.Td>
+                  <Table.Td>{cls.section}</Table.Td>
+                  <Table.Td>{cls.academicYear?.year}</Table.Td>
+                  <Table.Td>
+                    <Badge
+                      variant="light"
+                      color={cls._count?.studentClasses ? "blue" : "gray"}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => router.push(`/classes/${cls.id}/students`)}
+                    >
+                      {cls._count?.studentClasses ?? 0} students
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap="xs">
+                      <Tooltip label="Manage Students">
+                        <ActionIcon
+                          variant="subtle"
+                          color="teal"
+                          onClick={() =>
+                            router.push(`/classes/${cls.id}/students`)
+                          }
+                        >
+                          <IconUsers size={18} />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label="Edit Class">
+                        <ActionIcon
+                          variant="subtle"
+                          color="blue"
+                          onClick={() => router.push(`/classes/${cls.id}`)}
+                        >
+                          <IconEdit size={18} />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label="Delete Class">
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          onClick={() => handleDelete(cls.id, cls.className)}
+                        >
+                          <IconTrash size={18} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  </Table.Td>
                 </Table.Tr>
               ))}
-            {!isLoading && data?.classes.length === 0 && (
-              <Table.Tr>
-                <Table.Td colSpan={6}>
-                  <Text ta="center" c="dimmed" py="md">
-                    No classes found
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            )}
-            {data?.classes.map((cls) => (
-              <Table.Tr key={cls.id}>
-                <Table.Td fw={600}>{cls.className}</Table.Td>
-                <Table.Td>{cls.grade}</Table.Td>
-                <Table.Td>{cls.section}</Table.Td>
-                <Table.Td>{cls.academicYear?.year}</Table.Td>
-                <Table.Td>
-                  <Badge
-                    variant="light"
-                    color={cls._count?.studentClasses ? "blue" : "gray"}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => router.push(`/classes/${cls.id}/students`)}
-                  >
-                    {cls._count?.studentClasses ?? 0} students
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="xs">
-                    <Tooltip label="Manage Students">
-                      <ActionIcon
-                        variant="subtle"
-                        color="teal"
-                        onClick={() =>
-                          router.push(`/classes/${cls.id}/students`)
-                        }
-                      >
-                        <IconUsers size={18} />
-                      </ActionIcon>
-                    </Tooltip>
-                    <Tooltip label="Edit Class">
-                      <ActionIcon
-                        variant="subtle"
-                        color="blue"
-                        onClick={() => router.push(`/classes/${cls.id}`)}
-                      >
-                        <IconEdit size={18} />
-                      </ActionIcon>
-                    </Tooltip>
-                    <Tooltip label="Delete Class">
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() => handleDelete(cls.id, cls.className)}
-                      >
-                        <IconTrash size={18} />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Tbody>
+          </Table>
         </Table.ScrollContainer>
       </Paper>
 

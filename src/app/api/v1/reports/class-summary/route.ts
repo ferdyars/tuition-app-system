@@ -22,8 +22,10 @@ export async function GET(request: NextRequest) {
       unpaid: acc.unpaid + cls.statistics.unpaid,
       partial: acc.partial + cls.statistics.partial,
       totalFees: acc.totalFees + cls.statistics.totalFees,
-      totalScholarships: acc.totalScholarships + cls.statistics.totalScholarships,
-      totalEffectiveFees: acc.totalEffectiveFees + cls.statistics.totalEffectiveFees,
+      totalScholarships:
+        acc.totalScholarships + cls.statistics.totalScholarships,
+      totalEffectiveFees:
+        acc.totalEffectiveFees + cls.statistics.totalEffectiveFees,
       totalPaid: acc.totalPaid + cls.statistics.totalPaid,
       totalOutstanding: acc.totalOutstanding + cls.statistics.totalOutstanding,
     }),

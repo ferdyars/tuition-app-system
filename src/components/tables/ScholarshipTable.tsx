@@ -124,95 +124,97 @@ export default function ScholarshipTable() {
 
       <Paper withBorder>
         <Table.ScrollContainer minWidth={700}>
-        <Table striped highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Student</Table.Th>
-              <Table.Th>Class</Table.Th>
-              <Table.Th>Nominal</Table.Th>
-              <Table.Th>Type</Table.Th>
-              <Table.Th>Created</Table.Th>
-              <Table.Th w={80}>Actions</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading &&
-              Array.from({ length: 5 }).map((_, i) => (
-                <Table.Tr key={`skeleton-${i}`}>
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <Table.Td key={`skeleton-cell-${j}`}>
-                      <Skeleton height={20} />
-                    </Table.Td>
-                  ))}
+          <Table striped highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Student</Table.Th>
+                <Table.Th>Class</Table.Th>
+                <Table.Th>Nominal</Table.Th>
+                <Table.Th>Type</Table.Th>
+                <Table.Th>Created</Table.Th>
+                <Table.Th w={80}>Actions</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading &&
+                Array.from({ length: 5 }).map((_, i) => (
+                  <Table.Tr key={`skeleton-${i}`}>
+                    {Array.from({ length: 6 }).map((_, j) => (
+                      <Table.Td key={`skeleton-cell-${j}`}>
+                        <Skeleton height={20} />
+                      </Table.Td>
+                    ))}
+                  </Table.Tr>
+                ))}
+              {!isLoading && data?.scholarships.length === 0 && (
+                <Table.Tr>
+                  <Table.Td colSpan={6}>
+                    <Text ta="center" c="dimmed" py="md">
+                      No scholarships found
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              )}
+              {data?.scholarships.map((scholarship) => (
+                <Table.Tr key={scholarship.id}>
+                  <Table.Td>
+                    <Stack gap={0}>
+                      <Text size="sm" fw={500}>
+                        {scholarship.student?.name}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {scholarship.studentNis}
+                      </Text>
+                    </Stack>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">
+                      {scholarship.classAcademic?.className}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <NumberFormatter
+                      value={scholarship.nominal}
+                      prefix="Rp "
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  </Table.Td>
+                  <Table.Td>
+                    <Badge
+                      color={scholarship.isFullScholarship ? "green" : "blue"}
+                      variant="light"
+                    >
+                      {scholarship.isFullScholarship ? "Full" : "Partial"}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Text size="sm">
+                      {dayjs(scholarship.createdAt).format("DD/MM/YYYY")}
+                    </Text>
+                  </Table.Td>
+                  <Table.Td>
+                    <Group gap="xs">
+                      <Tooltip label="Delete">
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          onClick={() =>
+                            handleDelete(
+                              scholarship.id,
+                              scholarship.student?.name || "",
+                            )
+                          }
+                        >
+                          <IconTrash size={18} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  </Table.Td>
                 </Table.Tr>
               ))}
-            {!isLoading && data?.scholarships.length === 0 && (
-              <Table.Tr>
-                <Table.Td colSpan={6}>
-                  <Text ta="center" c="dimmed" py="md">
-                    No scholarships found
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            )}
-            {data?.scholarships.map((scholarship) => (
-              <Table.Tr key={scholarship.id}>
-                <Table.Td>
-                  <Stack gap={0}>
-                    <Text size="sm" fw={500}>
-                      {scholarship.student?.name}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {scholarship.studentNis}
-                    </Text>
-                  </Stack>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">{scholarship.classAcademic?.className}</Text>
-                </Table.Td>
-                <Table.Td>
-                  <NumberFormatter
-                    value={scholarship.nominal}
-                    prefix="Rp "
-                    thousandSeparator="."
-                    decimalSeparator=","
-                  />
-                </Table.Td>
-                <Table.Td>
-                  <Badge
-                    color={scholarship.isFullScholarship ? "green" : "blue"}
-                    variant="light"
-                  >
-                    {scholarship.isFullScholarship ? "Full" : "Partial"}
-                  </Badge>
-                </Table.Td>
-                <Table.Td>
-                  <Text size="sm">
-                    {dayjs(scholarship.createdAt).format("DD/MM/YYYY")}
-                  </Text>
-                </Table.Td>
-                <Table.Td>
-                  <Group gap="xs">
-                    <Tooltip label="Delete">
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() =>
-                          handleDelete(
-                            scholarship.id,
-                            scholarship.student?.name || "",
-                          )
-                        }
-                      >
-                        <IconTrash size={18} />
-                      </ActionIcon>
-                    </Tooltip>
-                  </Group>
-                </Table.Td>
-              </Table.Tr>
-            ))}
-          </Table.Tbody>
-        </Table>
+            </Table.Tbody>
+          </Table>
         </Table.ScrollContainer>
       </Paper>
 

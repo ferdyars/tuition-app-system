@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     let updated = 0;
     let statusChanged = 0;
-    let skippedPaid = 0;
+    const skippedPaid = 0;
 
     for (const tuition of tuitions) {
       const key = `${tuition.studentNis}-${tuition.classAcademicId}`;
@@ -97,6 +97,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error syncing scholarships:", error);
-    return errorResponse("Failed to sync scholarship amounts", "INTERNAL_ERROR", 500);
+    return errorResponse(
+      "Failed to sync scholarship amounts",
+      "INTERNAL_ERROR",
+      500,
+    );
   }
 }

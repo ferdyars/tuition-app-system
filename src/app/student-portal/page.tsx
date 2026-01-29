@@ -146,7 +146,9 @@ export default function StudentPortalPage() {
         <Center>
           <Stack align="center" gap="xs">
             <IconSchool size={48} color="var(--mantine-color-dark-6)" />
-            <Title order={1} c="dark">Student Payment Portal</Title>
+            <Title order={1} c="dark">
+              Student Payment Portal
+            </Title>
             <Text c="dark.4">Check your tuition payment status</Text>
           </Stack>
         </Center>
@@ -154,7 +156,9 @@ export default function StudentPortalPage() {
         {/* Search Box */}
         <Paper withBorder p="lg" radius="md" bg="dark.0">
           <Stack gap="md">
-            <Text fw={500} c="dark">Enter your Student ID (NIS)</Text>
+            <Text fw={500} c="dark">
+              Enter your Student ID (NIS)
+            </Text>
             <Group>
               <TextInput
                 placeholder="e.g., 2024001"
@@ -179,7 +183,11 @@ export default function StudentPortalPage() {
 
         {/* Error */}
         {error && (
-          <Alert icon={<IconAlertCircle size={18} />} color="red" variant="light">
+          <Alert
+            icon={<IconAlertCircle size={18} />}
+            color="red"
+            variant="light"
+          >
             {error}
           </Alert>
         )}
@@ -198,19 +206,31 @@ export default function StudentPortalPage() {
             <Card withBorder bg="dark.0">
               <Group justify="space-between" wrap="wrap">
                 <Stack gap={4}>
-                  <Text size="sm" c="dark.4">Student Name</Text>
-                  <Text size="lg" fw={600} c="dark">{data.student.name}</Text>
+                  <Text size="sm" c="dark.4">
+                    Student Name
+                  </Text>
+                  <Text size="lg" fw={600} c="dark">
+                    {data.student.name}
+                  </Text>
                 </Stack>
                 <Stack gap={4}>
-                  <Text size="sm" c="dark.4">NIS</Text>
-                  <Badge size="lg" variant="filled" color="dark">{data.student.nis}</Badge>
+                  <Text size="sm" c="dark.4">
+                    NIS
+                  </Text>
+                  <Badge size="lg" variant="filled" color="dark">
+                    {data.student.nis}
+                  </Badge>
                 </Stack>
                 <Stack gap={4}>
-                  <Text size="sm" c="dark.4">Parent/Guardian</Text>
+                  <Text size="sm" c="dark.4">
+                    Parent/Guardian
+                  </Text>
                   <Text c="dark">{data.student.parentName}</Text>
                 </Stack>
                 <Stack gap={4}>
-                  <Text size="sm" c="dark.4">Contact</Text>
+                  <Text size="sm" c="dark.4">
+                    Contact
+                  </Text>
                   <Text c="dark">{data.student.parentPhone}</Text>
                 </Stack>
               </Group>
@@ -257,7 +277,11 @@ export default function StudentPortalPage() {
 
             {/* No Data */}
             {data.academicYears.length === 0 && (
-              <Alert icon={<IconReceipt size={18} />} color="blue" variant="light">
+              <Alert
+                icon={<IconReceipt size={18} />}
+                color="blue"
+                variant="light"
+              >
                 No tuition records found for this student.
               </Alert>
             )}
@@ -269,9 +293,16 @@ export default function StudentPortalPage() {
                   {/* Year Header */}
                   <Group justify="space-between" wrap="wrap">
                     <Group gap="xs">
-                      <IconCalendar size={20} color="var(--mantine-color-dark-6)" />
-                      <Title order={4} c="dark">{yearData.academicYear.year}</Title>
-                      <Badge variant="filled" color="dark">{yearData.class.className}</Badge>
+                      <IconCalendar
+                        size={20}
+                        color="var(--mantine-color-dark-6)"
+                      />
+                      <Title order={4} c="dark">
+                        {yearData.academicYear.year}
+                      </Title>
+                      <Badge variant="filled" color="dark">
+                        {yearData.class.className}
+                      </Badge>
                     </Group>
                     <Group gap="md">
                       <Badge color="green" variant="light">
@@ -294,7 +325,9 @@ export default function StudentPortalPage() {
                   <SimpleGrid cols={{ base: 2, sm: 4 }}>
                     <Paper withBorder p="sm" radius="sm" bg="dark.0">
                       <Stack gap={2}>
-                        <Text size="xs" c="dark.4">Total Fees</Text>
+                        <Text size="xs" c="dark.4">
+                          Total Fees
+                        </Text>
                         <Text fw={600} c="dark">
                           <NumberFormatter
                             value={yearData.summary.totalFees}
@@ -308,9 +341,12 @@ export default function StudentPortalPage() {
                     {yearData.summary.totalScholarships > 0 && (
                       <Paper withBorder p="sm" radius="sm" bg="dark.1">
                         <Stack gap={2}>
-                          <Text size="xs" c="dark.4">Scholarship</Text>
+                          <Text size="xs" c="dark.4">
+                            Scholarship
+                          </Text>
                           <Text fw={600} c="dark.6">
-                            -<NumberFormatter
+                            -
+                            <NumberFormatter
                               value={yearData.summary.totalScholarships}
                               prefix="Rp "
                               thousandSeparator="."
@@ -322,7 +358,9 @@ export default function StudentPortalPage() {
                     )}
                     <Paper withBorder p="sm" radius="sm" bg="dark.1">
                       <Stack gap={2}>
-                        <Text size="xs" c="dark.4">Total Paid</Text>
+                        <Text size="xs" c="dark.4">
+                          Total Paid
+                        </Text>
                         <Text fw={600} c="dark.6">
                           <NumberFormatter
                             value={yearData.summary.totalPaid}
@@ -337,13 +375,23 @@ export default function StudentPortalPage() {
                       withBorder
                       p="sm"
                       radius="sm"
-                      bg={yearData.summary.totalOutstanding > 0 ? "red.0" : "dark.1"}
+                      bg={
+                        yearData.summary.totalOutstanding > 0
+                          ? "red.0"
+                          : "dark.1"
+                      }
                     >
                       <Stack gap={2}>
-                        <Text size="xs" c="dark.4">Outstanding</Text>
+                        <Text size="xs" c="dark.4">
+                          Outstanding
+                        </Text>
                         <Text
                           fw={600}
-                          c={yearData.summary.totalOutstanding > 0 ? "red.7" : "dark.6"}
+                          c={
+                            yearData.summary.totalOutstanding > 0
+                              ? "red.7"
+                              : "dark.6"
+                          }
                         >
                           <NumberFormatter
                             value={yearData.summary.totalOutstanding}
@@ -359,13 +407,15 @@ export default function StudentPortalPage() {
                   {/* Progress */}
                   <div>
                     <Group justify="space-between" mb={4}>
-                      <Text size="sm" c="dark.4">Payment Progress</Text>
+                      <Text size="sm" c="dark.4">
+                        Payment Progress
+                      </Text>
                       <Text size="sm" fw={500} c="dark">
                         {yearData.summary.totalEffectiveFees > 0
                           ? Math.round(
                               (yearData.summary.totalPaid /
                                 yearData.summary.totalEffectiveFees) *
-                                100
+                                100,
                             )
                           : 100}
                         %
@@ -394,7 +444,9 @@ export default function StudentPortalPage() {
                   <Accordion variant="separated">
                     <Accordion.Item value="details">
                       <Accordion.Control>
-                        <Text size="sm" fw={500}>View Monthly Details</Text>
+                        <Text size="sm" fw={500}>
+                          View Monthly Details
+                        </Text>
                       </Accordion.Control>
                       <Accordion.Panel>
                         <Table.ScrollContainer minWidth={600}>
@@ -415,7 +467,9 @@ export default function StudentPortalPage() {
                                 <Table.Tr key={tuition.id}>
                                   <Table.Td>
                                     <Text size="sm" fw={500}>
-                                      {getMonthDisplayName(tuition.month as any)}{" "}
+                                      {getMonthDisplayName(
+                                        tuition.month as any,
+                                      )}{" "}
                                       {tuition.year}
                                     </Text>
                                   </Table.Td>
@@ -430,7 +484,8 @@ export default function StudentPortalPage() {
                                   <Table.Td ta="right">
                                     {tuition.scholarshipAmount > 0 ? (
                                       <Text c="teal" size="sm">
-                                        -<NumberFormatter
+                                        -
+                                        <NumberFormatter
                                           value={tuition.scholarshipAmount}
                                           prefix="Rp "
                                           thousandSeparator="."
@@ -438,7 +493,9 @@ export default function StudentPortalPage() {
                                         />
                                       </Text>
                                     ) : (
-                                      <Text c="dimmed" size="sm">-</Text>
+                                      <Text c="dimmed" size="sm">
+                                        -
+                                      </Text>
                                     )}
                                   </Table.Td>
                                   <Table.Td ta="right">
@@ -453,7 +510,11 @@ export default function StudentPortalPage() {
                                   </Table.Td>
                                   <Table.Td ta="right">
                                     <Text
-                                      c={tuition.remainingAmount > 0 ? "red" : "green"}
+                                      c={
+                                        tuition.remainingAmount > 0
+                                          ? "red"
+                                          : "green"
+                                      }
                                       fw={500}
                                       size="sm"
                                     >
@@ -467,14 +528,18 @@ export default function StudentPortalPage() {
                                   </Table.Td>
                                   <Table.Td>
                                     <Text size="sm">
-                                      {dayjs(tuition.dueDate).format("DD/MM/YYYY")}
+                                      {dayjs(tuition.dueDate).format(
+                                        "DD/MM/YYYY",
+                                      )}
                                     </Text>
                                   </Table.Td>
                                   <Table.Td>
                                     <Badge
                                       color={getStatusColor(tuition.status)}
                                       variant="light"
-                                      leftSection={getStatusIcon(tuition.status)}
+                                      leftSection={getStatusIcon(
+                                        tuition.status,
+                                      )}
                                     >
                                       {tuition.status}
                                     </Badge>

@@ -54,7 +54,7 @@ export async function processPayment(
   // Sum all scholarship amounts
   const scholarshipAmount = scholarships.reduce(
     (sum, s) => sum + Number(s.nominal),
-    0
+    0,
   );
   // Effective fee is the original fee minus scholarship discount
   const effectiveFeeAmount = Math.max(feeAmount - scholarshipAmount, 0);
@@ -147,7 +147,7 @@ export async function reversePayment(
   // Sum all scholarship amounts
   const scholarshipAmount = scholarships.reduce(
     (sum, s) => sum + Number(s.nominal),
-    0
+    0,
   );
   const effectiveFeeAmount = Math.max(feeAmount - scholarshipAmount, 0);
 
