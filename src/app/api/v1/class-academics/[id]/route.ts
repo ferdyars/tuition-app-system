@@ -1,0 +1,141 @@
+import { NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/api-auth";
+import { successResponse, errorResponse } from "@/lib/api-response";
+import { generateClassName } from "@/lib/business-logic/class-name-generator";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireRole(request, ["ADMIN"]);
+  if (auth instanceof Response) return auth;
+
+  const { id } = await params;
+
+  const classAcademic = await prisma.classAcademic.findUnique({
+    where: { id },
+    include: {
+      academicYear: { select: { year: true } },
+      _count: { select: { tuitions: true, scholarships: true } },
+    },
+  });
+
+  if (!classAcademic) {
+    return errorResponse("Class not found", "NOT_FOUND", 404);
+  }
+
+  return successResponse(classAcademic);
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireRole(request, ["ADMIN"]);
+  if (auth instanceof Response) return auth;
+
+  const { id } = await params;
+
+  try {
+    const body = await request.json();
+    const existing = await prisma.classAcademic.findUnique({
+      where: { id },
+      include: { academicYear: true },
+    });
+
+    if (!existing) {
+      return errorResponse("Class not found", "NOT_FOUND", 404);
+    }
+
+    const grade = body.grade ?? existing.grade;
+    const section = body.section ?? existing.section;
+    const academicYearId = body.academicYearId ?? existing.academicYearId;
+
+    let academicYear = existing.academicYear;
+    if (body.academicYearId && body.academicYearId !== existing.academicYearId) {
+      const newYear = await prisma.academicYear.findUnique({
+        where: { id: body.academicYearId },
+      });
+      if (!newYear) {
+        return errorResponse("Academic year not found", "NOT_FOUND", 404);
+      }
+      academicYear = newYear;
+    }
+
+    // Check for duplicates if any key field changed
+    if (
+      grade !== existing.grade ||
+      section !== existing.section ||
+      academicYearId !== existing.academicYearId
+    ) {
+      const duplicate = await prisma.classAcademic.findUnique({
+        where: {
+          academicYearId_grade_section: {
+            academicYearId,
+            grade,
+            section,
+          },
+        },
+      });
+      if (duplicate && duplicate.id !== id) {
+        return errorResponse(
+          "Class already exists for this academic year, grade, and section",
+          "DUPLICATE_ENTRY",
+          409,
+        );
+      }
+    }
+
+    const className = generateClassName(grade, section, academicYear.year);
+
+    const classAcademic = await prisma.classAcademic.update({
+      where: { id },
+      data: {
+        grade,
+        section,
+        academicYearId,
+        className,
+      },
+      include: {
+        academicYear: { select: { year: true } },
+      },
+    });
+
+    return successResponse(classAcademic);
+  } catch (error) {
+    console.error("Update class error:", error);
+    return errorResponse("Failed to update class", "SERVER_ERROR", 500);
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const auth = await requireRole(request, ["ADMIN"]);
+  if (auth instanceof Response) return auth;
+
+  const { id } = await params;
+
+  const existing = await prisma.classAcademic.findUnique({
+    where: { id },
+    include: { _count: { select: { tuitions: true } } },
+  });
+
+  if (!existing) {
+    return errorResponse("Class not found", "NOT_FOUND", 404);
+  }
+
+  if (existing._count.tuitions > 0) {
+    return errorResponse(
+      "Cannot delete class with existing tuitions. Delete tuitions first.",
+      "VALIDATION_ERROR",
+      400,
+    );
+  }
+
+  await prisma.classAcademic.delete({ where: { id } });
+
+  return successResponse({ message: "Class deleted successfully" });
+}

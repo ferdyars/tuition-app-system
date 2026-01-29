@@ -1,0 +1,48 @@
+import { NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/lib/api-auth";
+import { successResponse } from "@/lib/api-response";
+import {
+  getOverdueTuitions,
+  groupOverdueByStudent,
+  calculateOverdueSummary,
+} from "@/lib/business-logic/overdue-calculator";
+
+export async function GET(request: NextRequest) {
+  const auth = await requireAuth(request);
+  if (auth instanceof Response) return auth;
+
+  const searchParams = request.nextUrl.searchParams;
+  const classAcademicId = searchParams.get("classAcademicId") || undefined;
+  const grade = searchParams.get("grade")
+    ? Number(searchParams.get("grade"))
+    : undefined;
+  const academicYearId = searchParams.get("academicYearId") || undefined;
+
+  // Get overdue items
+  const overdueItems = await getOverdueTuitions(
+    { classAcademicId, grade, academicYearId },
+    prisma
+  );
+
+  // Get student details for grouping
+  const studentNisList = [...new Set(overdueItems.map((i) => i.studentNis))];
+  const students = await prisma.student.findMany({
+    where: { nis: { in: studentNisList } },
+    select: { nis: true, parentName: true },
+  });
+  const studentDetails = new Map(
+    students.map((s) => [s.nis, { parentName: s.parentName }])
+  );
+
+  // Group by student
+  const overdueByStudent = groupOverdueByStudent(overdueItems, studentDetails);
+
+  // Calculate summary
+  const summary = calculateOverdueSummary(overdueItems);
+
+  return successResponse({
+    overdue: overdueByStudent,
+    summary,
+  });
+}

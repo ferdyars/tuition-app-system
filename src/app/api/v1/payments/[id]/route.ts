@@ -1,0 +1,91 @@
+import { NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireAuth, requireRole } from "@/lib/api-auth";
+import { successResponse, errorResponse } from "@/lib/api-response";
+import { reversePayment } from "@/lib/business-logic/payment-processor";
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await requireAuth(request);
+  if (auth instanceof Response) return auth;
+
+  const { id } = await params;
+
+  const payment = await prisma.payment.findUnique({
+    where: { id },
+    include: {
+      tuition: {
+        include: {
+          student: {
+            select: { nis: true, name: true, parentName: true, parentPhone: true },
+          },
+          classAcademic: {
+            select: {
+              className: true,
+              grade: true,
+              section: true,
+              academicYear: { select: { year: true } },
+            },
+          },
+        },
+      },
+      employee: {
+        select: { employeeId: true, name: true, email: true },
+      },
+    },
+  });
+
+  if (!payment) {
+    return errorResponse("Payment not found", "NOT_FOUND", 404);
+  }
+
+  return successResponse(payment);
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  // Only admin can reverse payments
+  const auth = await requireRole(request, ["ADMIN"]);
+  if (auth instanceof Response) return auth;
+
+  const { id } = await params;
+
+  try {
+    const payment = await prisma.payment.findUnique({
+      where: { id },
+      include: {
+        tuition: {
+          include: {
+            student: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (!payment) {
+      return errorResponse("Payment not found", "NOT_FOUND", 404);
+    }
+
+    // Reverse the payment
+    const result = await reversePayment(id, prisma);
+
+    return successResponse({
+      message: "Payment reversed successfully",
+      result: {
+        tuitionId: result.tuitionId,
+        newStatus: result.newStatus,
+        newPaidAmount: result.newPaidAmount,
+      },
+    });
+  } catch (error) {
+    console.error("Delete payment error:", error);
+    if (error instanceof Error) {
+      return errorResponse(error.message, "VALIDATION_ERROR", 400);
+    }
+    return errorResponse("Failed to reverse payment", "SERVER_ERROR", 500);
+  }
+}

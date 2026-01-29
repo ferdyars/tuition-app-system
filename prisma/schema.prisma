@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PARTIAL
+}
+
+enum Month {
+  JULY
+  AUGUST
+  SEPTEMBER
+  OCTOBER
+  NOVEMBER
+  DECEMBER
+  JANUARY
+  FEBRUARY
+  MARCH
+  APRIL
+  MAY
+  JUNE
+}
+
+// ============================================
+// EMPLOYEE MANAGEMENT
+// ============================================
+
+model Employee {
+  employeeId String   @id @default(uuid()) @map("employee_id")
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(CASHIER)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  payments Payment[]
+
+  @@map("employees")
+}
+
+// ============================================
+// STUDENT MANAGEMENT
+// ============================================
+
+model Student {
+  nis           String   @id @map("nis")
+  nik           String   @unique @map("nik")
+  name          String
+  address       String
+  parentName    String   @map("parent_name")
+  parentPhone   String   @map("parent_phone")
+  startJoinDate DateTime @map("start_join_date")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  scholarships   Scholarship[]
+  tuitions       Tuition[]
+  studentClasses StudentClass[]
+
+  @@map("students")
+}
+
+// ============================================
+// ACADEMIC YEAR MANAGEMENT
+// ============================================
+
+model AcademicYear {
+  id        String   @id @default(uuid())
+  year      String   @unique
+  startDate DateTime @map("start_date")
+  endDate   DateTime @map("end_date")
+  isActive  Boolean  @default(false) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  classAcademics ClassAcademic[]
+
+  @@map("academic_years")
+}
+
+// ============================================
+// CLASS MANAGEMENT
+// ============================================
+
+model ClassAcademic {
+  id             String   @id @default(uuid())
+  academicYearId String   @map("academic_year_id")
+  grade          Int
+  section        String
+  className      String   @map("class_name")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  academicYear  AcademicYear   @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  tuitions      Tuition[]
+  scholarships  Scholarship[]
+  studentClasses StudentClass[]
+
+  @@unique([academicYearId, grade, section])
+  @@map("class_academics")
+}
+
+// ============================================
+// STUDENT-CLASS ASSIGNMENT (Junction Table)
+// ============================================
+
+model StudentClass {
+  id              String   @id @default(uuid())
+  studentNis      String   @map("student_nis")
+  classAcademicId String   @map("class_academic_id")
+  enrolledAt      DateTime @default(now()) @map("enrolled_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  student       Student       @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
+  classAcademic ClassAcademic @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
+
+  @@unique([studentNis, classAcademicId])
+  @@index([studentNis])
+  @@index([classAcademicId])
+  @@map("student_classes")
+}
+
+// ============================================
+// TUITION MANAGEMENT
+// ============================================
+
+model Tuition {
+  id              String        @id @default(uuid())
+  classAcademicId String        @map("class_academic_id")
+  studentNis      String        @map("student_nis")
+  month           Month
+  year            Int
+  feeAmount       Decimal       @map("fee_amount") @db.Decimal(10, 2)
+  paidAmount      Decimal       @default(0) @map("paid_amount") @db.Decimal(10, 2)
+  status          PaymentStatus @default(UNPAID)
+  dueDate         DateTime      @map("due_date")
+  generatedAt     DateTime      @default(now()) @map("generated_at")
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  classAcademic ClassAcademic @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
+  student       Student       @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
+  payments      Payment[]
+
+  @@unique([classAcademicId, studentNis, month, year])
+  @@index([studentNis])
+  @@index([classAcademicId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("tuitions")
+}
+
+// ============================================
+// SCHOLARSHIP MANAGEMENT
+// ============================================
+
+model Scholarship {
+  id                String   @id @default(uuid())
+  studentNis        String   @map("student_nis")
+  classAcademicId   String   @map("class_academic_id")
+  nominal           Decimal  @db.Decimal(10, 2)
+  isFullScholarship Boolean  @default(false) @map("is_full_scholarship")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  student       Student       @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
+  classAcademic ClassAcademic @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
+
+  @@unique([studentNis, classAcademicId])
+  @@index([studentNis])
+  @@index([classAcademicId])
+  @@map("scholarships")
+}
+
+// ============================================
+// PAYMENT MANAGEMENT
+// ============================================
+
+model Payment {
+  id          String   @id @default(uuid())
+  tuitionId   String   @map("tuition_id")
+  employeeId  String   @map("employee_id")
+  amount      Decimal  @db.Decimal(10, 2)
+  paymentDate DateTime @default(now()) @map("payment_date")
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  tuition  Tuition  @relation(fields: [tuitionId], references: [id], onDelete: Cascade)
+  employee Employee @relation(fields: [employeeId], references: [employeeId], onDelete: Restrict)
+
+  @@index([tuitionId])
+  @@index([employeeId])
+  @@index([paymentDate])
+  @@map("payments")
+}

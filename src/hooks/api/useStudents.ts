@@ -1,0 +1,133 @@
+"use client";
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys, type StudentFilters } from "@/lib/query-keys";
+import { apiClient } from "@/lib/api-client";
+
+interface Student {
+  nis: string;
+  nik: string;
+  name: string;
+  address: string;
+  parentName: string;
+  parentPhone: string;
+  startJoinDate: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+interface StudentListResponse {
+  success: boolean;
+  data: {
+    students: Student[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+}
+
+export function useStudents(filters: StudentFilters = {}) {
+  return useQuery({
+    queryKey: queryKeys.students.list(filters),
+    queryFn: async () => {
+      const { data } = await apiClient.get<StudentListResponse>("/students", {
+        params: filters as Record<
+          string,
+          string | number | boolean | undefined
+        >,
+      });
+      return data.data;
+    },
+  });
+}
+
+export function useStudent(nis: string) {
+  return useQuery({
+    queryKey: queryKeys.students.detail(nis),
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ success: boolean; data: Student }>(
+        `/students/${nis}`,
+      );
+      return data.data;
+    },
+    enabled: !!nis,
+  });
+}
+
+export function useCreateStudent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (student: Omit<Student, "createdAt" | "updatedAt">) => {
+      const { data } = await apiClient.post<{
+        success: boolean;
+        data: Student;
+      }>("/students", student);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.lists() });
+    },
+  });
+}
+
+export function useUpdateStudent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      nis,
+      updates,
+    }: {
+      nis: string;
+      updates: Partial<Omit<Student, "nis" | "createdAt" | "updatedAt">>;
+    }) => {
+      const { data } = await apiClient.put<{ success: boolean; data: Student }>(
+        `/students/${nis}`,
+        updates,
+      );
+      return data.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.lists() });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.students.detail(variables.nis),
+      });
+    },
+  });
+}
+
+export function useDeleteStudent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (nis: string) => {
+      await apiClient.delete(`/students/${nis}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.lists() });
+    },
+  });
+}
+
+export function useImportStudents() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const { data } = await apiClient.post<{
+        success: boolean;
+        data: { imported: number; updated: number; errors: unknown[] };
+      }>("/students/import", formData);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.students.lists() });
+    },
+  });
+}
