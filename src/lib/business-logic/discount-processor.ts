@@ -283,11 +283,19 @@ export async function applyDiscountToTuitions(
 
     const previousDiscountAmount = Number(tuition.discountAmount);
 
+    const feeAmount = Number(tuition.feeAmount);
+    const totalScholarship = Number(tuition.scholarshipAmount);
+    const effectiveFee = Math.max(
+      feeAmount - totalScholarship - discountAmount,
+      0,
+    );
+
     await prisma.tuition.update({
       where: { id: tuition.id },
       data: {
         discountId: discount.id,
         discountAmount,
+        status: effectiveFee === 0 ? "PAID" : tuition.status,
       },
     });
 

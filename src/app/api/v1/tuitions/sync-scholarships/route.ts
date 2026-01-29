@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
         paidAmount: true,
         scholarshipAmount: true,
         status: true,
+        discountAmount: true,
       },
     });
 
@@ -53,7 +54,8 @@ export async function POST(request: NextRequest) {
       if (totalScholarship !== currentScholarship) {
         const feeAmount = Number(tuition.feeAmount);
         const paidAmount = Number(tuition.paidAmount);
-        const effectiveFee = Math.max(feeAmount - totalScholarship, 0);
+        const discountAmount = Number(tuition.discountAmount);
+        const effectiveFee = Math.max(feeAmount - totalScholarship - discountAmount, 0);
 
         // Determine correct status
         let newStatus: PaymentStatus;

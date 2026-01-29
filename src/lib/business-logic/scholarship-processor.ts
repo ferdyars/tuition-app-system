@@ -51,7 +51,8 @@ export async function applyScholarship(
   for (const tuition of tuitions) {
     const feeAmount = Number(tuition.feeAmount);
     const paidAmount = Number(tuition.paidAmount);
-    const effectiveFee = Math.max(feeAmount - nominal, 0);
+    const discountAmount = Number(tuition.discountAmount);
+    const effectiveFee = Math.max(feeAmount - nominal - discountAmount, 0);
 
     // Determine new status
     let newStatus: "PAID" | "PARTIAL" | "UNPAID";
