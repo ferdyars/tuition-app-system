@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
+import type { Prisma } from "@/generated/prisma/client";
 import { requireAuth } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
-import { Prisma } from "@/generated/prisma/client";
+import { errorResponse, successResponse } from "@/lib/api-response";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -74,7 +74,11 @@ export async function GET(request: NextRequest) {
       },
       skip: (page - 1) * limit,
       take: limit,
-      orderBy: [{ year: "desc" }, { month: "asc" }, { student: { name: "asc" } }],
+      orderBy: [
+        { year: "desc" },
+        { month: "asc" },
+        { student: { name: "asc" } },
+      ],
     }),
     prisma.tuition.count({ where }),
   ]);
@@ -105,7 +109,7 @@ export async function GET(request: NextRequest) {
             }
           : null,
       };
-    })
+    }),
   );
 
   return successResponse({

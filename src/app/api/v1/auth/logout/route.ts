@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import { successResponse } from "@/lib/api-response";
 import { getTokenFromRequest } from "@/lib/auth";
 import { blacklistToken } from "@/lib/token-blacklist";
-import { successResponse } from "@/lib/api-response";
 
 export async function POST(request: NextRequest) {
   const token = getTokenFromRequest(request);

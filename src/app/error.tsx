@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
-import { Button, Stack, Text, Title, Paper, Group, ThemeIcon, Container } from "@mantine/core";
-import { IconAlertTriangle, IconRefresh, IconHome } from "@tabler/icons-react";
+import {
+  Button,
+  Container,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+} from "@mantine/core";
+import { IconAlertTriangle, IconHome, IconRefresh } from "@tabler/icons-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 export default function Error({
   error,
@@ -38,10 +47,7 @@ export default function Error({
             </Paper>
           )}
           <Group>
-            <Button
-              leftSection={<IconRefresh size={18} />}
-              onClick={reset}
-            >
+            <Button leftSection={<IconRefresh size={18} />} onClick={reset}>
               Try Again
             </Button>
             <Button

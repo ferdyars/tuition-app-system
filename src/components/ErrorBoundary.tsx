@@ -1,8 +1,16 @@
 "use client";
 
-import { Component, ReactNode } from "react";
-import { Button, Stack, Text, Title, Paper, Group, ThemeIcon } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+} from "@mantine/core";
 import { IconAlertTriangle, IconRefresh } from "@tabler/icons-react";
+import { Component, type ReactNode } from "react";
 
 interface Props {
   children: ReactNode;

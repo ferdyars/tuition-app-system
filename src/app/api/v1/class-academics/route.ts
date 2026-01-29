@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import { generateClassName } from "@/lib/business-logic/class-name-generator";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);
@@ -44,7 +44,11 @@ export async function GET(request: NextRequest) {
       },
       skip: (page - 1) * limit,
       take: limit,
-      orderBy: [{ academicYear: { year: "desc" } }, { grade: "asc" }, { section: "asc" }],
+      orderBy: [
+        { academicYear: { year: "desc" } },
+        { grade: "asc" },
+        { section: "asc" },
+      ],
     }),
     prisma.classAcademic.count({ where }),
   ]);

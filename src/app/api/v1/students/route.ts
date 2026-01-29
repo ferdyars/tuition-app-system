@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireAuth, requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { errorResponse, successResponse } from "@/lib/api-response";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -52,7 +52,15 @@ export async function POST(request: NextRequest) {
     const { nis, nik, name, address, parentName, parentPhone, startJoinDate } =
       body;
 
-    if (!nis || !nik || !name || !address || !parentName || !parentPhone || !startJoinDate) {
+    if (
+      !nis ||
+      !nik ||
+      !name ||
+      !address ||
+      !parentName ||
+      !parentPhone ||
+      !startJoinDate
+    ) {
       return errorResponse("All fields are required", "VALIDATION_ERROR", 400);
     }
 

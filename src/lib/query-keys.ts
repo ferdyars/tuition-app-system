@@ -97,8 +97,7 @@ export const queryKeys = {
     list: (filters: AcademicYearFilters) =>
       [...queryKeys.academicYears.lists(), filters] as const,
     details: () => [...queryKeys.academicYears.all, "detail"] as const,
-    detail: (id: string) =>
-      [...queryKeys.academicYears.details(), id] as const,
+    detail: (id: string) => [...queryKeys.academicYears.details(), id] as const,
     active: () => [...queryKeys.academicYears.all, "active"] as const,
   },
 
@@ -133,8 +132,7 @@ export const queryKeys = {
     list: (filters: ScholarshipFilters) =>
       [...queryKeys.scholarships.lists(), filters] as const,
     details: () => [...queryKeys.scholarships.all, "detail"] as const,
-    detail: (id: string) =>
-      [...queryKeys.scholarships.details(), id] as const,
+    detail: (id: string) => [...queryKeys.scholarships.details(), id] as const,
   },
 
   payments: {

@@ -8,8 +8,7 @@ export const getApiDocs = () => {
       info: {
         title: "School Tuition Management API",
         version: "1.0.0",
-        description:
-          "API documentation for School Tuition Management System",
+        description: "API documentation for School Tuition Management System",
       },
       servers: [
         {
@@ -751,8 +750,16 @@ export const getApiDocs = () => {
             tags: ["Academic Years"],
             summary: "List academic years",
             parameters: [
-              { name: "page", in: "query", schema: { type: "number", default: 1 } },
-              { name: "limit", in: "query", schema: { type: "number", default: 10 } },
+              {
+                name: "page",
+                in: "query",
+                schema: { type: "number", default: 1 },
+              },
+              {
+                name: "limit",
+                in: "query",
+                schema: { type: "number", default: 10 },
+              },
               { name: "isActive", in: "query", schema: { type: "boolean" } },
             ],
             responses: {
@@ -767,8 +774,15 @@ export const getApiDocs = () => {
                         data: {
                           type: "object",
                           properties: {
-                            academicYears: { type: "array", items: { $ref: "#/components/schemas/AcademicYear" } },
-                            pagination: { $ref: "#/components/schemas/Pagination" },
+                            academicYears: {
+                              type: "array",
+                              items: {
+                                $ref: "#/components/schemas/AcademicYear",
+                              },
+                            },
+                            pagination: {
+                              $ref: "#/components/schemas/Pagination",
+                            },
                           },
                         },
                       },
@@ -808,13 +822,30 @@ export const getApiDocs = () => {
           get: {
             tags: ["Academic Years"],
             summary: "Get academic year by ID",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-            responses: { "200": { description: "Academic year details" }, "404": { description: "Not found" } },
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
+            responses: {
+              "200": { description: "Academic year details" },
+              "404": { description: "Not found" },
+            },
           },
           put: {
             tags: ["Academic Years"],
             summary: "Update academic year",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
             requestBody: {
               content: {
                 "application/json": {
@@ -835,15 +866,32 @@ export const getApiDocs = () => {
           delete: {
             tags: ["Academic Years"],
             summary: "Delete academic year",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-            responses: { "200": { description: "Deleted" }, "400": { description: "Has existing classes" } },
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
+            responses: {
+              "200": { description: "Deleted" },
+              "400": { description: "Has existing classes" },
+            },
           },
         },
         "/academic-years/{id}/set-active": {
           post: {
             tags: ["Academic Years"],
             summary: "Set academic year as active",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
             responses: { "200": { description: "Academic year activated" } },
           },
         },
@@ -852,10 +900,26 @@ export const getApiDocs = () => {
             tags: ["Classes"],
             summary: "List classes with filters",
             parameters: [
-              { name: "page", in: "query", schema: { type: "number", default: 1 } },
-              { name: "limit", in: "query", schema: { type: "number", default: 10 } },
-              { name: "academicYearId", in: "query", schema: { type: "string", format: "uuid" } },
-              { name: "grade", in: "query", schema: { type: "number", minimum: 1, maximum: 12 } },
+              {
+                name: "page",
+                in: "query",
+                schema: { type: "number", default: 1 },
+              },
+              {
+                name: "limit",
+                in: "query",
+                schema: { type: "number", default: 10 },
+              },
+              {
+                name: "academicYearId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
+              {
+                name: "grade",
+                in: "query",
+                schema: { type: "number", minimum: 1, maximum: 12 },
+              },
               { name: "search", in: "query", schema: { type: "string" } },
             ],
             responses: {
@@ -870,8 +934,15 @@ export const getApiDocs = () => {
                         data: {
                           type: "object",
                           properties: {
-                            classes: { type: "array", items: { $ref: "#/components/schemas/ClassAcademic" } },
-                            pagination: { $ref: "#/components/schemas/Pagination" },
+                            classes: {
+                              type: "array",
+                              items: {
+                                $ref: "#/components/schemas/ClassAcademic",
+                              },
+                            },
+                            pagination: {
+                              $ref: "#/components/schemas/Pagination",
+                            },
                           },
                         },
                       },
@@ -900,20 +971,40 @@ export const getApiDocs = () => {
                 },
               },
             },
-            responses: { "201": { description: "Class created" }, "409": { description: "Duplicate class" } },
+            responses: {
+              "201": { description: "Class created" },
+              "409": { description: "Duplicate class" },
+            },
           },
         },
         "/class-academics/{id}": {
           get: {
             tags: ["Classes"],
             summary: "Get class by ID",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-            responses: { "200": { description: "Class details" }, "404": { description: "Not found" } },
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
+            responses: {
+              "200": { description: "Class details" },
+              "404": { description: "Not found" },
+            },
           },
           put: {
             tags: ["Classes"],
             summary: "Update class",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
             requestBody: {
               content: {
                 "application/json": {
@@ -933,8 +1024,18 @@ export const getApiDocs = () => {
           delete: {
             tags: ["Classes"],
             summary: "Delete class",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-            responses: { "200": { description: "Deleted" }, "400": { description: "Has existing tuitions" } },
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
+            responses: {
+              "200": { description: "Deleted" },
+              "400": { description: "Has existing tuitions" },
+            },
           },
         },
         "/class-academics/import": {
@@ -948,7 +1049,11 @@ export const getApiDocs = () => {
                   schema: {
                     type: "object",
                     properties: {
-                      file: { type: "string", format: "binary", description: "Excel file (.xlsx)" },
+                      file: {
+                        type: "string",
+                        format: "binary",
+                        description: "Excel file (.xlsx)",
+                      },
                     },
                   },
                 },
@@ -965,9 +1070,10 @@ export const getApiDocs = () => {
               "200": {
                 description: "Excel file download",
                 content: {
-                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
-                    schema: { type: "string", format: "binary" },
-                  },
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                    {
+                      schema: { type: "string", format: "binary" },
+                    },
                 },
               },
             },
@@ -978,12 +1084,48 @@ export const getApiDocs = () => {
             tags: ["Tuitions"],
             summary: "List tuitions with filters",
             parameters: [
-              { name: "page", in: "query", schema: { type: "number", default: 1 } },
-              { name: "limit", in: "query", schema: { type: "number", default: 10 } },
-              { name: "classAcademicId", in: "query", schema: { type: "string", format: "uuid" } },
+              {
+                name: "page",
+                in: "query",
+                schema: { type: "number", default: 1 },
+              },
+              {
+                name: "limit",
+                in: "query",
+                schema: { type: "number", default: 10 },
+              },
+              {
+                name: "classAcademicId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
               { name: "studentNis", in: "query", schema: { type: "string" } },
-              { name: "status", in: "query", schema: { type: "string", enum: ["UNPAID", "PAID", "PARTIAL"] } },
-              { name: "month", in: "query", schema: { type: "string", enum: ["JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER", "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE"] } },
+              {
+                name: "status",
+                in: "query",
+                schema: { type: "string", enum: ["UNPAID", "PAID", "PARTIAL"] },
+              },
+              {
+                name: "month",
+                in: "query",
+                schema: {
+                  type: "string",
+                  enum: [
+                    "JULY",
+                    "AUGUST",
+                    "SEPTEMBER",
+                    "OCTOBER",
+                    "NOVEMBER",
+                    "DECEMBER",
+                    "JANUARY",
+                    "FEBRUARY",
+                    "MARCH",
+                    "APRIL",
+                    "MAY",
+                    "JUNE",
+                  ],
+                },
+              },
             ],
             responses: {
               "200": {
@@ -997,8 +1139,13 @@ export const getApiDocs = () => {
                         data: {
                           type: "object",
                           properties: {
-                            tuitions: { type: "array", items: { $ref: "#/components/schemas/Tuition" } },
-                            pagination: { $ref: "#/components/schemas/Pagination" },
+                            tuitions: {
+                              type: "array",
+                              items: { $ref: "#/components/schemas/Tuition" },
+                            },
+                            pagination: {
+                              $ref: "#/components/schemas/Pagination",
+                            },
                           },
                         },
                       },
@@ -1013,13 +1160,30 @@ export const getApiDocs = () => {
           get: {
             tags: ["Tuitions"],
             summary: "Get tuition by ID",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-            responses: { "200": { description: "Tuition details" }, "404": { description: "Not found" } },
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
+            responses: {
+              "200": { description: "Tuition details" },
+              "404": { description: "Not found" },
+            },
           },
           put: {
             tags: ["Tuitions"],
             summary: "Update tuition (Admin only)",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
             requestBody: {
               content: {
                 "application/json": {
@@ -1038,8 +1202,18 @@ export const getApiDocs = () => {
           delete: {
             tags: ["Tuitions"],
             summary: "Delete tuition (Admin only)",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-            responses: { "200": { description: "Deleted" }, "400": { description: "Has existing payments" } },
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
+            responses: {
+              "200": { description: "Deleted" },
+              "400": { description: "Has existing payments" },
+            },
           },
         },
         "/tuitions/generate": {
@@ -1056,7 +1230,11 @@ export const getApiDocs = () => {
                     properties: {
                       classAcademicId: { type: "string", format: "uuid" },
                       feeAmount: { type: "number", example: 500000 },
-                      studentNisList: { type: "array", items: { type: "string" }, description: "Optional: specific students" },
+                      studentNisList: {
+                        type: "array",
+                        items: { type: "string" },
+                        description: "Optional: specific students",
+                      },
                     },
                   },
                 },
@@ -1122,11 +1300,27 @@ export const getApiDocs = () => {
             tags: ["Scholarships"],
             summary: "List scholarships",
             parameters: [
-              { name: "page", in: "query", schema: { type: "number", default: 1 } },
-              { name: "limit", in: "query", schema: { type: "number", default: 10 } },
-              { name: "classAcademicId", in: "query", schema: { type: "string", format: "uuid" } },
+              {
+                name: "page",
+                in: "query",
+                schema: { type: "number", default: 1 },
+              },
+              {
+                name: "limit",
+                in: "query",
+                schema: { type: "number", default: 10 },
+              },
+              {
+                name: "classAcademicId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
               { name: "studentNis", in: "query", schema: { type: "string" } },
-              { name: "isFullScholarship", in: "query", schema: { type: "boolean" } },
+              {
+                name: "isFullScholarship",
+                in: "query",
+                schema: { type: "boolean" },
+              },
             ],
             responses: {
               "200": {
@@ -1140,8 +1334,15 @@ export const getApiDocs = () => {
                         data: {
                           type: "object",
                           properties: {
-                            scholarships: { type: "array", items: { $ref: "#/components/schemas/Scholarship" } },
-                            pagination: { $ref: "#/components/schemas/Pagination" },
+                            scholarships: {
+                              type: "array",
+                              items: {
+                                $ref: "#/components/schemas/Scholarship",
+                              },
+                            },
+                            pagination: {
+                              $ref: "#/components/schemas/Pagination",
+                            },
                           },
                         },
                       },
@@ -1154,7 +1355,8 @@ export const getApiDocs = () => {
           post: {
             tags: ["Scholarships"],
             summary: "Create scholarship (Admin only)",
-            description: "Creates a scholarship. Full scholarships auto-pay all unpaid tuitions.",
+            description:
+              "Creates a scholarship. Full scholarships auto-pay all unpaid tuitions.",
             requestBody: {
               required: true,
               content: {
@@ -1171,14 +1373,24 @@ export const getApiDocs = () => {
                 },
               },
             },
-            responses: { "201": { description: "Scholarship created" }, "409": { description: "Duplicate scholarship" } },
+            responses: {
+              "201": { description: "Scholarship created" },
+              "409": { description: "Duplicate scholarship" },
+            },
           },
         },
         "/scholarships/{id}": {
           delete: {
             tags: ["Scholarships"],
             summary: "Delete scholarship (Admin only)",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
             responses: { "200": { description: "Deleted" } },
           },
         },
@@ -1193,7 +1405,11 @@ export const getApiDocs = () => {
                   schema: {
                     type: "object",
                     properties: {
-                      file: { type: "string", format: "binary", description: "Excel file (.xlsx)" },
+                      file: {
+                        type: "string",
+                        format: "binary",
+                        description: "Excel file (.xlsx)",
+                      },
                     },
                   },
                 },
@@ -1207,13 +1423,37 @@ export const getApiDocs = () => {
             tags: ["Payments"],
             summary: "List payments",
             parameters: [
-              { name: "page", in: "query", schema: { type: "number", default: 1 } },
-              { name: "limit", in: "query", schema: { type: "number", default: 10 } },
+              {
+                name: "page",
+                in: "query",
+                schema: { type: "number", default: 1 },
+              },
+              {
+                name: "limit",
+                in: "query",
+                schema: { type: "number", default: 10 },
+              },
               { name: "studentNis", in: "query", schema: { type: "string" } },
-              { name: "classAcademicId", in: "query", schema: { type: "string", format: "uuid" } },
-              { name: "employeeId", in: "query", schema: { type: "string", format: "uuid" } },
-              { name: "paymentDateFrom", in: "query", schema: { type: "string", format: "date" } },
-              { name: "paymentDateTo", in: "query", schema: { type: "string", format: "date" } },
+              {
+                name: "classAcademicId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
+              {
+                name: "employeeId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
+              {
+                name: "paymentDateFrom",
+                in: "query",
+                schema: { type: "string", format: "date" },
+              },
+              {
+                name: "paymentDateTo",
+                in: "query",
+                schema: { type: "string", format: "date" },
+              },
             ],
             responses: {
               "200": {
@@ -1227,8 +1467,13 @@ export const getApiDocs = () => {
                         data: {
                           type: "object",
                           properties: {
-                            payments: { type: "array", items: { $ref: "#/components/schemas/Payment" } },
-                            pagination: { $ref: "#/components/schemas/Pagination" },
+                            payments: {
+                              type: "array",
+                              items: { $ref: "#/components/schemas/Payment" },
+                            },
+                            pagination: {
+                              $ref: "#/components/schemas/Pagination",
+                            },
                           },
                         },
                       },
@@ -1241,7 +1486,8 @@ export const getApiDocs = () => {
           post: {
             tags: ["Payments"],
             summary: "Create payment",
-            description: "Process a payment for a tuition. Updates tuition status automatically.",
+            description:
+              "Process a payment for a tuition. Updates tuition status automatically.",
             requestBody: {
               required: true,
               content: {
@@ -1271,7 +1517,10 @@ export const getApiDocs = () => {
                           type: "object",
                           properties: {
                             payment: { $ref: "#/components/schemas/Payment" },
-                            newStatus: { type: "string", enum: ["UNPAID", "PARTIAL", "PAID"] },
+                            newStatus: {
+                              type: "string",
+                              enum: ["UNPAID", "PARTIAL", "PAID"],
+                            },
                             remainingAmount: { type: "number" },
                           },
                         },
@@ -1288,14 +1537,31 @@ export const getApiDocs = () => {
           get: {
             tags: ["Payments"],
             summary: "Get payment by ID",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
-            responses: { "200": { description: "Payment details" }, "404": { description: "Not found" } },
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
+            responses: {
+              "200": { description: "Payment details" },
+              "404": { description: "Not found" },
+            },
           },
           delete: {
             tags: ["Payments"],
             summary: "Delete/reverse payment (Admin only)",
             description: "Deletes a payment and reverts the tuition status.",
-            parameters: [{ name: "id", in: "path", required: true, schema: { type: "string", format: "uuid" } }],
+            parameters: [
+              {
+                name: "id",
+                in: "path",
+                required: true,
+                schema: { type: "string", format: "uuid" },
+              },
+            ],
             responses: { "200": { description: "Payment reversed" } },
           },
         },
@@ -1304,9 +1570,21 @@ export const getApiDocs = () => {
             tags: ["Reports"],
             summary: "Get overdue payments report",
             parameters: [
-              { name: "classAcademicId", in: "query", schema: { type: "string", format: "uuid" } },
-              { name: "grade", in: "query", schema: { type: "number", minimum: 1, maximum: 12 } },
-              { name: "academicYearId", in: "query", schema: { type: "string", format: "uuid" } },
+              {
+                name: "classAcademicId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
+              {
+                name: "grade",
+                in: "query",
+                schema: { type: "number", minimum: 1, maximum: 12 },
+              },
+              {
+                name: "academicYearId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
             ],
             responses: {
               "200": {
@@ -1340,7 +1618,10 @@ export const getApiDocs = () => {
                                       grade: { type: "number" },
                                     },
                                   },
-                                  overdueMonths: { type: "array", items: { type: "object" } },
+                                  overdueMonths: {
+                                    type: "array",
+                                    items: { type: "object" },
+                                  },
                                   totalOverdue: { type: "number" },
                                   overdueCount: { type: "number" },
                                 },
@@ -1369,17 +1650,26 @@ export const getApiDocs = () => {
             tags: ["Reports"],
             summary: "Export overdue report to Excel",
             parameters: [
-              { name: "classAcademicId", in: "query", schema: { type: "string", format: "uuid" } },
+              {
+                name: "classAcademicId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
               { name: "grade", in: "query", schema: { type: "number" } },
-              { name: "academicYearId", in: "query", schema: { type: "string", format: "uuid" } },
+              {
+                name: "academicYearId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
             ],
             responses: {
               "200": {
                 description: "Excel file download",
                 content: {
-                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
-                    schema: { type: "string", format: "binary" },
-                  },
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                    {
+                      schema: { type: "string", format: "binary" },
+                    },
                 },
               },
             },
@@ -1390,7 +1680,11 @@ export const getApiDocs = () => {
             tags: ["Reports"],
             summary: "Get class payment summary",
             parameters: [
-              { name: "academicYearId", in: "query", schema: { type: "string", format: "uuid" } },
+              {
+                name: "academicYearId",
+                in: "query",
+                schema: { type: "string", format: "uuid" },
+              },
             ],
             responses: {
               "200": {
@@ -1476,7 +1770,10 @@ export const getApiDocs = () => {
                                 total: { type: "number" },
                               },
                             },
-                            recentPayments: { type: "array", items: { type: "object" } },
+                            recentPayments: {
+                              type: "array",
+                              items: { type: "object" },
+                            },
                           },
                         },
                       },

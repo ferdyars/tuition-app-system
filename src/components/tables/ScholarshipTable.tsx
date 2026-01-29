@@ -1,36 +1,36 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Table,
-  Badge,
   ActionIcon,
+  Badge,
   Group,
+  NumberFormatter,
   Pagination,
   Paper,
-  Text,
-  Stack,
-  Skeleton,
   Select,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
   Tooltip,
-  NumberFormatter,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconTrash, IconFilter } from "@tabler/icons-react";
+import { IconFilter, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import {
-  useScholarships,
-  useDeleteScholarship,
-} from "@/hooks/api/useScholarships";
-import { useClassAcademics } from "@/hooks/api/useClassAcademics";
+import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
+import { useClassAcademics } from "@/hooks/api/useClassAcademics";
+import {
+  useDeleteScholarship,
+  useScholarships,
+} from "@/hooks/api/useScholarships";
 
 export default function ScholarshipTable() {
   const [page, setPage] = useState(1);
   const [classAcademicId, setClassAcademicId] = useState<string | null>(null);
   const [isFullScholarship, setIsFullScholarship] = useState<string | null>(
-    null
+    null,
   );
 
   const { data: academicYearsData } = useAcademicYears({ limit: 100 });
@@ -199,7 +199,7 @@ export default function ScholarshipTable() {
                         onClick={() =>
                           handleDelete(
                             scholarship.id,
-                            scholarship.student?.name || ""
+                            scholarship.student?.name || "",
                           )
                         }
                       >

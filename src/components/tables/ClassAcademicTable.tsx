@@ -1,29 +1,34 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Table,
   ActionIcon,
+  Badge,
   Group,
-  TextInput,
-  Select,
   Pagination,
   Paper,
-  Text,
-  Stack,
+  Select,
   Skeleton,
-  Badge,
+  Stack,
+  Table,
+  Text,
+  TextInput,
   Tooltip,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconSearch, IconUsers } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconSearch,
+  IconTrash,
+  IconUsers,
+} from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import {
   useClassAcademics,
   useDeleteClassAcademic,
 } from "@/hooks/api/useClassAcademics";
-import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 
 export default function ClassAcademicTable() {
   const router = useRouter();
@@ -163,7 +168,9 @@ export default function ClassAcademicTable() {
                       <ActionIcon
                         variant="subtle"
                         color="teal"
-                        onClick={() => router.push(`/classes/${cls.id}/students`)}
+                        onClick={() =>
+                          router.push(`/classes/${cls.id}/students`)
+                        }
                       >
                         <IconUsers size={18} />
                       </ActionIcon>
@@ -181,9 +188,7 @@ export default function ClassAcademicTable() {
                       <ActionIcon
                         variant="subtle"
                         color="red"
-                        onClick={() =>
-                          handleDelete(cls.id, cls.className)
-                        }
+                        onClick={() => handleDelete(cls.id, cls.className)}
                       >
                         <IconTrash size={18} />
                       </ActionIcon>

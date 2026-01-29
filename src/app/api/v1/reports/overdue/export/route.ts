@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import * as XLSX from "xlsx";
-import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-auth";
 import { getOverdueTuitions } from "@/lib/business-logic/overdue-calculator";
 import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   // Get overdue items
   const overdueItems = await getOverdueTuitions(
     { classAcademicId, grade, academicYearId },
-    prisma
+    prisma,
   );
 
   // Get student details
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     select: { nis: true, parentName: true },
   });
   const studentDetails = new Map(
-    students.map((s) => [s.nis, { parentName: s.parentName }])
+    students.map((s) => [s.nis, { parentName: s.parentName }]),
   );
 
   // Prepare Excel data
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     Year: item.year,
     "Fee Amount": item.feeAmount,
     "Paid Amount": item.paidAmount,
-    "Outstanding": item.outstandingAmount,
+    Outstanding: item.outstandingAmount,
     "Due Date": item.dueDate.toISOString().split("T")[0],
     "Days Overdue": item.daysOverdue,
   }));
@@ -74,7 +74,10 @@ export async function GET(request: NextRequest) {
 
   // Add summary sheet
   const summaryData = [
-    { Metric: "Total Students with Overdue", Value: new Set(overdueItems.map((i) => i.studentNis)).size },
+    {
+      Metric: "Total Students with Overdue",
+      Value: new Set(overdueItems.map((i) => i.studentNis)).size,
+    },
     { Metric: "Total Overdue Records", Value: overdueItems.length },
     {
       Metric: "Total Outstanding Amount",

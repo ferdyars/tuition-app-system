@@ -2,9 +2,9 @@
 
 import { AppShell, LoadingOverlay } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import Sidebar from "@/components/layouts/Sidebar";
-import Header from "@/components/layouts/Header";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import Header from "@/components/layouts/Header";
+import Sidebar from "@/components/layouts/Sidebar";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function DashboardLayout({

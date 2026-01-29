@@ -1,24 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Paper,
-  Stack,
-  Select,
-  NumberInput,
-  Button,
   Alert,
-  Text,
-  Group,
   Badge,
+  Button,
+  Group,
+  NumberInput,
+  Paper,
+  Select,
+  Stack,
+  Text,
 } from "@mantine/core";
-import { IconCheck, IconAlertCircle, IconGift } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
+import { IconAlertCircle, IconCheck, IconGift } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { useStudents } from "@/hooks/api/useStudents";
-import { useClassAcademics } from "@/hooks/api/useClassAcademics";
+import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
+import { useClassAcademics } from "@/hooks/api/useClassAcademics";
 import { useCreateScholarship } from "@/hooks/api/useScholarships";
+import { useStudents } from "@/hooks/api/useStudents";
 
 interface CreationResult {
   scholarship: {
@@ -42,9 +42,11 @@ export default function ScholarshipForm() {
   const [nominal, setNominal] = useState<number | string>(500000);
   const [result, setResult] = useState<CreationResult | null>(null);
 
-  const { data: academicYearsData, isLoading: loadingYears } = useAcademicYears({
-    limit: 100,
-  });
+  const { data: academicYearsData, isLoading: loadingYears } = useAcademicYears(
+    {
+      limit: 100,
+    },
+  );
 
   const { data: classesData, isLoading: loadingClasses } = useClassAcademics({
     limit: 100,
@@ -91,7 +93,7 @@ export default function ScholarshipForm() {
             color: "red",
           });
         },
-      }
+      },
     );
   };
 
@@ -163,7 +165,11 @@ export default function ScholarshipForm() {
           required
         />
 
-        <Alert icon={<IconAlertCircle size={18} />} color="blue" variant="light">
+        <Alert
+          icon={<IconAlertCircle size={18} />}
+          color="blue"
+          variant="light"
+        >
           <Text size="sm">
             If the scholarship nominal covers the full monthly fee, all unpaid
             tuitions for this student in this class will be automatically marked
@@ -194,7 +200,9 @@ export default function ScholarshipForm() {
             <Stack gap="xs">
               <Group gap="md">
                 <Badge
-                  color={result.scholarship.isFullScholarship ? "green" : "blue"}
+                  color={
+                    result.scholarship.isFullScholarship ? "green" : "blue"
+                  }
                   size="lg"
                 >
                   {result.scholarship.isFullScholarship ? "Full" : "Partial"}{" "}

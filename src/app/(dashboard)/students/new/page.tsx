@@ -3,8 +3,8 @@
 import { Paper } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import StudentForm from "@/components/forms/StudentForm";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import { useCreateStudent } from "@/hooks/api/useStudents";
 
 export default function NewStudentPage() {
@@ -41,7 +41,10 @@ export default function NewStudentPage() {
 
   return (
     <>
-      <PageHeader title="Add Student" description="Create a new student record" />
+      <PageHeader
+        title="Add Student"
+        description="Create a new student record"
+      />
       <Paper withBorder p="lg" maw={600}>
         <StudentForm
           onSubmit={handleSubmit}

@@ -1,28 +1,28 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Table,
-  Badge,
   ActionIcon,
+  Badge,
   Group,
+  NumberFormatter,
   Pagination,
   Paper,
-  Text,
-  Stack,
-  Skeleton,
   Select,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
   TextInput,
   Tooltip,
-  NumberFormatter,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconTrash, IconSearch, IconFilter } from "@tabler/icons-react";
+import { IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { usePayments, useDeletePayment } from "@/hooks/api/usePayments";
-import { useClassAcademics } from "@/hooks/api/useClassAcademics";
+import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
+import { useClassAcademics } from "@/hooks/api/useClassAcademics";
+import { useDeletePayment, usePayments } from "@/hooks/api/usePayments";
 import { useAuth } from "@/hooks/useAuth";
 import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
 
@@ -192,7 +192,9 @@ export default function PaymentTable() {
                   </Stack>
                 </Table.Td>
                 <Table.Td>
-                  <Text size="sm">{payment.tuition?.classAcademic?.className}</Text>
+                  <Text size="sm">
+                    {payment.tuition?.classAcademic?.className}
+                  </Text>
                 </Table.Td>
                 <Table.Td>
                   <Text size="sm">
@@ -220,8 +222,8 @@ export default function PaymentTable() {
                       payment.tuition?.status === "PAID"
                         ? "green"
                         : payment.tuition?.status === "PARTIAL"
-                        ? "yellow"
-                        : "red"
+                          ? "yellow"
+                          : "red"
                     }
                     variant="light"
                     size="sm"
@@ -240,7 +242,7 @@ export default function PaymentTable() {
                             handleDelete(
                               payment.id,
                               payment.tuition?.student?.name || "",
-                              payment.amount
+                              payment.amount,
                             )
                           }
                         >

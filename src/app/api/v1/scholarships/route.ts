@@ -1,12 +1,12 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
+import type { Prisma } from "@/generated/prisma/client";
 import { requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
-import { Prisma } from "@/generated/prisma/client";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import {
   applyScholarship,
   getClassFeeAmount,
 } from "@/lib/business-logic/scholarship-processor";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);
@@ -29,7 +29,11 @@ export async function GET(request: NextRequest) {
     where.studentNis = studentNis;
   }
 
-  if (isFullScholarship !== null && isFullScholarship !== undefined && isFullScholarship !== "") {
+  if (
+    isFullScholarship !== null &&
+    isFullScholarship !== undefined &&
+    isFullScholarship !== ""
+  ) {
     where.isFullScholarship = isFullScholarship === "true";
   }
 
@@ -79,7 +83,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "Student NIS, class, and nominal are required",
         "VALIDATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -87,7 +91,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "Nominal must be a positive number",
         "VALIDATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -123,7 +127,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "Scholarship already exists for this student in this class",
         "DUPLICATE_ENTRY",
-        409
+        409,
       );
     }
 
@@ -165,7 +169,7 @@ export async function POST(request: NextRequest) {
             monthlyFee,
           },
           prisma,
-          adminEmployee.employeeId
+          adminEmployee.employeeId,
         );
       }
     }
@@ -175,7 +179,7 @@ export async function POST(request: NextRequest) {
         scholarship,
         applicationResult,
       },
-      201
+      201,
     );
   } catch (error) {
     console.error("Create scholarship error:", error);

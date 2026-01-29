@@ -81,7 +81,10 @@ export default function ApiDocsPage() {
           `,
         }}
       />
-      <div className="swagger-container" style={{ padding: "1rem", minHeight: "100vh", background: "#fafafa" }}>
+      <div
+        className="swagger-container"
+        style={{ padding: "1rem", minHeight: "100vh", background: "#fafafa" }}
+      >
         <SwaggerUI url="/api/swagger" />
       </div>
     </>

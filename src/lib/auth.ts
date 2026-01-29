@@ -1,4 +1,4 @@
-import { SignJWT, jwtVerify } from "jose";
+import { jwtVerify, SignJWT } from "jose";
 import type { Role } from "@/generated/prisma/client";
 
 const JWT_SECRET = new TextEncoder().encode(

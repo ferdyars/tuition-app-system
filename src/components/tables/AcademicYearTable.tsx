@@ -1,28 +1,28 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Table,
-  Badge,
   ActionIcon,
+  Badge,
   Group,
   Pagination,
   Paper,
-  Text,
-  Stack,
   Skeleton,
+  Stack,
+  Table,
+  Text,
   Tooltip,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import {
   IconEdit,
-  IconTrash,
   IconStar,
   IconStarFilled,
+  IconTrash,
 } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   useAcademicYears,
   useDeleteAcademicYear,
@@ -43,8 +43,8 @@ export default function AcademicYearTable() {
       title: "Delete Academic Year",
       children: (
         <Text size="sm">
-          Are you sure you want to delete academic year{" "}
-          <strong>{year}</strong>? This action cannot be undone.
+          Are you sure you want to delete academic year <strong>{year}</strong>?
+          This action cannot be undone.
         </Text>
       ),
       labels: { confirm: "Delete", cancel: "Cancel" },
@@ -138,12 +138,8 @@ export default function AcademicYearTable() {
             {data?.academicYears.map((ay) => (
               <Table.Tr key={ay.id}>
                 <Table.Td fw={600}>{ay.year}</Table.Td>
-                <Table.Td>
-                  {dayjs(ay.startDate).format("DD/MM/YYYY")}
-                </Table.Td>
-                <Table.Td>
-                  {dayjs(ay.endDate).format("DD/MM/YYYY")}
-                </Table.Td>
+                <Table.Td>{dayjs(ay.startDate).format("DD/MM/YYYY")}</Table.Td>
+                <Table.Td>{dayjs(ay.endDate).format("DD/MM/YYYY")}</Table.Td>
                 <Table.Td>{ay._count?.classAcademics ?? 0}</Table.Td>
                 <Table.Td>
                   {ay.isActive ? (
@@ -177,9 +173,7 @@ export default function AcademicYearTable() {
                     <ActionIcon
                       variant="subtle"
                       color="blue"
-                      onClick={() =>
-                        router.push(`/academic-years/${ay.id}`)
-                      }
+                      onClick={() => router.push(`/academic-years/${ay.id}`)}
                     >
                       <IconEdit size={18} />
                     </ActionIcon>

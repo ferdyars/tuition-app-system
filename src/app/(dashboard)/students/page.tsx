@@ -1,10 +1,10 @@
 "use client";
 
 import { Button, Group } from "@mantine/core";
-import { IconPlus, IconFileUpload } from "@tabler/icons-react";
+import { IconFileUpload, IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import StudentTable from "@/components/tables/StudentTable";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import { usePermissions } from "@/hooks/usePermissions";
 
 export default function StudentsPage() {

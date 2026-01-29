@@ -3,8 +3,8 @@
 import { Button, Group } from "@mantine/core";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import ClassSummaryCards from "@/components/reports/ClassSummaryCards";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 
 export default function ClassSummaryPage() {
   const router = useRouter();

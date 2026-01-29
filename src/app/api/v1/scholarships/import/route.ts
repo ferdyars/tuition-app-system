@@ -1,16 +1,16 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import * as XLSX from "xlsx";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
-import {
-  validateScholarshipData,
-  type ScholarshipExcelRow,
-} from "@/lib/excel-templates/scholarship-template";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import {
   applyScholarship,
   getClassFeeAmount,
 } from "@/lib/business-logic/scholarship-processor";
+import {
+  type ScholarshipExcelRow,
+  validateScholarshipData,
+} from "@/lib/excel-templates/scholarship-template";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const { valid, errors } = validateScholarshipData(
       data,
       validStudentNis,
-      validClassNames
+      validClassNames,
     );
 
     if (valid.length === 0) {
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "No admin employee found for system payments",
         "SERVER_ERROR",
-        500
+        500,
       );
     }
 
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
               monthlyFee,
             },
             prisma,
-            adminEmployee.employeeId
+            adminEmployee.employeeId,
           );
           totalAutoPayments += result.tuitionsAffected;
         }

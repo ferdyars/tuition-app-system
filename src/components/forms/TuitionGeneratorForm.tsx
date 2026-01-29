@@ -1,27 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Paper,
-  Stack,
-  Select,
-  NumberInput,
-  Button,
   Alert,
-  Text,
-  Group,
   Badge,
+  Button,
+  Group,
   List,
+  NumberInput,
+  Paper,
+  Select,
+  Stack,
+  Text,
 } from "@mantine/core";
-import {
-  IconCheck,
-  IconAlertCircle,
-  IconReceipt,
-} from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
+import { IconAlertCircle, IconCheck, IconReceipt } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { useClassAcademics } from "@/hooks/api/useClassAcademics";
+import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
+import { useClassAcademics } from "@/hooks/api/useClassAcademics";
 import { useGenerateTuitions } from "@/hooks/api/useTuitions";
 
 interface GenerationResult {
@@ -43,9 +39,11 @@ export default function TuitionGeneratorForm() {
   const [feeAmount, setFeeAmount] = useState<number | string>(500000);
   const [result, setResult] = useState<GenerationResult | null>(null);
 
-  const { data: academicYearsData, isLoading: loadingYears } = useAcademicYears({
-    limit: 100,
-  });
+  const { data: academicYearsData, isLoading: loadingYears } = useAcademicYears(
+    {
+      limit: 100,
+    },
+  );
 
   const { data: classesData, isLoading: loadingClasses } = useClassAcademics({
     limit: 100,
@@ -57,7 +55,9 @@ export default function TuitionGeneratorForm() {
   // Auto-select active academic year
   useState(() => {
     if (academicYearsData?.academicYears) {
-      const activeYear = academicYearsData.academicYears.find((ay) => ay.isActive);
+      const activeYear = academicYearsData.academicYears.find(
+        (ay) => ay.isActive,
+      );
       if (activeYear) {
         setAcademicYearId(activeYear.id);
       }
@@ -95,7 +95,7 @@ export default function TuitionGeneratorForm() {
             color: "red",
           });
         },
-      }
+      },
     );
   };
 
@@ -150,7 +150,11 @@ export default function TuitionGeneratorForm() {
           required
         />
 
-        <Alert icon={<IconAlertCircle size={18} />} color="blue" variant="light">
+        <Alert
+          icon={<IconAlertCircle size={18} />}
+          color="blue"
+          variant="light"
+        >
           <Text size="sm">
             Tuitions will be generated for all students. Students who joined
             mid-year will only have tuitions generated from their join month

@@ -1,6 +1,6 @@
 "use client";
 
-import { Group, Title, Text, Stack } from "@mantine/core";
+import { Group, Stack, Text, Title } from "@mantine/core";
 
 interface PageHeaderProps {
   title: string;

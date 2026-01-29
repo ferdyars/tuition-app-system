@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
-import { readExcelBuffer } from "@/lib/excel-utils";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import { generateClassName } from "@/lib/business-logic/class-name-generator";
+import { readExcelBuffer } from "@/lib/excel-utils";
+import { prisma } from "@/lib/prisma";
 
 interface ClassRow {
   "Academic Year": string;

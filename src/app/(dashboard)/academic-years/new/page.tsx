@@ -3,8 +3,8 @@
 import { Paper } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import AcademicYearForm from "@/components/forms/AcademicYearForm";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import { useCreateAcademicYear } from "@/hooks/api/useAcademicYears";
 
 export default function NewAcademicYearPage() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Select, Button, Stack } from "@mantine/core";
+import { Button, Select, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
 interface EmployeeFormValues {

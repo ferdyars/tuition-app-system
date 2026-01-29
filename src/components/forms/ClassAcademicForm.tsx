@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Select, NumberInput, Button, Stack } from "@mantine/core";
+import { Button, NumberInput, Select, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 
@@ -36,12 +36,10 @@ export default function ClassAcademicForm({
       section: initialData?.section || "",
     },
     validate: {
-      academicYearId: (value) =>
-        !value ? "Academic year is required" : null,
+      academicYearId: (value) => (!value ? "Academic year is required" : null),
       grade: (value) =>
         value < 1 || value > 12 ? "Grade must be between 1 and 12" : null,
-      section: (value) =>
-        value.length < 1 ? "Section is required" : null,
+      section: (value) => (value.length < 1 ? "Section is required" : null),
     },
   });
 

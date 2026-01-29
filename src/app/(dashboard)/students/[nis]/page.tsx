@@ -1,11 +1,11 @@
 "use client";
 
-import { use } from "react";
-import { Paper, LoadingOverlay, Text } from "@mantine/core";
+import { LoadingOverlay, Paper, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
+import { use } from "react";
 import StudentForm from "@/components/forms/StudentForm";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import { useStudent, useUpdateStudent } from "@/hooks/api/useStudents";
 
 export default function EditStudentPage({

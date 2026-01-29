@@ -1,6 +1,14 @@
 "use client";
 
-import { Button, Stack, Text, Title, Paper, ThemeIcon, Container } from "@mantine/core";
+import {
+  Button,
+  Container,
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+} from "@mantine/core";
 import { IconFileUnknown, IconHome } from "@tabler/icons-react";
 import Link from "next/link";
 

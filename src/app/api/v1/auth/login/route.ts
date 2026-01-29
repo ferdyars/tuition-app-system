@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import { signToken } from "@/lib/auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {

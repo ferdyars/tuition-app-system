@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api-auth";
 import { successResponse } from "@/lib/api-response";
 

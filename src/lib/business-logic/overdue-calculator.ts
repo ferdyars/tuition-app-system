@@ -1,4 +1,8 @@
-import { PrismaClient, Month, PaymentStatus } from "@/generated/prisma/client";
+import type {
+  Month,
+  PaymentStatus,
+  PrismaClient,
+} from "@/generated/prisma/client";
 
 export interface OverdueItem {
   tuitionId: string;
@@ -76,7 +80,7 @@ export async function getOverdueTuitions(
     grade?: number;
     academicYearId?: string;
   },
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<OverdueItem[]> {
   const today = new Date();
 
@@ -136,7 +140,7 @@ export async function getOverdueTuitions(
  */
 export function groupOverdueByStudent(
   items: OverdueItem[],
-  studentDetails: Map<string, { parentName: string }>
+  studentDetails: Map<string, { parentName: string }>,
 ): OverdueByStudent[] {
   const grouped = new Map<string, OverdueByStudent>();
 
@@ -201,7 +205,7 @@ export async function getClassSummary(
   filters: {
     academicYearId?: string;
   },
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<
   Array<{
     class: {
@@ -249,11 +253,11 @@ export async function getClassSummary(
     const partial = cls.tuitions.filter((t) => t.status === "PARTIAL").length;
     const totalFees = cls.tuitions.reduce(
       (sum, t) => sum + Number(t.feeAmount),
-      0
+      0,
     );
     const totalPaid = cls.tuitions.reduce(
       (sum, t) => sum + Number(t.paidAmount),
-      0
+      0,
     );
 
     return {

@@ -1,12 +1,12 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { errorResponse, successResponse } from "@/lib/api-response";
+import { prisma } from "@/lib/prisma";
 
 // GET - Get all students assigned to a specific class
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ classId: string }> }
+  { params }: { params: Promise<{ classId: string }> },
 ) {
   const auth = await requireAuth(request);
   if (auth instanceof Response) return auth;

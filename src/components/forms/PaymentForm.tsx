@@ -1,37 +1,37 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import {
-  Paper,
-  Stack,
-  Select,
-  NumberInput,
-  Button,
   Alert,
-  Text,
-  Group,
   Badge,
-  Textarea,
+  Button,
   Card,
-  SimpleGrid,
-  Progress,
+  Group,
   NumberFormatter,
+  NumberInput,
+  Paper,
+  Progress,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+  Textarea,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import {
-  IconCheck,
   IconAlertCircle,
   IconCash,
-  IconUser,
-  IconReceipt,
+  IconCheck,
   IconGift,
+  IconReceipt,
+  IconUser,
 } from "@tabler/icons-react";
-import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import type { PaymentStatus } from "@/generated/prisma/client";
+import { useCreatePayment } from "@/hooks/api/usePayments";
 import { useStudents } from "@/hooks/api/useStudents";
 import { useTuitions } from "@/hooks/api/useTuitions";
-import { useCreatePayment } from "@/hooks/api/usePayments";
 import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
-import type { PaymentStatus } from "@/generated/prisma/client";
 
 interface PaymentResult {
   payment: {
@@ -72,7 +72,7 @@ export default function PaymentForm() {
   const unpaidTuitions = useMemo(() => {
     if (!tuitionsData?.tuitions) return [];
     return tuitionsData.tuitions.filter(
-      (t) => t.status === "UNPAID" || t.status === "PARTIAL"
+      (t) => t.status === "UNPAID" || t.status === "PARTIAL",
     );
   }, [tuitionsData]);
 
@@ -84,7 +84,9 @@ export default function PaymentForm() {
 
   const remainingAmount = useMemo(() => {
     if (!selectedTuition) return 0;
-    return Number(selectedTuition.feeAmount) - Number(selectedTuition.paidAmount);
+    return (
+      Number(selectedTuition.feeAmount) - Number(selectedTuition.paidAmount)
+    );
   }, [selectedTuition]);
 
   const handleSubmit = () => {
@@ -123,7 +125,7 @@ export default function PaymentForm() {
             color: "red",
           });
         },
-      }
+      },
     );
   };
 
@@ -205,7 +207,9 @@ export default function PaymentForm() {
                   <Text size="xs" c="dimmed">
                     Class
                   </Text>
-                  <Text size="sm">{selectedTuition.classAcademic?.className}</Text>
+                  <Text size="sm">
+                    {selectedTuition.classAcademic?.className}
+                  </Text>
                 </div>
                 <div>
                   <Text size="xs" c="dimmed">
@@ -280,13 +284,15 @@ export default function PaymentForm() {
                       </Text>
                     </Group>
                     <Group justify="space-between">
-                      <Text size="sm" fw={600}>After Scholarship:</Text>
+                      <Text size="sm" fw={600}>
+                        After Scholarship:
+                      </Text>
                       <Text size="sm" fw={600} c="teal">
                         <NumberFormatter
                           value={Math.max(
                             0,
                             Number(selectedTuition.feeAmount) -
-                              Number(selectedTuition.scholarship.nominal)
+                              Number(selectedTuition.scholarship.nominal),
                           )}
                           prefix="Rp "
                           thousandSeparator="."
@@ -319,7 +325,11 @@ export default function PaymentForm() {
                     decimalSeparator=","
                   />
                 </Text>
-                <Badge color={selectedTuition.status === "PARTIAL" ? "yellow" : "red"}>
+                <Badge
+                  color={
+                    selectedTuition.status === "PARTIAL" ? "yellow" : "red"
+                  }
+                >
                   {selectedTuition.status}
                 </Badge>
               </Group>
@@ -365,8 +375,8 @@ export default function PaymentForm() {
                 {Number(amount) >= remainingAmount
                   ? "This payment will mark the tuition as PAID."
                   : Number(amount) > 0
-                  ? "This will be recorded as a partial payment."
-                  : "Enter the payment amount to proceed."}
+                    ? "This will be recorded as a partial payment."
+                    : "Enter the payment amount to proceed."}
               </Text>
             </Alert>
 
@@ -395,7 +405,9 @@ export default function PaymentForm() {
             <Stack gap="xs">
               <Group gap="md">
                 <Badge
-                  color={result.result.newStatus === "PAID" ? "green" : "yellow"}
+                  color={
+                    result.result.newStatus === "PAID" ? "green" : "yellow"
+                  }
                   size="lg"
                 >
                   {result.result.newStatus}

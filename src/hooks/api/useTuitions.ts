@@ -1,9 +1,9 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys, type TuitionFilters } from "@/lib/query-keys";
-import { apiClient } from "@/lib/api-client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Month, PaymentStatus } from "@/generated/prisma/client";
+import { apiClient } from "@/lib/api-client";
+import { queryKeys, type TuitionFilters } from "@/lib/query-keys";
 
 interface Tuition {
   id: string;
@@ -94,7 +94,10 @@ export function useTuitions(filters: TuitionFilters = {}) {
     queryKey: queryKeys.tuitions.list(filters),
     queryFn: async () => {
       const { data } = await apiClient.get<TuitionListResponse>("/tuitions", {
-        params: filters as Record<string, string | number | boolean | undefined>,
+        params: filters as Record<
+          string,
+          string | number | boolean | undefined
+        >,
       });
       return data.data;
     },
@@ -123,7 +126,7 @@ export function useGenerateTuitions() {
     }) => {
       const { data } = await apiClient.post<GenerateResponse>(
         "/tuitions/generate",
-        params
+        params,
       );
       return data.data;
     },
@@ -148,7 +151,7 @@ export function useGenerateBulkTuitions() {
     }) => {
       const { data } = await apiClient.post<GenerateBulkResponse>(
         "/tuitions/generate-bulk",
-        params
+        params,
       );
       return data.data;
     },
@@ -177,7 +180,7 @@ export function useUpdateTuition() {
     }) => {
       const { data } = await apiClient.put<TuitionResponse>(
         `/tuitions/${id}`,
-        updates
+        updates,
       );
       return data.data;
     },

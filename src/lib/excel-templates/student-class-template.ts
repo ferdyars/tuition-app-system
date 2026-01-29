@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 
 export function generateStudentClassTemplate(
   students: Array<{ nis: string; name: string }>,
-  classes: Array<{ id: string; className: string }>
+  classes: Array<{ id: string; className: string }>,
 ) {
   const workbook = XLSX.utils.book_new();
 
@@ -58,15 +58,19 @@ export interface StudentClassImportRow {
   rowNumber: number;
 }
 
-export function parseStudentClassImport(
-  buffer: ArrayBuffer
-): { rows: StudentClassImportRow[]; errors: string[] } {
+export function parseStudentClassImport(buffer: ArrayBuffer): {
+  rows: StudentClassImportRow[];
+  errors: string[];
+} {
   const workbook = XLSX.read(buffer, { type: "array" });
 
   // Find the data sheet
-  const sheetName = workbook.SheetNames.find(
-    (name) => name.toLowerCase().includes("import") || name.toLowerCase().includes("data")
-  ) || workbook.SheetNames[0];
+  const sheetName =
+    workbook.SheetNames.find(
+      (name) =>
+        name.toLowerCase().includes("import") ||
+        name.toLowerCase().includes("data"),
+    ) || workbook.SheetNames[0];
 
   const worksheet = workbook.Sheets[sheetName];
   const rawData = XLSX.utils.sheet_to_json<unknown[]>(worksheet, {

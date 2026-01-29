@@ -1,12 +1,12 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api-auth";
 import { successResponse } from "@/lib/api-response";
 import {
+  calculateOverdueSummary,
   getOverdueTuitions,
   groupOverdueByStudent,
-  calculateOverdueSummary,
 } from "@/lib/business-logic/overdue-calculator";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   // Get overdue items
   const overdueItems = await getOverdueTuitions(
     { classAcademicId, grade, academicYearId },
-    prisma
+    prisma,
   );
 
   // Get student details for grouping
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     select: { nis: true, parentName: true },
   });
   const studentDetails = new Map(
-    students.map((s) => [s.nis, { parentName: s.parentName }])
+    students.map((s) => [s.nis, { parentName: s.parentName }]),
   );
 
   // Group by student

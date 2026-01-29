@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.NEXTAUTH_SECRET || "default-secret-change-in-production",
@@ -47,7 +47,10 @@ export async function middleware(request: NextRequest) {
   if (!token) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json(
-        { success: false, error: { message: "Not authenticated", code: "UNAUTHORIZED" } },
+        {
+          success: false,
+          error: { message: "Not authenticated", code: "UNAUTHORIZED" },
+        },
         { status: 401 },
       );
     }
@@ -60,7 +63,10 @@ export async function middleware(request: NextRequest) {
   } catch {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json(
-        { success: false, error: { message: "Invalid token", code: "UNAUTHORIZED" } },
+        {
+          success: false,
+          error: { message: "Invalid token", code: "UNAUTHORIZED" },
+        },
         { status: 401 },
       );
     }
@@ -72,7 +78,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

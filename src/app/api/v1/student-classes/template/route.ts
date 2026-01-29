@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import * as XLSX from "xlsx";
-import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/api-auth";
 import { generateStudentClassTemplate } from "@/lib/excel-templates/student-class-template";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);

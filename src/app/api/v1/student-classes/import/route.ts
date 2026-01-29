@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import { parseStudentClassImport } from "@/lib/excel-templates/student-class-template";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         ? `Parse errors: ${parseErrors.join("; ")}`
         : "No valid data found in file",
       "VALIDATION_ERROR",
-      400
+      400,
     );
   }
 
@@ -86,11 +86,11 @@ export async function POST(request: NextRequest) {
   });
 
   const existingSet = new Set(
-    existingAssignments.map((ea) => `${ea.studentNis}-${ea.classAcademicId}`)
+    existingAssignments.map((ea) => `${ea.studentNis}-${ea.classAcademicId}`),
   );
 
   const newAssignments = toCreate.filter(
-    (tc) => !existingSet.has(`${tc.studentNis}-${tc.classAcademicId}`)
+    (tc) => !existingSet.has(`${tc.studentNis}-${tc.classAcademicId}`),
   );
 
   const skipped = toCreate.length - newAssignments.length;
@@ -108,7 +108,10 @@ export async function POST(request: NextRequest) {
   return successResponse({
     imported: created,
     skipped,
-    errors: [...parseErrors.map((e) => ({ row: 0, nis: "", error: e })), ...errors],
+    errors: [
+      ...parseErrors.map((e) => ({ row: 0, nis: "", error: e })),
+      ...errors,
+    ],
     total: rows.length,
   });
 }

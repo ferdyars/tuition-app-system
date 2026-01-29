@@ -3,8 +3,8 @@
 import { Button } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import EmployeeTable from "@/components/tables/EmployeeTable";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 
 export default function EmployeesPage() {
   const router = useRouter();

@@ -1,31 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
+  Alert,
+  Badge,
   Button,
+  FileInput,
   Group,
   Paper,
-  Stack,
-  Text,
-  Alert,
-  Table,
-  Badge,
-  FileInput,
   Select,
+  Stack,
+  Table,
+  Text,
 } from "@mantine/core";
 import {
-  IconUpload,
-  IconDownload,
-  IconArrowLeft,
   IconAlertCircle,
+  IconArrowLeft,
   IconCheck,
+  IconDownload,
+  IconUpload,
 } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import {
-  useImportStudentClasses,
   useDownloadStudentClassTemplate,
+  useImportStudentClasses,
 } from "@/hooks/api/useStudentClasses";
 
 interface ImportResult {
@@ -85,7 +85,8 @@ export default function ImportStudentClassesPage() {
           <Stack gap="md">
             <Text fw={600}>Step 1: Download Template</Text>
             <Text size="sm" c="dimmed">
-              Download the template with a list of students and classes for reference.
+              Download the template with a list of students and classes for
+              reference.
             </Text>
             <Group>
               <Select
@@ -140,7 +141,11 @@ export default function ImportStudentClassesPage() {
 
               <Group gap="xl">
                 <Group gap="xs">
-                  <Badge color="green" size="lg" leftSection={<IconCheck size={14} />}>
+                  <Badge
+                    color="green"
+                    size="lg"
+                    leftSection={<IconCheck size={14} />}
+                  >
                     Imported: {result.imported}
                   </Badge>
                 </Group>

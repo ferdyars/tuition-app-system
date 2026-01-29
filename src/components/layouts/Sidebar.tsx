@@ -2,20 +2,20 @@
 
 import { NavLink } from "@mantine/core";
 import {
-  IconUsers,
-  IconSchool,
-  IconCalendar,
+  IconAlertTriangle,
   IconBuilding,
+  IconCalendar,
   IconCash,
+  IconChartBar,
   IconGift,
+  IconHome,
   IconReceipt,
   IconReportAnalytics,
-  IconHome,
-  IconAlertTriangle,
-  IconChartBar,
+  IconSchool,
+  IconUsers,
 } from "@tabler/icons-react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 
 interface NavItem {
@@ -38,8 +38,16 @@ const adminLinks: NavItem[] = [
     icon: IconReportAnalytics,
     label: "Reports",
     children: [
-      { icon: IconAlertTriangle, label: "Overdue Report", href: "/reports/overdue" },
-      { icon: IconChartBar, label: "Class Summary", href: "/reports/class-summary" },
+      {
+        icon: IconAlertTriangle,
+        label: "Overdue Report",
+        href: "/reports/overdue",
+      },
+      {
+        icon: IconChartBar,
+        label: "Class Summary",
+        href: "/reports/class-summary",
+      },
     ],
   },
 ];
@@ -52,8 +60,16 @@ const cashierLinks: NavItem[] = [
     icon: IconReportAnalytics,
     label: "Reports",
     children: [
-      { icon: IconAlertTriangle, label: "Overdue Report", href: "/reports/overdue" },
-      { icon: IconChartBar, label: "Class Summary", href: "/reports/class-summary" },
+      {
+        icon: IconAlertTriangle,
+        label: "Overdue Report",
+        href: "/reports/overdue",
+      },
+      {
+        icon: IconChartBar,
+        label: "Class Summary",
+        href: "/reports/class-summary",
+      },
     ],
   },
 ];

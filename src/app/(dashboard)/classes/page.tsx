@@ -1,10 +1,15 @@
 "use client";
 
 import { Button, Group, Menu } from "@mantine/core";
-import { IconPlus, IconFileUpload, IconUsers, IconChevronDown } from "@tabler/icons-react";
+import {
+  IconChevronDown,
+  IconFileUpload,
+  IconPlus,
+  IconUsers,
+} from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import ClassAcademicTable from "@/components/tables/ClassAcademicTable";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 
 export default function ClassesPage() {
   const router = useRouter();

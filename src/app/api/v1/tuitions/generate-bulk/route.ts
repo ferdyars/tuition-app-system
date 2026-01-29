@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import { generateTuitions } from "@/lib/business-logic/tuition-generator";
+import { prisma } from "@/lib/prisma";
 
 interface ClassConfig {
   classAcademicId: string;
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "At least one class configuration is required",
         "VALIDATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -116,11 +116,11 @@ export async function POST(request: NextRequest) {
       });
 
       const existingKeys = new Set(
-        existingTuitions.map((t) => `${t.studentNis}-${t.month}-${t.year}`)
+        existingTuitions.map((t) => `${t.studentNis}-${t.month}-${t.year}`),
       );
 
       const newTuitions = tuitionsToCreate.filter(
-        (t) => !existingKeys.has(`${t.studentNis}-${t.month}-${t.year}`)
+        (t) => !existingKeys.has(`${t.studentNis}-${t.month}-${t.year}`),
       );
 
       const skippedCount = tuitionsToCreate.length - newTuitions.length;
@@ -158,10 +158,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Generate bulk tuitions error:", error);
-    return errorResponse(
-      "Failed to generate tuitions",
-      "SERVER_ERROR",
-      500
-    );
+    return errorResponse("Failed to generate tuitions", "SERVER_ERROR", 500);
   }
 }

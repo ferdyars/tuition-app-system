@@ -1,7 +1,7 @@
 "use client";
 
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import TuitionGeneratorForm from "@/components/forms/TuitionGeneratorForm";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 
 export default function GenerateTuitionsPage() {
   return (

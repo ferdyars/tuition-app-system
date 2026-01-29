@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import { generateTuitions } from "@/lib/business-logic/tuition-generator";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "Class and fee amount are required",
         "VALIDATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "Fee amount must be greater than 0",
         "VALIDATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "No students found to generate tuitions for",
         "VALIDATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -92,11 +92,11 @@ export async function POST(request: NextRequest) {
     });
 
     const existingKeys = new Set(
-      existingTuitions.map((t) => `${t.studentNis}-${t.month}-${t.year}`)
+      existingTuitions.map((t) => `${t.studentNis}-${t.month}-${t.year}`),
     );
 
     const newTuitions = tuitionsToCreate.filter(
-      (t) => !existingKeys.has(`${t.studentNis}-${t.month}-${t.year}`)
+      (t) => !existingKeys.has(`${t.studentNis}-${t.month}-${t.year}`),
     );
 
     const skippedCount = tuitionsToCreate.length - newTuitions.length;
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate statistics
     const studentsWithFullYear = students.filter(
-      (s) => s.startJoinDate <= classAcademic.academicYear.startDate
+      (s) => s.startJoinDate <= classAcademic.academicYear.startDate,
     ).length;
     const studentsWithPartialYear = students.length - studentsWithFullYear;
 

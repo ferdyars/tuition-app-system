@@ -1,7 +1,7 @@
 "use client";
 
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import PaymentForm from "@/components/forms/PaymentForm";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 
 export default function NewPaymentPage() {
   return (

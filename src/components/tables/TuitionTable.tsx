@@ -1,30 +1,30 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Table,
-  Badge,
   ActionIcon,
+  Badge,
   Group,
+  NumberFormatter,
   Pagination,
   Paper,
-  Text,
-  Stack,
-  Skeleton,
   Select,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
   TextInput,
   Tooltip,
-  NumberFormatter,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconTrash, IconSearch, IconFilter } from "@tabler/icons-react";
+import { IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { useTuitions, useDeleteTuition } from "@/hooks/api/useTuitions";
-import { useClassAcademics } from "@/hooks/api/useClassAcademics";
-import { useAcademicYears } from "@/hooks/api/useAcademicYears";
-import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
+import { useState } from "react";
 import type { Month, PaymentStatus } from "@/generated/prisma/client";
+import { useAcademicYears } from "@/hooks/api/useAcademicYears";
+import { useClassAcademics } from "@/hooks/api/useClassAcademics";
+import { useDeleteTuition, useTuitions } from "@/hooks/api/useTuitions";
+import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
 
 const STATUS_COLORS: Record<PaymentStatus, string> = {
   UNPAID: "red",
@@ -246,7 +246,7 @@ export default function TuitionTable() {
                           handleDelete(
                             tuition.id,
                             tuition.student?.name || "",
-                            getMonthDisplayName(tuition.month)
+                            getMonthDisplayName(tuition.month),
                           )
                         }
                         disabled={(tuition._count?.payments ?? 0) > 0}

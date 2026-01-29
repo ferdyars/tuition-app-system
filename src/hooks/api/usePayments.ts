@@ -1,9 +1,9 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys, type PaymentFilters } from "@/lib/query-keys";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Month, PaymentStatus } from "@/generated/prisma/client";
 import { apiClient } from "@/lib/api-client";
-import type { PaymentStatus, Month } from "@/generated/prisma/client";
+import { type PaymentFilters, queryKeys } from "@/lib/query-keys";
 
 interface Payment {
   id: string;
@@ -68,7 +68,10 @@ export function usePayments(filters: PaymentFilters = {}) {
     queryKey: queryKeys.payments.list(filters),
     queryFn: async () => {
       const { data } = await apiClient.get<PaymentListResponse>("/payments", {
-        params: filters as Record<string, string | number | boolean | undefined>,
+        params: filters as Record<
+          string,
+          string | number | boolean | undefined
+        >,
       });
       return data.data;
     },
@@ -80,7 +83,7 @@ export function usePayment(id: string) {
     queryKey: queryKeys.payments.detail(id),
     queryFn: async () => {
       const { data } = await apiClient.get<{ success: boolean; data: Payment }>(
-        `/payments/${id}`
+        `/payments/${id}`,
       );
       return data.data;
     },
@@ -99,7 +102,7 @@ export function useCreatePayment() {
     }) => {
       const { data } = await apiClient.post<PaymentResponse>(
         "/payments",
-        payment
+        payment,
       );
       return data.data;
     },

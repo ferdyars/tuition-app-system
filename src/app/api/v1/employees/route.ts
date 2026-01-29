@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { errorResponse, successResponse } from "@/lib/api-response";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);
@@ -74,11 +74,7 @@ export async function POST(request: NextRequest) {
 
     const existing = await prisma.employee.findUnique({ where: { email } });
     if (existing) {
-      return errorResponse(
-        "Email already exists",
-        "DUPLICATE_ENTRY",
-        409,
-      );
+      return errorResponse("Email already exists", "DUPLICATE_ENTRY", 409);
     }
 
     const hashedPassword = await bcrypt.hash("123456", 10);

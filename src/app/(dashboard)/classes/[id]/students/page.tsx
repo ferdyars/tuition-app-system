@@ -1,22 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
 import {
+  ActionIcon,
+  Badge,
   Button,
+  Checkbox,
   Group,
+  Modal,
   Paper,
+  ScrollArea,
+  Skeleton,
   Stack,
   Table,
   Text,
-  Badge,
-  ActionIcon,
-  Tooltip,
-  Skeleton,
   TextInput,
-  Checkbox,
-  Modal,
-  ScrollArea,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
@@ -24,17 +22,19 @@ import { notifications } from "@mantine/notifications";
 import {
   IconArrowLeft,
   IconPlus,
-  IconTrash,
   IconSearch,
+  IconTrash,
   IconUsers,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import {
-  useStudentsByClass,
-  useUnassignedStudents,
   useAssignStudentsToClass,
   useRemoveStudentsFromClass,
+  useStudentsByClass,
+  useUnassignedStudents,
 } from "@/hooks/api/useStudentClasses";
 
 export default function ClassStudentsPage() {
@@ -48,11 +48,12 @@ export default function ClassStudentsPage() {
   const [opened, { open, close }] = useDisclosure(false);
 
   const { data, isLoading } = useStudentsByClass(classId);
-  const { data: unassignedData, isLoading: loadingUnassigned } = useUnassignedStudents({
-    classAcademicId: classId,
-    search: searchUnassigned || undefined,
-    limit: 100,
-  });
+  const { data: unassignedData, isLoading: loadingUnassigned } =
+    useUnassignedStudents({
+      classAcademicId: classId,
+      search: searchUnassigned || undefined,
+      limit: 100,
+    });
 
   const assignStudents = useAssignStudentsToClass();
   const removeStudents = useRemoveStudentsFromClass();
@@ -80,8 +81,8 @@ export default function ClassStudentsPage() {
       title: "Remove Students",
       children: (
         <Text size="sm">
-          Are you sure you want to remove {selectedStudents.length} student(s) from this class?
-          This will not delete their tuition records.
+          Are you sure you want to remove {selectedStudents.length} student(s)
+          from this class? This will not delete their tuition records.
         </Text>
       ),
       labels: { confirm: "Remove", cancel: "Cancel" },
@@ -93,7 +94,7 @@ export default function ClassStudentsPage() {
             onSuccess: () => {
               setSelectedStudents([]);
             },
-          }
+          },
         );
       },
     });
@@ -116,7 +117,7 @@ export default function ClassStudentsPage() {
           setSelectedToAdd([]);
           close();
         },
-      }
+      },
     );
   };
 
@@ -165,9 +166,7 @@ export default function ClassStudentsPage() {
       {selectedStudents.length > 0 && (
         <Paper withBorder p="sm" mb="md" bg="red.0">
           <Group justify="space-between">
-            <Text size="sm">
-              {selectedStudents.length} student(s) selected
-            </Text>
+            <Text size="sm">{selectedStudents.length} student(s) selected</Text>
             <Button
               size="sm"
               color="red"
@@ -279,7 +278,8 @@ export default function ClassStudentsPage() {
                           title: "Remove Student",
                           children: (
                             <Text size="sm">
-                              Remove <strong>{student.name}</strong> from this class?
+                              Remove <strong>{student.name}</strong> from this
+                              class?
                             </Text>
                           ),
                           labels: { confirm: "Remove", cancel: "Cancel" },
@@ -328,14 +328,17 @@ export default function ClassStudentsPage() {
                         checked={
                           unassignedData &&
                           unassignedData.students.length > 0 &&
-                          selectedToAdd.length === unassignedData.students.length
+                          selectedToAdd.length ===
+                            unassignedData.students.length
                         }
                         indeterminate={
                           selectedToAdd.length > 0 &&
                           unassignedData &&
                           selectedToAdd.length < unassignedData.students.length
                         }
-                        onChange={(e) => handleSelectAllToAdd(e.currentTarget.checked)}
+                        onChange={(e) =>
+                          handleSelectAllToAdd(e.currentTarget.checked)
+                        }
                       />
                     </Table.Th>
                     <Table.Th>NIS</Table.Th>
@@ -354,22 +357,26 @@ export default function ClassStudentsPage() {
                         ))}
                       </Table.Tr>
                     ))}
-                  {!loadingUnassigned && unassignedData?.students.length === 0 && (
-                    <Table.Tr>
-                      <Table.Td colSpan={4}>
-                        <Text ta="center" c="dimmed" py="md">
-                          No unassigned students found
-                        </Text>
-                      </Table.Td>
-                    </Table.Tr>
-                  )}
+                  {!loadingUnassigned &&
+                    unassignedData?.students.length === 0 && (
+                      <Table.Tr>
+                        <Table.Td colSpan={4}>
+                          <Text ta="center" c="dimmed" py="md">
+                            No unassigned students found
+                          </Text>
+                        </Table.Td>
+                      </Table.Tr>
+                    )}
                   {unassignedData?.students.map((student) => (
                     <Table.Tr key={student.nis}>
                       <Table.Td>
                         <Checkbox
                           checked={selectedToAdd.includes(student.nis)}
                           onChange={(e) =>
-                            handleSelectToAdd(student.nis, e.currentTarget.checked)
+                            handleSelectToAdd(
+                              student.nis,
+                              e.currentTarget.checked,
+                            )
                           }
                         />
                       </Table.Td>
@@ -408,7 +415,8 @@ export default function ClassStudentsPage() {
               loading={assignStudents.isPending}
               disabled={selectedToAdd.length === 0}
             >
-              Add {selectedToAdd.length > 0 ? `(${selectedToAdd.length})` : ""} Students
+              Add {selectedToAdd.length > 0 ? `(${selectedToAdd.length})` : ""}{" "}
+              Students
             </Button>
           </Group>
         </Stack>

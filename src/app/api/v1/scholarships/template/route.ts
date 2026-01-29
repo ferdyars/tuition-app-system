@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import * as XLSX from "xlsx";
-import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/api-auth";
 import { createScholarshipTemplate } from "@/lib/excel-templates/scholarship-template";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);

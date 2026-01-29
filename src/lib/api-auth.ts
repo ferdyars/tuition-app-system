@@ -1,11 +1,7 @@
-import {
-  type JwtPayload,
-  getTokenFromRequest,
-  verifyToken,
-} from "@/lib/auth";
-import { errorResponse } from "@/lib/api-response";
-import { isTokenBlacklisted } from "@/lib/token-blacklist";
 import type { Role } from "@/generated/prisma/client";
+import { errorResponse } from "@/lib/api-response";
+import { getTokenFromRequest, type JwtPayload, verifyToken } from "@/lib/auth";
+import { isTokenBlacklisted } from "@/lib/token-blacklist";
 
 export async function requireAuth(
   request: Request,

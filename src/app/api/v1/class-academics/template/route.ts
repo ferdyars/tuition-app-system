@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
-import { workbookToBuffer } from "@/lib/excel-utils";
 import { createClassTemplate } from "@/lib/excel-templates/class-template";
+import { workbookToBuffer } from "@/lib/excel-utils";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);

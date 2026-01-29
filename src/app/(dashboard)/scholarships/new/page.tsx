@@ -1,7 +1,7 @@
 "use client";
 
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import ScholarshipForm from "@/components/forms/ScholarshipForm";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 
 export default function NewScholarshipPage() {
   return (

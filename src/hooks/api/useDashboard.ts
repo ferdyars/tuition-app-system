@@ -39,9 +39,8 @@ export function useDashboardStats() {
   return useQuery({
     queryKey: ["dashboard", "stats"],
     queryFn: async () => {
-      const { data } = await apiClient.get<DashboardStatsResponse>(
-        "/dashboard/stats"
-      );
+      const { data } =
+        await apiClient.get<DashboardStatsResponse>("/dashboard/stats");
       return data.data;
     },
     refetchInterval: 60000, // Refresh every minute

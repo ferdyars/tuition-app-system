@@ -1,23 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Table,
   ActionIcon,
   Group,
-  TextInput,
   Pagination,
   Paper,
-  Text,
-  Stack,
   Skeleton,
+  Stack,
+  Table,
+  Text,
+  TextInput,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconSearch } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { useStudents, useDeleteStudent } from "@/hooks/api/useStudents";
+import { IconEdit, IconSearch, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDeleteStudent, useStudents } from "@/hooks/api/useStudents";
 
 export default function StudentTable() {
   const router = useRouter();
@@ -129,9 +129,7 @@ export default function StudentTable() {
                     <ActionIcon
                       variant="subtle"
                       color="red"
-                      onClick={() =>
-                        handleDelete(student.nis, student.name)
-                      }
+                      onClick={() => handleDelete(student.nis, student.name)}
                     >
                       <IconTrash size={18} />
                     </ActionIcon>

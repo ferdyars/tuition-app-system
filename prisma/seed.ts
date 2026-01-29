@@ -1,8 +1,8 @@
-import { PrismaClient } from "../src/generated/prisma/client.js";
+import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
-import path from "node:path";
+import { PrismaClient } from "../src/generated/prisma/client.js";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 dotenv.config();

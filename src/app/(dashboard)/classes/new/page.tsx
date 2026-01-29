@@ -3,8 +3,8 @@
 import { Paper } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import ClassAcademicForm from "@/components/forms/ClassAcademicForm";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import { useCreateClassAcademic } from "@/hooks/api/useClassAcademics";
 
 export default function NewClassPage() {

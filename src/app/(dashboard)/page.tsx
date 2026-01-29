@@ -1,32 +1,32 @@
 "use client";
 
 import {
-  Title,
-  Text,
-  SimpleGrid,
-  Paper,
-  Stack,
-  Group,
   Badge,
-  Table,
-  Progress,
-  Skeleton,
-  NumberFormatter,
-  ThemeIcon,
   Card,
+  Group,
+  NumberFormatter,
+  Paper,
+  Progress,
+  SimpleGrid,
+  Skeleton,
+  Stack,
+  Table,
+  Text,
+  ThemeIcon,
+  Title,
 } from "@mantine/core";
 import {
-  IconSchool,
-  IconReceipt,
-  IconCash,
   IconAlertTriangle,
-  IconUsers,
   IconCalendar,
+  IconCash,
+  IconReceipt,
+  IconSchool,
   IconTrendingUp,
+  IconUsers,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { useAuth } from "@/hooks/useAuth";
 import { useDashboardStats } from "@/hooks/api/useDashboard";
+import { useAuth } from "@/hooks/useAuth";
 
 function StatCard({
   title,
@@ -158,13 +158,28 @@ export default function DashboardPage() {
                   <Text size="sm" c="dimmed">
                     Overall Collection Rate
                   </Text>
-                  <Text fw={700} c={collectionRate >= 80 ? "green" : collectionRate >= 50 ? "yellow" : "red"}>
+                  <Text
+                    fw={700}
+                    c={
+                      collectionRate >= 80
+                        ? "green"
+                        : collectionRate >= 50
+                          ? "yellow"
+                          : "red"
+                    }
+                  >
                     {collectionRate.toFixed(1)}%
                   </Text>
                 </Group>
                 <Progress
                   value={collectionRate}
-                  color={collectionRate >= 80 ? "green" : collectionRate >= 50 ? "yellow" : "red"}
+                  color={
+                    collectionRate >= 80
+                      ? "green"
+                      : collectionRate >= 50
+                        ? "yellow"
+                        : "red"
+                  }
                   size="xl"
                 />
                 <Group justify="center" gap="xl">
@@ -174,11 +189,15 @@ export default function DashboardPage() {
                   </Group>
                   <Group gap="xs">
                     <Badge color="yellow" variant="dot" />
-                    <Text size="sm">Partial: {stats?.tuitionStats.partial ?? 0}</Text>
+                    <Text size="sm">
+                      Partial: {stats?.tuitionStats.partial ?? 0}
+                    </Text>
                   </Group>
                   <Group gap="xs">
                     <Badge color="red" variant="dot" />
-                    <Text size="sm">Unpaid: {stats?.tuitionStats.unpaid ?? 0}</Text>
+                    <Text size="sm">
+                      Unpaid: {stats?.tuitionStats.unpaid ?? 0}
+                    </Text>
                   </Group>
                 </Group>
               </>

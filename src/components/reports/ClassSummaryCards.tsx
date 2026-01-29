@@ -1,30 +1,30 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Paper,
-  Text,
-  Stack,
-  Skeleton,
-  Select,
-  Card,
-  SimpleGrid,
-  NumberFormatter,
-  Progress,
-  Group,
   Badge,
+  Card,
+  Group,
+  NumberFormatter,
+  Paper,
+  Progress,
+  Select,
+  SimpleGrid,
+  Skeleton,
+  Stack,
+  Text,
   ThemeIcon,
 } from "@mantine/core";
 import {
-  IconFilter,
-  IconUsers,
+  IconAlertTriangle,
   IconCash,
   IconCheck,
   IconClock,
-  IconAlertTriangle,
+  IconFilter,
+  IconUsers,
 } from "@tabler/icons-react";
-import { useClassSummary } from "@/hooks/api/useReports";
+import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
+import { useClassSummary } from "@/hooks/api/useReports";
 
 export default function ClassSummaryCards() {
   const [academicYearId, setAcademicYearId] = useState<string | null>(null);
@@ -172,7 +172,13 @@ export default function ClassSummaryCards() {
               </Group>
               <Progress
                 value={overallPercentage}
-                color={overallPercentage >= 80 ? "green" : overallPercentage >= 50 ? "yellow" : "red"}
+                color={
+                  overallPercentage >= 80
+                    ? "green"
+                    : overallPercentage >= 50
+                      ? "yellow"
+                      : "red"
+                }
                 size="lg"
               />
             </div>
@@ -222,8 +228,8 @@ export default function ClassSummaryCards() {
                         paidPercentage >= 80
                           ? "green"
                           : paidPercentage >= 50
-                          ? "yellow"
-                          : "red"
+                            ? "yellow"
+                            : "red"
                       }
                     >
                       {paidPercentage.toFixed(0)}%
@@ -267,8 +273,8 @@ export default function ClassSummaryCards() {
                       paidPercentage >= 80
                         ? "green"
                         : paidPercentage >= 50
-                        ? "yellow"
-                        : "red"
+                          ? "yellow"
+                          : "red"
                     }
                     size="sm"
                   />
@@ -314,7 +320,9 @@ export default function ClassSummaryCards() {
             <ThemeIcon size={60} color="gray" variant="light">
               <IconCash size={30} />
             </ThemeIcon>
-            <Text c="dimmed">No class data found for the selected academic year</Text>
+            <Text c="dimmed">
+              No class data found for the selected academic year
+            </Text>
           </Stack>
         </Paper>
       )}

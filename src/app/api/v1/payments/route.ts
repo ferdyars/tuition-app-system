@@ -1,9 +1,9 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
+import type { Prisma } from "@/generated/prisma/client";
 import { requireAuth } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
-import { Prisma } from "@/generated/prisma/client";
+import { errorResponse, successResponse } from "@/lib/api-response";
 import { processPayment } from "@/lib/business-logic/payment-processor";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "Tuition ID and amount are required",
         "VALIDATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         "Amount must be greater than 0",
         "VALIDATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -118,7 +118,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (tuition.status === "PAID") {
-      return errorResponse("Tuition is already fully paid", "VALIDATION_ERROR", 400);
+      return errorResponse(
+        "Tuition is already fully paid",
+        "VALIDATION_ERROR",
+        400,
+      );
     }
 
     // Process payment
@@ -129,7 +133,7 @@ export async function POST(request: NextRequest) {
         employeeId: auth.employeeId,
         notes,
       },
-      prisma
+      prisma,
     );
 
     // Get the created payment with relations
@@ -158,7 +162,7 @@ export async function POST(request: NextRequest) {
           feeAmount: result.feeAmount,
         },
       },
-      201
+      201,
     );
   } catch (error) {
     console.error("Create payment error:", error);

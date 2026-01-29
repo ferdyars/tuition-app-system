@@ -1,6 +1,6 @@
 "use client";
 
-import { TextInput, Checkbox, Button, Stack } from "@mantine/core";
+import { Button, Checkbox, Stack, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
 
@@ -62,14 +62,8 @@ export default function AcademicYearForm({
     const match = year.match(/^(\d{4})\/(\d{4})$/);
     if (match) {
       const [, startYear, endYear] = match;
-      form.setFieldValue(
-        "startDate",
-        new Date(Number(startYear), 6, 1),
-      );
-      form.setFieldValue(
-        "endDate",
-        new Date(Number(endYear), 5, 30),
-      );
+      form.setFieldValue("startDate", new Date(Number(startYear), 6, 1));
+      form.setFieldValue("endDate", new Date(Number(endYear), 5, 30));
     }
   };
 

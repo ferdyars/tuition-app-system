@@ -3,13 +3,13 @@ import * as XLSX from "xlsx";
 export interface ScholarshipExcelRow {
   "Student NIS": string;
   "Student Name": string;
-  "Class": string;
-  "Nominal": number;
+  Class: string;
+  Nominal: number;
 }
 
 export function createScholarshipTemplate(
   students: Array<{ nis: string; name: string }>,
-  classes: Array<{ id: string; className: string }>
+  classes: Array<{ id: string; className: string }>,
 ): XLSX.WorkBook {
   const workbook = XLSX.utils.book_new();
 
@@ -75,7 +75,7 @@ export interface ValidatedScholarshipRow {
 export function validateScholarshipData(
   data: ScholarshipExcelRow[],
   validStudentNis: string[],
-  validClassNames: string[]
+  validClassNames: string[],
 ): {
   valid: ValidatedScholarshipRow[];
   errors: Array<{ row: number; errors: string[] }>;

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/generated/prisma/client";
+import type { PrismaClient } from "@/generated/prisma/client";
 
 export interface ScholarshipApplicationParams {
   studentNis: string;
@@ -22,7 +22,7 @@ export interface ScholarshipApplicationResult {
 export async function applyScholarship(
   params: ScholarshipApplicationParams,
   prisma: PrismaClient,
-  systemEmployeeId: string
+  systemEmployeeId: string,
 ): Promise<ScholarshipApplicationResult> {
   const { studentNis, classAcademicId, nominal, monthlyFee } = params;
 
@@ -85,7 +85,7 @@ export async function applyScholarship(
  */
 export function calculateScholarshipCoverage(
   scholarshipAmount: number,
-  monthlyFee: number
+  monthlyFee: number,
 ): {
   percentage: number;
   isFullScholarship: boolean;
@@ -107,7 +107,7 @@ export function calculateScholarshipCoverage(
  */
 export async function getClassFeeAmount(
   classAcademicId: string,
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<number | null> {
   const tuition = await prisma.tuition.findFirst({
     where: { classAcademicId },

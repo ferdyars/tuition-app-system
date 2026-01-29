@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api-auth";
 import { successResponse } from "@/lib/api-response";
+import { prisma } from "@/lib/prisma";
 
 // GET - Get students not assigned to a specific class or any class in an academic year
 export async function GET(request: NextRequest) {

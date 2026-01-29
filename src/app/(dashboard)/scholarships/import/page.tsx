@@ -1,24 +1,24 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Paper,
-  Stack,
+  Alert,
+  Badge,
   Button,
   FileInput,
-  Alert,
-  Text,
   Group,
-  Badge,
   List,
+  Paper,
+  Stack,
+  Text,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import {
+  IconAlertCircle,
+  IconCheck,
   IconDownload,
   IconFileUpload,
-  IconCheck,
-  IconAlertCircle,
 } from "@tabler/icons-react";
-import { notifications } from "@mantine/notifications";
+import { useState } from "react";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import { useImportScholarships } from "@/hooks/api/useScholarships";
 
@@ -69,7 +69,11 @@ export default function ImportScholarshipsPage() {
       />
       <Paper withBorder p="lg" maw={700}>
         <Stack gap="md">
-          <Alert icon={<IconAlertCircle size={18} />} color="blue" variant="light">
+          <Alert
+            icon={<IconAlertCircle size={18} />}
+            color="blue"
+            variant="light"
+          >
             <Text size="sm" fw={500} mb="xs">
               Instructions:
             </Text>

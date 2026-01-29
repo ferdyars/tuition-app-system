@@ -1,6 +1,14 @@
 "use client";
 
-import { Group, Burger, Title, Menu, UnstyledButton, Text, Avatar } from "@mantine/core";
+import {
+  Avatar,
+  Burger,
+  Group,
+  Menu,
+  Text,
+  Title,
+  UnstyledButton,
+} from "@mantine/core";
 import { IconLogout, IconUser } from "@tabler/icons-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -57,9 +65,7 @@ export default function Header({
         </Menu.Target>
 
         <Menu.Dropdown>
-          <Menu.Item leftSection={<IconUser size={14} />}>
-            Profile
-          </Menu.Item>
+          <Menu.Item leftSection={<IconUser size={14} />}>Profile</Menu.Item>
           <Menu.Divider />
           <Menu.Item
             color="red"

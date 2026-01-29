@@ -1,9 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys, type OverdueFilters, type ClassSummaryFilters } from "@/lib/query-keys";
-import { apiClient } from "@/lib/api-client";
 import type { Month } from "@/generated/prisma/client";
+import { apiClient } from "@/lib/api-client";
+import {
+  type ClassSummaryFilters,
+  type OverdueFilters,
+  queryKeys,
+} from "@/lib/query-keys";
 
 interface OverdueMonth {
   tuitionId: string;
@@ -90,8 +94,11 @@ export function useOverdueReport(filters: OverdueFilters = {}) {
       const { data } = await apiClient.get<OverdueReportResponse>(
         "/reports/overdue",
         {
-          params: filters as Record<string, string | number | boolean | undefined>,
-        }
+          params: filters as Record<
+            string,
+            string | number | boolean | undefined
+          >,
+        },
       );
       return data.data;
     },
@@ -105,8 +112,11 @@ export function useClassSummary(filters: ClassSummaryFilters = {}) {
       const { data } = await apiClient.get<ClassSummaryResponse>(
         "/reports/class-summary",
         {
-          params: filters as Record<string, string | number | boolean | undefined>,
-        }
+          params: filters as Record<
+            string,
+            string | number | boolean | undefined
+          >,
+        },
       );
       return data.data;
     },

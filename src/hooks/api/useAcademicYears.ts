@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys, type AcademicYearFilters } from "@/lib/query-keys";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
+import { type AcademicYearFilters, queryKeys } from "@/lib/query-keys";
 
 interface AcademicYear {
   id: string;

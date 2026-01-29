@@ -1,26 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import {
-  Table,
-  Badge,
   ActionIcon,
+  Badge,
   Group,
-  TextInput,
-  Select,
   Pagination,
   Paper,
-  Text,
-  Stack,
+  Select,
   Skeleton,
+  Stack,
+  Table,
+  Text,
+  TextInput,
 } from "@mantine/core";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
-import { IconEdit, IconTrash, IconKey, IconSearch } from "@tabler/icons-react";
+import { IconEdit, IconKey, IconSearch, IconTrash } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
-  useEmployees,
   useDeleteEmployee,
+  useEmployees,
   useResetEmployeePassword,
 } from "@/hooks/api/useEmployees";
 
@@ -146,10 +146,18 @@ export default function EmployeeTable() {
             {isLoading &&
               Array.from({ length: 5 }).map((_, i) => (
                 <Table.Tr key={`skeleton-${i}`}>
-                  <Table.Td><Skeleton height={20} /></Table.Td>
-                  <Table.Td><Skeleton height={20} /></Table.Td>
-                  <Table.Td><Skeleton height={20} width={80} /></Table.Td>
-                  <Table.Td><Skeleton height={20} width={100} /></Table.Td>
+                  <Table.Td>
+                    <Skeleton height={20} />
+                  </Table.Td>
+                  <Table.Td>
+                    <Skeleton height={20} />
+                  </Table.Td>
+                  <Table.Td>
+                    <Skeleton height={20} width={80} />
+                  </Table.Td>
+                  <Table.Td>
+                    <Skeleton height={20} width={100} />
+                  </Table.Td>
                 </Table.Tr>
               ))}
             {!isLoading && data?.employees.length === 0 && (
@@ -188,10 +196,7 @@ export default function EmployeeTable() {
                       variant="subtle"
                       color="orange"
                       onClick={() =>
-                        handleResetPassword(
-                          employee.employeeId,
-                          employee.name,
-                        )
+                        handleResetPassword(employee.employeeId, employee.name)
                       }
                     >
                       <IconKey size={18} />

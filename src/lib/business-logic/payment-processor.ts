@@ -1,4 +1,4 @@
-import { PrismaClient, PaymentStatus } from "@/generated/prisma/client";
+import type { PaymentStatus, PrismaClient } from "@/generated/prisma/client";
 
 export interface PaymentParams {
   tuitionId: string;
@@ -22,7 +22,7 @@ export interface PaymentResult {
  */
 export async function processPayment(
   params: PaymentParams,
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<PaymentResult> {
   const { tuitionId, amount, employeeId, notes } = params;
 
@@ -91,7 +91,7 @@ export async function processPayment(
  */
 export async function reversePayment(
   paymentId: string,
-  prisma: PrismaClient
+  prisma: PrismaClient,
 ): Promise<{
   tuitionId: string;
   newStatus: PaymentStatus;
@@ -151,7 +151,7 @@ export async function reversePayment(
  */
 export function calculatePaymentSummary(
   feeAmount: number,
-  paidAmount: number
+  paidAmount: number,
 ): {
   remaining: number;
   percentage: number;

@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireAuth, requireRole } from "@/lib/api-auth";
-import { successResponse, errorResponse } from "@/lib/api-response";
+import { errorResponse, successResponse } from "@/lib/api-response";
+import { prisma } from "@/lib/prisma";
 
 // GET - List student-class assignments with filters
 export async function GET(request: NextRequest) {
@@ -97,11 +97,23 @@ export async function POST(request: NextRequest) {
   const { classAcademicId, studentNisList } = body;
 
   if (!classAcademicId) {
-    return errorResponse("Class Academic ID is required", "VALIDATION_ERROR", 400);
+    return errorResponse(
+      "Class Academic ID is required",
+      "VALIDATION_ERROR",
+      400,
+    );
   }
 
-  if (!studentNisList || !Array.isArray(studentNisList) || studentNisList.length === 0) {
-    return errorResponse("Student NIS list is required", "VALIDATION_ERROR", 400);
+  if (
+    !studentNisList ||
+    !Array.isArray(studentNisList) ||
+    studentNisList.length === 0
+  ) {
+    return errorResponse(
+      "Student NIS list is required",
+      "VALIDATION_ERROR",
+      400,
+    );
   }
 
   // Verify class exists
@@ -120,13 +132,15 @@ export async function POST(request: NextRequest) {
   });
 
   const existingNis = new Set(students.map((s) => s.nis));
-  const missingNis = studentNisList.filter((nis: string) => !existingNis.has(nis));
+  const missingNis = studentNisList.filter(
+    (nis: string) => !existingNis.has(nis),
+  );
 
   if (missingNis.length > 0) {
     return errorResponse(
       `Students not found: ${missingNis.join(", ")}`,
       "NOT_FOUND",
-      404
+      404,
     );
   }
 
@@ -140,13 +154,15 @@ export async function POST(request: NextRequest) {
   });
 
   const alreadyAssigned = new Set(existingAssignments.map((a) => a.studentNis));
-  const toAssign = studentNisList.filter((nis: string) => !alreadyAssigned.has(nis));
+  const toAssign = studentNisList.filter(
+    (nis: string) => !alreadyAssigned.has(nis),
+  );
 
   if (toAssign.length === 0) {
     return errorResponse(
       "All students are already assigned to this class",
       "DUPLICATE_ENTRY",
-      409
+      409,
     );
   }
 
@@ -164,7 +180,7 @@ export async function POST(request: NextRequest) {
       skipped: alreadyAssigned.size,
       skippedNis: Array.from(alreadyAssigned),
     },
-    201
+    201,
   );
 }
 
@@ -180,7 +196,7 @@ export async function DELETE(request: NextRequest) {
     return errorResponse(
       "Class Academic ID and Student NIS list are required",
       "VALIDATION_ERROR",
-      400
+      400,
     );
   }
 

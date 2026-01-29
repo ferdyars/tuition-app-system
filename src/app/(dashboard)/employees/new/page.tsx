@@ -3,8 +3,8 @@
 import { Paper } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import EmployeeForm from "@/components/forms/EmployeeForm";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import { useCreateEmployee } from "@/hooks/api/useEmployees";
 
 export default function NewEmployeePage() {
@@ -37,7 +37,10 @@ export default function NewEmployeePage() {
 
   return (
     <>
-      <PageHeader title="Add Employee" description="Create a new employee account" />
+      <PageHeader
+        title="Add Employee"
+        description="Create a new employee account"
+      />
       <Paper withBorder p="lg" maw={500}>
         <EmployeeForm
           onSubmit={handleSubmit}

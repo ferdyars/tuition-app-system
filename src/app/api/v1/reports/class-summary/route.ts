@@ -1,8 +1,8 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api-auth";
 import { successResponse } from "@/lib/api-response";
 import { getClassSummary } from "@/lib/business-logic/overdue-calculator";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       totalFees: 0,
       totalPaid: 0,
       totalOutstanding: 0,
-    }
+    },
   );
 
   return successResponse({

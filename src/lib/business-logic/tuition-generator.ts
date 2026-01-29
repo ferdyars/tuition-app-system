@@ -1,4 +1,4 @@
-import { Month } from "@/generated/prisma/client";
+import type { Month } from "@/generated/prisma/client";
 
 export interface TuitionGenerationParams {
   classAcademicId: string;
@@ -57,7 +57,7 @@ const NUMBER_TO_MONTH: Record<number, Month> = {
  * Generate tuitions for students based on their join date
  */
 export function generateTuitions(
-  params: TuitionGenerationParams
+  params: TuitionGenerationParams,
 ): GeneratedTuition[] {
   const tuitions: GeneratedTuition[] = [];
   const { classAcademicId, feeAmount, students, academicYear } = params;
@@ -90,15 +90,20 @@ function generateTuitionsForStudent(params: {
     endDate: Date;
   };
 }): GeneratedTuition[] {
-  const { classAcademicId, feeAmount, studentNis, startJoinDate, academicYear } =
-    params;
+  const {
+    classAcademicId,
+    feeAmount,
+    studentNis,
+    startJoinDate,
+    academicYear,
+  } = params;
 
   const tuitions: GeneratedTuition[] = [];
 
   const monthsToGenerate = getMonthsToGenerate(
     startJoinDate,
     academicYear.startDate,
-    academicYear.endDate
+    academicYear.endDate,
   );
 
   monthsToGenerate.forEach(({ month, year }) => {
@@ -132,7 +137,7 @@ function generateTuitionsForStudent(params: {
 function getMonthsToGenerate(
   startJoinDate: Date,
   academicStart: Date,
-  academicEnd: Date
+  academicEnd: Date,
 ): Array<{ month: Month; year: number }> {
   // If student joined before academic year starts, include all months
   if (startJoinDate <= academicStart) {
@@ -149,7 +154,7 @@ function getMonthsToGenerate(
   const currentDate = new Date(
     startJoinDate.getFullYear(),
     startJoinDate.getMonth(),
-    1
+    1,
   );
   const endDate = new Date(academicEnd);
 
@@ -171,7 +176,7 @@ function getMonthsToGenerate(
  */
 function generateAllAcademicMonths(
   academicStart: Date,
-  academicEnd: Date
+  academicEnd: Date,
 ): Array<{ month: Month; year: number }> {
   const months: Array<{ month: Month; year: number }> = [];
   const currentDate = new Date(academicStart);
@@ -203,12 +208,12 @@ function getDueDate(month: Month, year: number): Date {
 export function calculateTotalTuition(
   feeAmount: number,
   startJoinDate: Date,
-  academicYear: { startDate: Date; endDate: Date }
+  academicYear: { startDate: Date; endDate: Date },
 ): { total: number; months: number } {
   const months = getMonthsToGenerate(
     startJoinDate,
     academicYear.startDate,
-    academicYear.endDate
+    academicYear.endDate,
   );
 
   return {

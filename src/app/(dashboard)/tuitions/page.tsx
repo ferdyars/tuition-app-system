@@ -3,8 +3,8 @@
 import { Button } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import TuitionTable from "@/components/tables/TuitionTable";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 
 export default function TuitionsPage() {
   const router = useRouter();

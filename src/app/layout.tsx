@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
+import { Notifications } from "@mantine/notifications";
+import type { Metadata } from "next";
 import Providers from "./providers";
 import "./globals.css";
 

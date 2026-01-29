@@ -1,7 +1,7 @@
-import { NextRequest } from "next/server";
-import { prisma } from "@/lib/prisma";
+import type { NextRequest } from "next/server";
 import { requireAuth } from "@/lib/api-auth";
 import { successResponse } from "@/lib/api-response";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const auth = await requireAuth(request);
@@ -39,7 +39,9 @@ export async function GET(request: NextRequest) {
     where: {
       status: { in: ["UNPAID", "PARTIAL"] },
       dueDate: { lt: now },
-      ...(activeYear ? { classAcademic: { academicYearId: activeYear.id } } : {}),
+      ...(activeYear
+        ? { classAcademic: { academicYearId: activeYear.id } }
+        : {}),
     },
   });
 
@@ -48,7 +50,9 @@ export async function GET(request: NextRequest) {
     _sum: { feeAmount: true, paidAmount: true },
     where: {
       status: { in: ["UNPAID", "PARTIAL"] },
-      ...(activeYear ? { classAcademic: { academicYearId: activeYear.id } } : {}),
+      ...(activeYear
+        ? { classAcademic: { academicYearId: activeYear.id } }
+        : {}),
     },
   });
 
@@ -66,8 +70,10 @@ export async function GET(request: NextRequest) {
     : [];
 
   const paidCount = tuitionStats.find((s) => s.status === "PAID")?._count || 0;
-  const unpaidCount = tuitionStats.find((s) => s.status === "UNPAID")?._count || 0;
-  const partialCount = tuitionStats.find((s) => s.status === "PARTIAL")?._count || 0;
+  const unpaidCount =
+    tuitionStats.find((s) => s.status === "UNPAID")?._count || 0;
+  const partialCount =
+    tuitionStats.find((s) => s.status === "PARTIAL")?._count || 0;
 
   // Get recent payments
   const recentPayments = await prisma.payment.findMany({

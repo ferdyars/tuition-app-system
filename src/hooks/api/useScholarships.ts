@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys, type ScholarshipFilters } from "@/lib/query-keys";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
+import { queryKeys, type ScholarshipFilters } from "@/lib/query-keys";
 
 interface Scholarship {
   id: string;
@@ -76,7 +76,7 @@ export function useScholarships(filters: ScholarshipFilters = {}) {
             string,
             string | number | boolean | undefined
           >,
-        }
+        },
       );
       return data.data;
     },
@@ -87,9 +87,10 @@ export function useScholarship(id: string) {
   return useQuery({
     queryKey: queryKeys.scholarships.detail(id),
     queryFn: async () => {
-      const { data } = await apiClient.get<{ success: boolean; data: Scholarship }>(
-        `/scholarships/${id}`
-      );
+      const { data } = await apiClient.get<{
+        success: boolean;
+        data: Scholarship;
+      }>(`/scholarships/${id}`);
       return data.data;
     },
     enabled: !!id,
@@ -107,7 +108,7 @@ export function useCreateScholarship() {
     }) => {
       const { data } = await apiClient.post<ScholarshipResponse>(
         "/scholarships",
-        scholarship
+        scholarship,
       );
       return data.data;
     },
@@ -146,7 +147,7 @@ export function useImportScholarships() {
       formData.append("file", file);
       const { data } = await apiClient.post<ImportResponse>(
         "/scholarships/import",
-        formData
+        formData,
       );
       return data.data;
     },

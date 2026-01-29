@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api-client";
 import { notifications } from "@mantine/notifications";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api-client";
 
 export interface StudentClassFilters {
   page?: number;
@@ -88,10 +88,15 @@ interface AssignStudentsResponse {
 export const studentClassKeys = {
   all: ["student-classes"] as const,
   lists: () => [...studentClassKeys.all, "list"] as const,
-  list: (filters: StudentClassFilters) => [...studentClassKeys.lists(), filters] as const,
-  byClass: (classId: string) => [...studentClassKeys.all, "by-class", classId] as const,
-  unassigned: (filters: { classAcademicId?: string; academicYearId?: string; search?: string }) =>
-    [...studentClassKeys.all, "unassigned", filters] as const,
+  list: (filters: StudentClassFilters) =>
+    [...studentClassKeys.lists(), filters] as const,
+  byClass: (classId: string) =>
+    [...studentClassKeys.all, "by-class", classId] as const,
+  unassigned: (filters: {
+    classAcademicId?: string;
+    academicYearId?: string;
+    search?: string;
+  }) => [...studentClassKeys.all, "unassigned", filters] as const,
 };
 
 // List student-class assignments
@@ -101,7 +106,12 @@ export function useStudentClasses(filters: StudentClassFilters = {}) {
     queryFn: async () => {
       const { data } = await apiClient.get<StudentClassListResponse>(
         "/student-classes",
-        { params: filters as Record<string, string | number | boolean | undefined> }
+        {
+          params: filters as Record<
+            string,
+            string | number | boolean | undefined
+          >,
+        },
       );
       return data.data;
     },
@@ -114,7 +124,7 @@ export function useStudentsByClass(classId: string) {
     queryKey: studentClassKeys.byClass(classId),
     queryFn: async () => {
       const { data } = await apiClient.get<StudentsByClassResponse>(
-        `/student-classes/by-class/${classId}`
+        `/student-classes/by-class/${classId}`,
       );
       return data.data;
     },
@@ -134,7 +144,12 @@ export function useUnassignedStudents(filters: {
     queryFn: async () => {
       const { data } = await apiClient.get<UnassignedStudentsResponse>(
         "/student-classes/unassigned",
-        { params: filters as Record<string, string | number | boolean | undefined> }
+        {
+          params: filters as Record<
+            string,
+            string | number | boolean | undefined
+          >,
+        },
       );
       return data.data;
     },
@@ -156,7 +171,7 @@ export function useAssignStudentsToClass() {
     }) => {
       const { data } = await apiClient.post<AssignStudentsResponse>(
         "/student-classes",
-        { classAcademicId, studentNisList }
+        { classAcademicId, studentNisList },
       );
       return data.data;
     },
@@ -294,7 +309,10 @@ export function useDownloadStudentClassTemplate() {
     if (academicYearId) {
       params.set("academicYearId", academicYearId);
     }
-    window.open(`/api/v1/student-classes/template?${params.toString()}`, "_blank");
+    window.open(
+      `/api/v1/student-classes/template?${params.toString()}`,
+      "_blank",
+    );
   };
 
   return { downloadTemplate };

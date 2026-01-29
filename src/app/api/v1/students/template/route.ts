@@ -1,7 +1,7 @@
+import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
 import { createStudentTemplate } from "@/lib/excel-templates/student-template";
 import { workbookToBuffer } from "@/lib/excel-utils";
-import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const auth = await requireRole(request, ["ADMIN"]);

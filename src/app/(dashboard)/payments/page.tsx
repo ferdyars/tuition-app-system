@@ -3,8 +3,8 @@
 import { Button } from "@mantine/core";
 import { IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import PageHeader from "@/components/ui/PageHeader/PageHeader";
 import PaymentTable from "@/components/tables/PaymentTable";
+import PageHeader from "@/components/ui/PageHeader/PageHeader";
 
 export default function PaymentsPage() {
   const router = useRouter();
