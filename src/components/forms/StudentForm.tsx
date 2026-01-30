@@ -123,8 +123,9 @@ export default function StudentForm({
         />
         <DatePickerInput
           label="Start Join Date"
-          placeholder="Select date"
+          placeholder="DD/MM/YYYY"
           required
+          valueFormat="DD/MM/YYYY"
           {...form.getInputProps("startJoinDate")}
         />
         <Button type="submit" loading={isLoading}>

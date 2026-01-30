@@ -90,14 +90,16 @@ export default function AcademicYearForm({
         />
         <DatePickerInput
           label="Start Date"
-          placeholder="July 1"
+          placeholder="DD/MM/YYYY"
           required
+          valueFormat="DD/MM/YYYY"
           {...form.getInputProps("startDate")}
         />
         <DatePickerInput
           label="End Date"
-          placeholder="June 30"
+          placeholder="DD/MM/YYYY"
           required
+          valueFormat="DD/MM/YYYY"
           {...form.getInputProps("endDate")}
         />
         <Checkbox
