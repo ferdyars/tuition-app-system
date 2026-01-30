@@ -274,7 +274,7 @@ export default function OverdueReportTable() {
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
-                        {(item.overduePeriods)?.map((month) => (
+                        {item.overduePeriods?.map((month) => (
                           <Table.Tr key={month.tuitionId}>
                             <Table.Td>
                               <Text size="sm">
