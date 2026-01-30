@@ -4,10 +4,12 @@ import {
   Accordion,
   Alert,
   Badge,
+  Box,
   Button,
   Card,
   Center,
   Container,
+  Divider,
   Group,
   Loader,
   NumberFormatter,
@@ -38,6 +40,7 @@ import { getPeriodDisplayName } from "@/lib/business-logic/tuition-generator";
 interface PaymentData {
   student: {
     nis: string;
+    nik: string;
     name: string;
     parentName: string;
     parentPhone: string;
@@ -142,16 +145,22 @@ export default function StudentPortalPage() {
   };
 
   return (
-    <Container size="lg" py="xl">
-      <Stack gap="xl">
+    <Container
+      size="lg"
+      py={{ base: "md", sm: "xl" }}
+      px={{ base: "sm", sm: "md" }}
+    >
+      <Stack gap={24}>
         {/* Header */}
         <Center>
           <Stack align="center" gap="xs">
-            <IconSchool size={48} color="var(--mantine-color-dark-6)" />
-            <Title order={1} c="dark">
+            <IconSchool size={40} color="var(--mantine-color-dark-6)" />
+            <Title order={2} ta="center" c="dark">
               Student Payment Portal
             </Title>
-            <Text c="dark.4">Check your tuition payment status</Text>
+            <Text c="dark.4" size="sm" ta="center">
+              Check your tuition payment status
+            </Text>
           </Stack>
         </Center>
 
@@ -161,14 +170,13 @@ export default function StudentPortalPage() {
             <Text fw={500} c="dark">
               Enter your Student ID (NIS)
             </Text>
-            <Group>
+            <Stack gap="sm">
               <TextInput
                 placeholder="e.g., 2024001"
                 leftSection={<IconUser size={18} />}
                 value={nis}
                 onChange={(e) => setNis(e.currentTarget.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                style={{ flex: 1 }}
                 size="md"
                 disabled={loading}
               />
@@ -177,10 +185,11 @@ export default function StudentPortalPage() {
                 onClick={handleSearch}
                 loading={loading}
                 size="md"
+                fullWidth
               >
                 Search
               </Button>
-            </Group>
+            </Stack>
           </Stack>
         </Paper>
 
@@ -204,10 +213,10 @@ export default function StudentPortalPage() {
 
         {/* Results */}
         {data && !loading && (
-          <Stack gap="lg">
+          <Stack gap={24}>
             {/* Student Info */}
             <Card withBorder bg="dark.0">
-              <Group justify="space-between" wrap="wrap">
+              <SimpleGrid cols={{ base: 1, xs: 2, sm: 5 }} spacing="md">
                 <Stack gap={4}>
                   <Text size="sm" c="dark.4">
                     Student Name
@@ -226,6 +235,12 @@ export default function StudentPortalPage() {
                 </Stack>
                 <Stack gap={4}>
                   <Text size="sm" c="dark.4">
+                    NIK
+                  </Text>
+                  <Text c="dark">{data.student.nik}</Text>
+                </Stack>
+                <Stack gap={4}>
+                  <Text size="sm" c="dark.4">
                     Parent/Guardian
                   </Text>
                   <Text c="dark">{data.student.parentName}</Text>
@@ -236,7 +251,7 @@ export default function StudentPortalPage() {
                   </Text>
                   <Text c="dark">{data.student.parentPhone}</Text>
                 </Stack>
-              </Group>
+              </SimpleGrid>
             </Card>
 
             {/* Scholarships */}
@@ -247,10 +262,10 @@ export default function StudentPortalPage() {
                 variant="light"
                 title="Active Scholarships"
               >
-                <Stack gap="xs">
+                <Stack gap="sm">
                   {data.scholarships.map((s) => (
-                    <Group key={s.id} justify="space-between">
-                      <Group gap="xs">
+                    <Stack key={s.id} gap={4}>
+                      <Group gap="xs" wrap="wrap">
                         <Badge
                           color={s.isFullScholarship ? "green" : "teal"}
                           variant="light"
@@ -272,7 +287,7 @@ export default function StudentPortalPage() {
                         />
                         /month
                       </Text>
-                    </Group>
+                    </Stack>
                   ))}
                 </Stack>
               </Alert>
@@ -294,8 +309,8 @@ export default function StudentPortalPage() {
               <Card key={yearData.academicYear.id} withBorder>
                 <Stack gap="md">
                   {/* Year Header */}
-                  <Group justify="space-between" wrap="wrap">
-                    <Group gap="xs">
+                  <Stack gap="xs">
+                    <Group gap="xs" wrap="wrap">
                       <IconCalendar
                         size={20}
                         color="var(--mantine-color-dark-6)"
@@ -307,22 +322,22 @@ export default function StudentPortalPage() {
                         {yearData.class.className}
                       </Badge>
                     </Group>
-                    <Group gap="md">
-                      <Badge color="dark" variant="filled">
+                    <Group gap="xs" wrap="wrap">
+                      <Badge color="dark" variant="filled" size="sm">
                         {yearData.summary.paidCount} Paid
                       </Badge>
                       {yearData.summary.partialCount > 0 && (
-                        <Badge color="gray" variant="light">
+                        <Badge color="gray" variant="light" size="sm">
                           {yearData.summary.partialCount} Partial
                         </Badge>
                       )}
                       {yearData.summary.unpaidCount > 0 && (
-                        <Badge color="red" variant="light">
+                        <Badge color="red" variant="light" size="sm">
                           {yearData.summary.unpaidCount} Unpaid
                         </Badge>
                       )}
                     </Group>
-                  </Group>
+                  </Stack>
 
                   {/* Summary Cards */}
                   <SimpleGrid cols={{ base: 2, sm: 3 }}>
@@ -460,144 +475,282 @@ export default function StudentPortalPage() {
                     />
                   </div>
 
-                  {/* Tuitions Table */}
-                  <Accordion variant="separated">
-                    <Accordion.Item value="details">
-                      <Accordion.Control>
-                        <Text size="sm" fw={500}>
-                          View Monthly Details
-                        </Text>
-                      </Accordion.Control>
-                      <Accordion.Panel>
-                        <Table.ScrollContainer minWidth={600}>
-                          <Table striped highlightOnHover>
-                            <Table.Thead>
-                              <Table.Tr>
-                                <Table.Th>Period</Table.Th>
-                                <Table.Th ta="right" align="right">
-                                  Fee
-                                </Table.Th>
-                                <Table.Th ta="right" align="right">
-                                  Scholarship
-                                </Table.Th>
-                                <Table.Th ta="right" align="right">
-                                  Paid
-                                </Table.Th>
-                                <Table.Th ta="right" align="right">
-                                  Discount
-                                </Table.Th>
-                                <Table.Th ta="right" align="right">
-                                  Remaining
-                                </Table.Th>
-                                <Table.Th>Due Date</Table.Th>
-                                <Table.Th>Status</Table.Th>
-                              </Table.Tr>
-                            </Table.Thead>
-                            <Table.Tbody>
-                              {yearData.tuitions.map((tuition) => (
-                                <Table.Tr key={tuition.id}>
-                                  <Table.Td>
-                                    <Text size="sm" fw={500}>
+                  {/* Tuitions - Mobile Cards */}
+                  <Box hiddenFrom="md">
+                    <Accordion variant="separated">
+                      <Accordion.Item value="details">
+                        <Accordion.Control>
+                          <Text size="sm" fw={500}>
+                            View Monthly Details
+                          </Text>
+                        </Accordion.Control>
+                        <Accordion.Panel>
+                          <Stack gap="sm">
+                            {yearData.tuitions.map((tuition) => (
+                              <Paper
+                                key={tuition.id}
+                                withBorder
+                                p="sm"
+                                radius="sm"
+                              >
+                                <Stack gap="xs">
+                                  <Group justify="space-between" wrap="wrap">
+                                    <Text size="sm" fw={600} c="dark">
                                       {getPeriodDisplayName(tuition.period)}{" "}
                                       {tuition.year}
                                     </Text>
-                                  </Table.Td>
-                                  <Table.Td ta="right" align="right">
-                                    <NumberFormatter
-                                      value={tuition.feeAmount}
-                                      prefix="Rp "
-                                      thousandSeparator="."
-                                      decimalSeparator=","
-                                    />
-                                  </Table.Td>
-                                  <Table.Td ta="right" align="right">
-                                    {tuition.scholarshipAmount > 0 ? (
-                                      <Text c="teal" size="sm">
-                                        -
-                                        <NumberFormatter
-                                          value={tuition.scholarshipAmount}
-                                          prefix="Rp "
-                                          thousandSeparator="."
-                                          decimalSeparator=","
-                                        />
-                                      </Text>
-                                    ) : (
-                                      <Text c="dimmed" size="sm">
-                                        -
-                                      </Text>
-                                    )}
-                                  </Table.Td>
-                                  <Table.Td ta="right" align="right">
-                                    <Text c="dark.6" size="sm" fw={500}>
-                                      <NumberFormatter
-                                        value={tuition.paidAmount}
-                                        prefix="Rp "
-                                        thousandSeparator="."
-                                        decimalSeparator=","
-                                      />
-                                    </Text>
-                                  </Table.Td>
-                                  <Table.Td ta="right" align="right">
-                                    {tuition.discountAmount > 0 ? (
-                                      <Text c="teal" size="sm">
-                                        -
-                                        <NumberFormatter
-                                          value={tuition.discountAmount}
-                                          prefix="Rp "
-                                          thousandSeparator="."
-                                          decimalSeparator=","
-                                        />
-                                      </Text>
-                                    ) : (
-                                      <Text c="dimmed" size="sm">
-                                        -
-                                      </Text>
-                                    )}
-                                  </Table.Td>
-                                  <Table.Td ta="right" align="right">
-                                    <Text
-                                      c={
-                                        tuition.remainingAmount > 0
-                                          ? "red"
-                                          : "dark.6"
-                                      }
-                                      fw={500}
-                                      size="sm"
-                                    >
-                                      <NumberFormatter
-                                        value={tuition.remainingAmount}
-                                        prefix="Rp "
-                                        thousandSeparator="."
-                                        decimalSeparator=","
-                                      />
-                                    </Text>
-                                  </Table.Td>
-                                  <Table.Td>
-                                    <Text size="sm">
-                                      {dayjs(tuition.dueDate).format(
-                                        "DD/MM/YYYY",
-                                      )}
-                                    </Text>
-                                  </Table.Td>
-                                  <Table.Td>
                                     <Badge
                                       color={getStatusColor(tuition.status)}
                                       variant="light"
                                       leftSection={getStatusIcon(
                                         tuition.status,
                                       )}
+                                      size="sm"
                                     >
                                       {tuition.status}
                                     </Badge>
-                                  </Table.Td>
+                                  </Group>
+                                  <Divider />
+                                  <SimpleGrid cols={2} spacing="xs">
+                                    <Stack gap={2}>
+                                      <Text size="xs" c="dimmed">
+                                        Fee
+                                      </Text>
+                                      <Text size="sm">
+                                        <NumberFormatter
+                                          value={tuition.feeAmount}
+                                          prefix="Rp "
+                                          thousandSeparator="."
+                                          decimalSeparator=","
+                                        />
+                                      </Text>
+                                    </Stack>
+                                    <Stack gap={2}>
+                                      <Text size="xs" c="dimmed">
+                                        Paid
+                                      </Text>
+                                      <Text size="sm" fw={500} c="dark.6">
+                                        <NumberFormatter
+                                          value={tuition.paidAmount}
+                                          prefix="Rp "
+                                          thousandSeparator="."
+                                          decimalSeparator=","
+                                        />
+                                      </Text>
+                                    </Stack>
+                                    {tuition.scholarshipAmount > 0 && (
+                                      <Stack gap={2}>
+                                        <Text size="xs" c="dimmed">
+                                          Scholarship
+                                        </Text>
+                                        <Text size="sm" c="teal">
+                                          -
+                                          <NumberFormatter
+                                            value={tuition.scholarshipAmount}
+                                            prefix="Rp "
+                                            thousandSeparator="."
+                                            decimalSeparator=","
+                                          />
+                                        </Text>
+                                      </Stack>
+                                    )}
+                                    {tuition.discountAmount > 0 && (
+                                      <Stack gap={2}>
+                                        <Text size="xs" c="dimmed">
+                                          Discount
+                                        </Text>
+                                        <Text size="sm" c="teal">
+                                          -
+                                          <NumberFormatter
+                                            value={tuition.discountAmount}
+                                            prefix="Rp "
+                                            thousandSeparator="."
+                                            decimalSeparator=","
+                                          />
+                                        </Text>
+                                      </Stack>
+                                    )}
+                                    <Stack gap={2}>
+                                      <Text size="xs" c="dimmed">
+                                        Remaining
+                                      </Text>
+                                      <Text
+                                        size="sm"
+                                        fw={500}
+                                        c={
+                                          tuition.remainingAmount > 0
+                                            ? "red"
+                                            : "dark.6"
+                                        }
+                                      >
+                                        <NumberFormatter
+                                          value={tuition.remainingAmount}
+                                          prefix="Rp "
+                                          thousandSeparator="."
+                                          decimalSeparator=","
+                                        />
+                                      </Text>
+                                    </Stack>
+                                    <Stack gap={2}>
+                                      <Text size="xs" c="dimmed">
+                                        Due Date
+                                      </Text>
+                                      <Text size="sm">
+                                        {dayjs(tuition.dueDate).format(
+                                          "DD/MM/YYYY",
+                                        )}
+                                      </Text>
+                                    </Stack>
+                                  </SimpleGrid>
+                                </Stack>
+                              </Paper>
+                            ))}
+                          </Stack>
+                        </Accordion.Panel>
+                      </Accordion.Item>
+                    </Accordion>
+                  </Box>
+
+                  {/* Tuitions - Desktop Table */}
+                  <Box visibleFrom="md">
+                    <Accordion variant="separated">
+                      <Accordion.Item value="details">
+                        <Accordion.Control>
+                          <Text size="sm" fw={500}>
+                            View Monthly Details
+                          </Text>
+                        </Accordion.Control>
+                        <Accordion.Panel>
+                          <Table.ScrollContainer minWidth={600}>
+                            <Table striped highlightOnHover>
+                              <Table.Thead>
+                                <Table.Tr>
+                                  <Table.Th>Period</Table.Th>
+                                  <Table.Th ta="right" align="right" miw={180}>
+                                    Fee
+                                  </Table.Th>
+                                  <Table.Th ta="right" align="right" miw={180}>
+                                    Scholarship
+                                  </Table.Th>
+                                  <Table.Th ta="right" align="right" miw={180}>
+                                    Paid
+                                  </Table.Th>
+                                  <Table.Th ta="right" align="right" miw={180}>
+                                    Discount
+                                  </Table.Th>
+                                  <Table.Th ta="right" align="right" miw={180}>
+                                    Remaining
+                                  </Table.Th>
+                                  <Table.Th>Due Date</Table.Th>
+                                  <Table.Th miw={120}>Status</Table.Th>
                                 </Table.Tr>
-                              ))}
-                            </Table.Tbody>
-                          </Table>
-                        </Table.ScrollContainer>
-                      </Accordion.Panel>
-                    </Accordion.Item>
-                  </Accordion>
+                              </Table.Thead>
+                              <Table.Tbody>
+                                {yearData.tuitions.map((tuition) => (
+                                  <Table.Tr key={tuition.id}>
+                                    <Table.Td>
+                                      <Text size="sm" fw={500}>
+                                        {getPeriodDisplayName(tuition.period)}{" "}
+                                        {tuition.year}
+                                      </Text>
+                                    </Table.Td>
+                                    <Table.Td ta="right" align="right">
+                                      <NumberFormatter
+                                        value={tuition.feeAmount}
+                                        prefix="Rp "
+                                        thousandSeparator="."
+                                        decimalSeparator=","
+                                      />
+                                    </Table.Td>
+                                    <Table.Td ta="right" align="right">
+                                      {tuition.scholarshipAmount > 0 ? (
+                                        <Text c="teal" size="sm">
+                                          -
+                                          <NumberFormatter
+                                            value={tuition.scholarshipAmount}
+                                            prefix="Rp "
+                                            thousandSeparator="."
+                                            decimalSeparator=","
+                                          />
+                                        </Text>
+                                      ) : (
+                                        <Text c="dimmed" size="sm">
+                                          -
+                                        </Text>
+                                      )}
+                                    </Table.Td>
+                                    <Table.Td ta="right" align="right">
+                                      <Text c="dark.6" size="sm" fw={500}>
+                                        <NumberFormatter
+                                          value={tuition.paidAmount}
+                                          prefix="Rp "
+                                          thousandSeparator="."
+                                          decimalSeparator=","
+                                        />
+                                      </Text>
+                                    </Table.Td>
+                                    <Table.Td ta="right" align="right">
+                                      {tuition.discountAmount > 0 ? (
+                                        <Text c="teal" size="sm">
+                                          -
+                                          <NumberFormatter
+                                            value={tuition.discountAmount}
+                                            prefix="Rp "
+                                            thousandSeparator="."
+                                            decimalSeparator=","
+                                          />
+                                        </Text>
+                                      ) : (
+                                        <Text c="dimmed" size="sm">
+                                          -
+                                        </Text>
+                                      )}
+                                    </Table.Td>
+                                    <Table.Td ta="right" align="right">
+                                      <Text
+                                        c={
+                                          tuition.remainingAmount > 0
+                                            ? "red"
+                                            : "dark.6"
+                                        }
+                                        fw={500}
+                                        size="sm"
+                                      >
+                                        <NumberFormatter
+                                          value={tuition.remainingAmount}
+                                          prefix="Rp "
+                                          thousandSeparator="."
+                                          decimalSeparator=","
+                                        />
+                                      </Text>
+                                    </Table.Td>
+                                    <Table.Td>
+                                      <Text size="sm">
+                                        {dayjs(tuition.dueDate).format(
+                                          "DD/MM/YYYY",
+                                        )}
+                                      </Text>
+                                    </Table.Td>
+                                    <Table.Td>
+                                      <Badge
+                                        color={getStatusColor(tuition.status)}
+                                        variant="light"
+                                        leftSection={getStatusIcon(
+                                          tuition.status,
+                                        )}
+                                      >
+                                        {tuition.status}
+                                      </Badge>
+                                    </Table.Td>
+                                  </Table.Tr>
+                                ))}
+                              </Table.Tbody>
+                            </Table>
+                          </Table.ScrollContainer>
+                        </Accordion.Panel>
+                      </Accordion.Item>
+                    </Accordion>
+                  </Box>
                 </Stack>
               </Card>
             ))}

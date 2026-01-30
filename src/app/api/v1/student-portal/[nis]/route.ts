@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { errorResponse, successResponse } from "@/lib/api-response";
 import { prisma } from "@/lib/prisma";
+import { censorIdentityNumber, censorName, censorPhone } from "@/lib/censor";
 
 /**
  * GET /api/v1/student-portal/[nis]
@@ -20,8 +21,20 @@ export async function GET(
       name: true,
       parentName: true,
       parentPhone: true,
+      nik: true,
     },
   });
+  if (student?.parentName) {
+    student.parentName = censorName(student?.parentName);
+  }
+
+  if (student?.parentPhone) {
+    student.parentPhone = censorPhone(student?.parentPhone);
+  }
+
+  if (student?.nik) {
+    student.nik = censorIdentityNumber(student?.nik);
+  }
 
   if (!student) {
     return errorResponse("Student not found", "NOT_FOUND", 404);
