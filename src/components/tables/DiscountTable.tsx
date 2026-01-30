@@ -200,7 +200,9 @@ export default function DiscountTable() {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th>Name</Table.Th>
-                <Table.Th ta="right" align="right">Amount</Table.Th>
+                <Table.Th ta="right" align="right">
+                  Amount
+                </Table.Th>
                 <Table.Th>Scope</Table.Th>
                 <Table.Th>Target Periods</Table.Th>
                 <Table.Th>Applied To</Table.Th>
