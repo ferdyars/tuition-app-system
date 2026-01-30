@@ -185,6 +185,158 @@ export default function OverdueReportTable() {
           </Text>
         </Paper>
       )}
+
+      {/* Overdue Report Accordion */}
+      {!isLoading && overdue.length > 0 && (
+        <Accordion variant="separated" chevron={<IconChevronDown size={20} />}>
+          {overdue.map((item, index) => (
+            <Accordion.Item
+              key={`${item.student.nis}-${item.class.className}-${index}`}
+              value={`${item.student.nis}-${item.class.className}-${index}`}
+            >
+              <Accordion.Control>
+                <Group justify="space-between" wrap="nowrap" pr="md">
+                  <Stack gap={0}>
+                    <Group gap="xs">
+                      <Text fw={600}>{item.student.name}</Text>
+                      <Badge size="sm" variant="light">
+                        {item.student.nis}
+                      </Badge>
+                    </Group>
+                    <Text size="sm" c="dimmed">
+                      {item.class.className}
+                    </Text>
+                  </Stack>
+                  <Group gap="md">
+                    <Stack gap={0} align="flex-end">
+                      <Text size="sm" c="dimmed">
+                        Overdue Amount
+                      </Text>
+                      <Text fw={700} c="red">
+                        <NumberFormatter
+                          value={item.totalOverdue}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                    </Stack>
+                    <Badge color="red" size="lg">
+                      {item.overdueCount} months
+                    </Badge>
+                  </Group>
+                </Group>
+              </Accordion.Control>
+              <Accordion.Panel>
+                <Stack gap="md">
+                  {/* Parent Info */}
+                  <Paper withBorder p="sm" bg="gray.0">
+                    <Group gap="md">
+                      <Stack gap={0}>
+                        <Text size="sm" c="dimmed">
+                          Parent Name
+                        </Text>
+                        <Text fw={500}>{item.student.parentName || "-"}</Text>
+                      </Stack>
+                      <Stack gap={0}>
+                        <Text size="sm" c="dimmed">
+                          Phone
+                        </Text>
+                        <Group gap="xs">
+                          <Text fw={500}>{item.student.parentPhone}</Text>
+                          <Tooltip label="Call parent">
+                            <ActionIcon
+                              variant="subtle"
+                              color="green"
+                              size="sm"
+                              component="a"
+                              href={`tel:${item.student.parentPhone}`}
+                            >
+                              <IconPhone size={16} />
+                            </ActionIcon>
+                          </Tooltip>
+                        </Group>
+                      </Stack>
+                    </Group>
+                  </Paper>
+
+                  {/* Overdue Months Table */}
+                  <Table.ScrollContainer minWidth={700}>
+                    <Table striped highlightOnHover withTableBorder>
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th>Month</Table.Th>
+                          <Table.Th>Due Date</Table.Th>
+                          <Table.Th>Fee Amount</Table.Th>
+                          <Table.Th>Paid Amount</Table.Th>
+                          <Table.Th>Outstanding</Table.Th>
+                          <Table.Th>Days Overdue</Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>
+                        {(item.overduePeriods)?.map((month) => (
+                          <Table.Tr key={month.tuitionId}>
+                            <Table.Td>
+                              <Text size="sm">
+                                {getMonthDisplayName(month.period)} {month.year}
+                              </Text>
+                            </Table.Td>
+                            <Table.Td>
+                              <Text size="sm">
+                                {dayjs(month.dueDate).format("DD/MM/YYYY")}
+                              </Text>
+                            </Table.Td>
+                            <Table.Td>
+                              <NumberFormatter
+                                value={month.feeAmount}
+                                prefix="Rp "
+                                thousandSeparator="."
+                                decimalSeparator=","
+                              />
+                            </Table.Td>
+                            <Table.Td>
+                              <NumberFormatter
+                                value={month.paidAmount}
+                                prefix="Rp "
+                                thousandSeparator="."
+                                decimalSeparator=","
+                              />
+                            </Table.Td>
+                            <Table.Td>
+                              <Text fw={600} c="red">
+                                <NumberFormatter
+                                  value={month.outstandingAmount}
+                                  prefix="Rp "
+                                  thousandSeparator="."
+                                  decimalSeparator=","
+                                />
+                              </Text>
+                            </Table.Td>
+                            <Table.Td>
+                              <Badge
+                                color={
+                                  month.daysOverdue > 30
+                                    ? "red"
+                                    : month.daysOverdue > 14
+                                      ? "orange"
+                                      : "yellow"
+                                }
+                                variant="light"
+                              >
+                                {month.daysOverdue} days
+                              </Badge>
+                            </Table.Td>
+                          </Table.Tr>
+                        ))}
+                      </Table.Tbody>
+                    </Table>
+                  </Table.ScrollContainer>
+                </Stack>
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
+        </Accordion>
+      )}
     </Stack>
   );
 }
