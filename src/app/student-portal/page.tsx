@@ -362,21 +362,6 @@ export default function StudentPortalPage() {
                     <Paper withBorder p="sm" radius="sm" bg="dark.1">
                       <Stack gap={2}>
                         <Text size="xs" c="dark.4">
-                          Total Paid
-                        </Text>
-                        <Text fw={600} c="dark.6">
-                          <NumberFormatter
-                            value={yearData.summary.totalPaid}
-                            prefix="Rp "
-                            thousandSeparator="."
-                            decimalSeparator=","
-                          />
-                        </Text>
-                      </Stack>
-                    </Paper>
-                    <Paper withBorder p="sm" radius="sm" bg="dark.1">
-                      <Stack gap={2}>
-                        <Text size="xs" c="dark.4">
                           Total Discounts
                         </Text>
                         <Text fw={600} c="dark.6">
@@ -390,6 +375,22 @@ export default function StudentPortalPage() {
                         </Text>
                       </Stack>
                     </Paper>
+                    <Paper withBorder p="sm" radius="sm" bg="dark.1">
+                      <Stack gap={2}>
+                        <Text size="xs" c="dark.4">
+                          Total Paid
+                        </Text>
+                        <Text fw={600} c="dark.6">
+                          <NumberFormatter
+                            value={yearData.summary.totalPaid}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Text>
+                      </Stack>
+                    </Paper>
+
                     <Paper
                       withBorder
                       p="sm"
