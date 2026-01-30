@@ -43,7 +43,11 @@ export async function POST(request: NextRequest) {
     let totalSkipped = 0;
 
     for (const classConfig of classes) {
-      const { classAcademicId, feeAmount: overrideFeeAmount, studentNisList } = classConfig;
+      const {
+        classAcademicId,
+        feeAmount: overrideFeeAmount,
+        studentNisList,
+      } = classConfig;
 
       if (!classAcademicId) {
         results.push({
@@ -77,9 +81,15 @@ export async function POST(request: NextRequest) {
       const feeAmount = getFeeForFrequency(
         {
           paymentFrequency: classAcademic.paymentFrequency,
-          monthlyFee: classAcademic.monthlyFee ? Number(classAcademic.monthlyFee) : null,
-          quarterlyFee: classAcademic.quarterlyFee ? Number(classAcademic.quarterlyFee) : null,
-          semesterFee: classAcademic.semesterFee ? Number(classAcademic.semesterFee) : null,
+          monthlyFee: classAcademic.monthlyFee
+            ? Number(classAcademic.monthlyFee)
+            : null,
+          quarterlyFee: classAcademic.quarterlyFee
+            ? Number(classAcademic.quarterlyFee)
+            : null,
+          semesterFee: classAcademic.semesterFee
+            ? Number(classAcademic.semesterFee)
+            : null,
         },
         overrideFeeAmount,
       );
@@ -90,7 +100,8 @@ export async function POST(request: NextRequest) {
           className: classAcademic.className,
           generated: 0,
           skipped: 0,
-          error: "Fee amount must be configured on class or provided in request",
+          error:
+            "Fee amount must be configured on class or provided in request",
         });
         continue;
       }

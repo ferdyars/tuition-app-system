@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
  * Public endpoint for students to view their payment status
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ nis: string }> },
 ) {
   const { nis } = await params;
@@ -45,10 +45,17 @@ export async function GET(
         },
         orderBy: { paymentDate: "desc" },
       },
+      discount: {
+        select: {
+          name: true,
+          reason: true,
+          description: true,
+        },
+      },
     },
     orderBy: [
       { classAcademic: { academicYear: { year: "desc" } } },
-      { year: "desc" },
+      { dueDate: "asc" },
       { period: "asc" },
     ],
   });
@@ -126,7 +133,10 @@ export async function GET(
     const scholarshipAmount = Number(tuition.scholarshipAmount);
     const discountAmount = Number(tuition.discountAmount) || 0;
     const paidAmount = Number(tuition.paidAmount);
-    const effectiveFee = Math.max(feeAmount - scholarshipAmount - discountAmount, 0);
+    const effectiveFee = Math.max(
+      feeAmount - scholarshipAmount - discountAmount,
+      0,
+    );
     const remainingAmount = Math.max(effectiveFee - paidAmount, 0);
 
     groupedByYear[yearKey].tuitions.push({

@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     let updated = 0;
     let statusChanged = 0;
-    const skippedPaid = 0;
+    const _skippedPaid = 0;
 
     for (const tuition of tuitions) {
       const key = `${tuition.studentNis}-${tuition.classAcademicId}`;
@@ -55,7 +55,10 @@ export async function POST(request: NextRequest) {
         const feeAmount = Number(tuition.feeAmount);
         const paidAmount = Number(tuition.paidAmount);
         const discountAmount = Number(tuition.discountAmount);
-        const effectiveFee = Math.max(feeAmount - totalScholarship - discountAmount, 0);
+        const effectiveFee = Math.max(
+          feeAmount - totalScholarship - discountAmount,
+          0,
+        );
 
         // Determine correct status
         let newStatus: PaymentStatus;

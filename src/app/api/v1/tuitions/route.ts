@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import type { Prisma } from "@/generated/prisma/client";
 import { requireAuth } from "@/lib/api-auth";
-import { errorResponse, successResponse } from "@/lib/api-response";
+import { successResponse } from "@/lib/api-response";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
   const status =
     statusParam && statusParam !== "null" ? statusParam : undefined;
   const periodParam = searchParams.get("period");
-  const period = periodParam && periodParam !== "null" ? periodParam : undefined;
+  const period =
+    periodParam && periodParam !== "null" ? periodParam : undefined;
   // Keep month for backward compatibility
   const monthParam = searchParams.get("month");
   const month = monthParam && monthParam !== "null" ? monthParam : undefined;

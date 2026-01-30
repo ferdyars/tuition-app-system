@@ -288,7 +288,7 @@ export default function PaymentTable() {
                                 variant="light"
                                 leftSection={<IconDiscount size={10} />}
                               >
-                                Discount
+                                {payment.tuition?.discount?.name || ""}
                               </Badge>
                             </Tooltip>
                           );

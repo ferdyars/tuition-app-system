@@ -32,12 +32,17 @@ interface Payment {
     generatedAt: string;
     createdAt: string;
     updatedAt: string;
-    student: {
+    student?: {
       nis: string;
       name: string;
     };
-    classAcademic: {
+    classAcademic?: {
       className: string;
+    };
+    discount?: {
+      name: string;
+      reason: string;
+      description: string | null;
     };
   };
   employee?: {

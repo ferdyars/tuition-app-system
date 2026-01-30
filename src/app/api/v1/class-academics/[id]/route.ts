@@ -93,8 +93,7 @@ export async function PUT(
     const className = generateClassName(grade, section, academicYear.year);
 
     // Handle payment frequency and fee updates
-    const paymentFrequency =
-      body.paymentFrequency ?? existing.paymentFrequency;
+    const paymentFrequency = body.paymentFrequency ?? existing.paymentFrequency;
     const monthlyFee =
       body.monthlyFee !== undefined ? body.monthlyFee : existing.monthlyFee;
 

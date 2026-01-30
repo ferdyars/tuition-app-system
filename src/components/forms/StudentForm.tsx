@@ -11,7 +11,7 @@ interface StudentFormValues {
   address: string;
   parentName: string;
   parentPhone: string;
-  startJoinDate: Date | null;
+  startJoinDate: string | null;
 }
 
 interface StudentFormProps {
@@ -52,7 +52,7 @@ export default function StudentForm({
       parentName: initialData?.parentName || "",
       parentPhone: initialData?.parentPhone || "",
       startJoinDate: initialData?.startJoinDate
-        ? new Date(initialData.startJoinDate)
+        ? new Date(initialData.startJoinDate).toISOString()
         : null,
     },
     validate: {
@@ -71,9 +71,12 @@ export default function StudentForm({
 
   const handleSubmit = (values: StudentFormValues) => {
     if (!values.startJoinDate) return;
+    const startJoinDate: string =
+      typeof values.startJoinDate === "string" ? values.startJoinDate : "";
+
     onSubmit({
       ...values,
-      startJoinDate: values.startJoinDate.toISOString(),
+      startJoinDate,
     });
   };
 

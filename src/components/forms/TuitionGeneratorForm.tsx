@@ -421,8 +421,14 @@ export default function TuitionGeneratorForm() {
                     />
                   </Text>
                   <Text size="xs" c="dimmed">
-                    ({discount.targetPeriods.slice(0, 3).map(getPeriodDisplayName).join(", ")}
-                    {discount.targetPeriods.length > 3 && ` +${discount.targetPeriods.length - 3} more`})
+                    (
+                    {discount.targetPeriods
+                      .slice(0, 3)
+                      .map(getPeriodDisplayName)
+                      .join(", ")}
+                    {discount.targetPeriods.length > 3 &&
+                      ` +${discount.targetPeriods.length - 3} more`}
+                    )
                   </Text>
                 </Group>
               ))}
@@ -477,7 +483,9 @@ export default function TuitionGeneratorForm() {
                   result.details.discountsApplied.length > 0 && (
                     <List.Item>
                       Discounts Applied:{" "}
-                      {result.details.discountsApplied.map((d) => d.name).join(", ")}
+                      {result.details.discountsApplied
+                        .map((d) => d.name)
+                        .join(", ")}
                     </List.Item>
                   )}
               </List>

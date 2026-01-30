@@ -243,7 +243,7 @@ export function getPeriodDueDate(
 /**
  * Get due date for a monthly tuition (for backward compatibility)
  */
-function getDueDate(month: Month, year: number): Date {
+function _getDueDate(month: Month, year: number): Date {
   const monthNumber = MONTH_TO_NUMBER[month];
   return new Date(year, monthNumber - 1, 10);
 }
@@ -467,7 +467,9 @@ export function calculateTotalTuition(
 /**
  * Get record count for a frequency
  */
-export function getRecordCountForFrequency(frequency: PaymentFrequency): number {
+export function getRecordCountForFrequency(
+  frequency: PaymentFrequency,
+): number {
   return PERIODS[frequency].length;
 }
 

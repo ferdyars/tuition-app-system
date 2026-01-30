@@ -26,11 +26,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!classAcademicId) {
-      return errorResponse(
-        "Class is required",
-        "VALIDATION_ERROR",
-        400,
-      );
+      return errorResponse("Class is required", "VALIDATION_ERROR", 400);
     }
 
     if (!feeAmount || feeAmount <= 0) {
@@ -169,15 +165,16 @@ export async function POST(request: NextRequest) {
     const recordsPerStudent = getRecordCountForFrequency(paymentFrequency);
 
     // Calculate discount summary
-    const discountsApplied = applicableDiscounts.length > 0
-      ? applicableDiscounts.map((d) => ({
-          id: d.id,
-          name: d.name,
-          amount: Number(d.discountAmount),
-          targetPeriods: d.targetPeriods,
-          scope: d.classAcademicId ? "Class-specific" : "School-wide",
-        }))
-      : [];
+    const discountsApplied =
+      applicableDiscounts.length > 0
+        ? applicableDiscounts.map((d) => ({
+            id: d.id,
+            name: d.name,
+            amount: Number(d.discountAmount),
+            targetPeriods: d.targetPeriods,
+            scope: d.classAcademicId ? "Class-specific" : "School-wide",
+          }))
+        : [];
 
     return successResponse({
       generated: newTuitions.length,

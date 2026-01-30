@@ -88,7 +88,7 @@ export function validateScholarshipData(
     const rowNum = index + 2; // +2 for header row and 0-index
 
     // Skip empty rows
-    if (!row["Student NIS"] && !row["Class"] && !row["Nominal"]) {
+    if (!row["Student NIS"] && !row.Class && !row.Nominal) {
       return;
     }
 
@@ -101,7 +101,7 @@ export function validateScholarshipData(
     }
 
     // Validate Class
-    const className = String(row["Class"]).trim();
+    const className = String(row.Class).trim();
     if (!className) {
       rowErrors.push("Class is required");
     } else if (!validClassNames.includes(className)) {
@@ -109,10 +109,10 @@ export function validateScholarshipData(
     }
 
     // Validate Nominal
-    const nominal = Number(row["Nominal"]);
-    if (!row["Nominal"] && row["Nominal"] !== 0) {
+    const nominal = Number(row.Nominal);
+    if (!row.Nominal && row.Nominal !== 0) {
       rowErrors.push("Nominal is required");
-    } else if (isNaN(nominal) || nominal < 0) {
+    } else if (Number.isNaN(nominal) || nominal < 0) {
       rowErrors.push("Nominal must be a positive number");
     }
 

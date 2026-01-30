@@ -143,7 +143,10 @@ export async function getOverdueTuitions(
     const scholarshipAmount = scholarshipMap.get(scholarshipKey) || 0;
     const feeAmount = Number(t.feeAmount);
     const discountAmount = Number(t.discountAmount) || 0;
-    const effectiveFee = Math.max(feeAmount - scholarshipAmount - discountAmount, 0);
+    const effectiveFee = Math.max(
+      feeAmount - scholarshipAmount - discountAmount,
+      0,
+    );
     const paidAmount = Number(t.paidAmount);
 
     return {
@@ -288,10 +291,7 @@ export async function getClassSummary(
     const unpaid = tuitions.filter((t) => t.status === "UNPAID").length;
     const partial = tuitions.filter((t) => t.status === "PARTIAL").length;
 
-    const totalFees = tuitions.reduce(
-      (sum, t) => sum + Number(t.feeAmount),
-      0,
-    );
+    const totalFees = tuitions.reduce((sum, t) => sum + Number(t.feeAmount), 0);
 
     // Use tracked scholarship amount from each tuition
     const totalScholarships = tuitions.reduce(
@@ -311,7 +311,10 @@ export async function getClassSummary(
     );
 
     // Effective fees = total fees - scholarships - discounts
-    const totalEffectiveFees = Math.max(totalFees - totalScholarships - totalDiscounts, 0);
+    const totalEffectiveFees = Math.max(
+      totalFees - totalScholarships - totalDiscounts,
+      0,
+    );
 
     // Outstanding = effective fees - what's been paid
     const totalOutstanding = Math.max(totalEffectiveFees - totalPaid, 0);

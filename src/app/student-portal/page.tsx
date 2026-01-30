@@ -170,6 +170,7 @@ export default function StudentPortalPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 style={{ flex: 1 }}
                 size="md"
+                disabled={loading}
               />
               <Button
                 leftSection={<IconSearch size={18} />}

@@ -80,6 +80,8 @@ export default function OverdueReportTable() {
       label: c.className,
     })) || [];
 
+  const overdue = data?.overdue || [];
+
   return (
     <Stack gap="md">
       {/* Summary Cards */}
@@ -202,9 +204,9 @@ export default function OverdueReportTable() {
           </Stack>
         )}
 
-        {!isLoading && data && data.overdue.length > 0 && (
+        {!isLoading && overdue.length > 0 && (
           <Accordion>
-            {data.overdue.map((item, index) => (
+            {overdue.map((item, index) => (
               <Accordion.Item
                 key={`${item.student.nis}-${item.class.className}`}
                 value={`item-${index}`}
@@ -250,10 +252,10 @@ export default function OverdueReportTable() {
                       </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
-                      {item.overdueMonths.map((month) => (
+                      {item.overduePeriods.map((month) => (
                         <Table.Tr key={month.tuitionId}>
                           <Table.Td>
-                            {getMonthDisplayName(month.month)} {month.year}
+                            {getMonthDisplayName(month.period)} {month.year}
                           </Table.Td>
                           <Table.Td>
                             <NumberFormatter

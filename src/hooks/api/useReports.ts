@@ -9,9 +9,9 @@ import {
   queryKeys,
 } from "@/lib/query-keys";
 
-interface OverdueMonth {
+interface OverduePeriod {
   tuitionId: string;
-  month: Month;
+  period: Month;
   year: number;
   feeAmount: number;
   paidAmount: number;
@@ -19,7 +19,6 @@ interface OverdueMonth {
   dueDate: string;
   daysOverdue: number;
 }
-
 interface OverdueByStudent {
   student: {
     nis: string;
@@ -32,7 +31,7 @@ interface OverdueByStudent {
     grade: number;
     section: string;
   };
-  overdueMonths: OverdueMonth[];
+  overduePeriods: OverduePeriod[];
   totalOverdue: number;
   overdueCount: number;
 }

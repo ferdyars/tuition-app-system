@@ -56,6 +56,13 @@ export async function GET(request: NextRequest) {
             classAcademic: {
               select: { className: true },
             },
+            discount: {
+              select: {
+                name: true,
+                reason: true,
+                description: true,
+              },
+            },
           },
         },
         employee: {
@@ -110,6 +117,14 @@ export async function POST(request: NextRequest) {
       include: {
         student: { select: { name: true } },
         classAcademic: { select: { className: true } },
+        discount: {
+          select: {
+            name: true,
+            reason: true,
+            description: true,
+            targetPeriods: true,
+          },
+        },
       },
     });
 
@@ -144,6 +159,14 @@ export async function POST(request: NextRequest) {
           include: {
             student: { select: { nis: true, name: true } },
             classAcademic: { select: { className: true } },
+            discount: {
+              select: {
+                name: true,
+                reason: true,
+                description: true,
+                targetPeriods: true,
+              },
+            },
           },
         },
         employee: { select: { name: true } },
