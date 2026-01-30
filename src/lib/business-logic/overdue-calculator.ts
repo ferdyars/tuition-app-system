@@ -15,6 +15,8 @@ export interface OverdueItem {
   outstandingAmount: number;
   dueDate: Date;
   daysOverdue: number;
+  scholarshipAmount: number;
+  discountAmount: number;
 }
 
 export interface OverdueByStudent {
@@ -38,6 +40,8 @@ export interface OverdueByStudent {
     outstandingAmount: number;
     dueDate: Date;
     daysOverdue: number;
+    scholarshipAmount: number;
+    discountAmount: number;
   }>;
   totalOverdue: number;
   overdueCount: number;
@@ -162,6 +166,8 @@ export async function getOverdueTuitions(
       feeAmount,
       paidAmount,
       outstandingAmount: Math.max(effectiveFee - paidAmount, 0),
+      scholarshipAmount,
+      discountAmount,
       dueDate: t.dueDate,
       daysOverdue: calculateDaysOverdue(t.dueDate),
     };
@@ -210,6 +216,8 @@ export function groupOverdueByStudent(
       outstandingAmount: item.outstandingAmount,
       dueDate: item.dueDate,
       daysOverdue: item.daysOverdue,
+      discountAmount: item.discountAmount,
+      scholarshipAmount: item.scholarshipAmount,
     });
     student.totalOverdue += item.outstandingAmount;
     student.overdueCount++;

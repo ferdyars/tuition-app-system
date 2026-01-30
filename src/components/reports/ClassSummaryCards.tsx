@@ -19,6 +19,7 @@ import {
   IconCash,
   IconCheck,
   IconClock,
+  IconDiscount,
   IconFilter,
   IconGift,
   IconUsers,
@@ -155,6 +156,29 @@ export default function ClassSummaryCards() {
                   </Text>
                 </div>
               )}
+
+              {data.totals.totalDiscounts > 0 && (
+                <div>
+                  <Group gap={4}>
+                    <IconDiscount
+                      size={14}
+                      color="var(--mantine-color-green-6)"
+                    />
+                    <Text size="xs" c="dimmed">
+                      Discounts
+                    </Text>
+                  </Group>
+                  <Text size="lg" fw={600} c="green">
+                    -
+                    <NumberFormatter
+                      value={data.totals.totalDiscounts}
+                      prefix="Rp "
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  </Text>
+                </div>
+              )}
               <div>
                 <Text size="xs" c="dimmed">
                   {data.totals.totalScholarships > 0
@@ -256,7 +280,7 @@ export default function ClassSummaryCards() {
       )}
 
       {!isLoading && data && (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }}>
+        <SimpleGrid cols={{ base: 1, lg: 2 }}>
           {data.classes.map((cls) => {
             // Use effective fees (after scholarships) for percentage
             const effectiveFees =
@@ -266,6 +290,7 @@ export default function ClassSummaryCards() {
                 ? (cls.statistics.totalPaid / effectiveFees) * 100
                 : 0;
             const hasScholarship = cls.statistics.totalScholarships > 0;
+            const hasDiscount = cls.statistics.totalDiscounts > 0;
 
             return (
               <Card key={cls.class.id} withBorder>
@@ -331,6 +356,16 @@ export default function ClassSummaryCards() {
                         Scholarship
                       </Badge>
                     )}
+                    {hasDiscount && (
+                      <Badge
+                        color="green"
+                        variant="light"
+                        size="sm"
+                        leftSection={<IconDiscount size={10} />}
+                      >
+                        Scholarship
+                      </Badge>
+                    )}
                   </Group>
 
                   <Progress
@@ -354,6 +389,23 @@ export default function ClassSummaryCards() {
                         -
                         <NumberFormatter
                           value={cls.statistics.totalScholarships}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                    </Group>
+                  )}
+
+                  {hasDiscount && (
+                    <Group justify="space-between">
+                      <Text size="xs" c="dimmed">
+                        Discount Discount:
+                      </Text>
+                      <Text size="xs" fw={500} c="green">
+                        -
+                        <NumberFormatter
+                          value={cls.statistics.totalDiscounts}
                           prefix="Rp "
                           thousandSeparator="."
                           decimalSeparator=","

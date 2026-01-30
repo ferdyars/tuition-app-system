@@ -19,6 +19,8 @@ import {
   IconAlertTriangle,
   IconCalendar,
   IconCash,
+  IconDiscount,
+  IconGift,
   IconReceipt,
   IconSchool,
   IconTrendingUp,
@@ -259,51 +261,86 @@ export default function DashboardPage() {
               <Table striped highlightOnHover>
                 <Table.Thead>
                   <Table.Tr>
+                    <Table.Th>Date</Table.Th>
                     <Table.Th>Student</Table.Th>
                     <Table.Th>Class</Table.Th>
-                    <Table.Th>Amount</Table.Th>
-                    <Table.Th>Date</Table.Th>
+                    <Table.Th ta="right">Amount</Table.Th>
                     <Table.Th>Processed By</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {stats.recentPayments.map((payment) => (
-                    <Table.Tr key={payment.id}>
-                      <Table.Td>
-                        <Stack gap={0}>
+                  {stats.recentPayments.map((payment) => {
+                    return (
+                      <Table.Tr key={payment.id}>
+                        <Table.Td>
+                          <Text size="sm">
+                            {dayjs(payment.paymentDate).format(
+                              "DD/MM/YYYY HH:mm",
+                            )}
+                          </Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Stack gap={0}>
+                            <Text size="sm" fw={500}>
+                              {payment.studentName}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                              {payment.studentNis}
+                            </Text>
+                          </Stack>
+                        </Table.Td>
+                        <Table.Td>
+                          <Text size="sm">{payment.className}</Text>
+                        </Table.Td>
+                        <Table.Td align="right">
                           <Text size="sm" fw={500}>
-                            {payment.studentName}
+                            <NumberFormatter
+                              value={payment.amount}
+                              prefix="Rp "
+                              thousandSeparator="."
+                              decimalSeparator=","
+                            />
                           </Text>
-                          <Text size="xs" c="dimmed">
-                            {payment.studentNis}
-                          </Text>
-                        </Stack>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm">{payment.className}</Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm" fw={500} c="green">
-                          <NumberFormatter
-                            value={payment.amount}
-                            prefix="Rp "
-                            thousandSeparator="."
-                            decimalSeparator=","
-                          />
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm">
-                          {dayjs(payment.paymentDate).format(
-                            "DD/MM/YYYY HH:mm",
+                          {!!Number(payment.scholarshipAmount) && (
+                            <Badge
+                              size="xs"
+                              color={"blue"}
+                              variant="light"
+                              leftSection={<IconGift size={10} />}
+                            >
+                              Scholarship:{" "}
+                              <NumberFormatter
+                                value={Number(payment.scholarshipAmount)}
+                                prefix="Rp "
+                                thousandSeparator="."
+                                decimalSeparator=","
+                              />
+                            </Badge>
                           )}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="sm">{payment.processedBy}</Text>
-                      </Table.Td>
-                    </Table.Tr>
-                  ))}
+                          {!!payment.discount && (
+                            <Badge
+                              size="xs"
+                              color={"blue"}
+                              variant="light"
+                              leftSection={<IconDiscount size={10} />}
+                            >
+                              {payment.discount?.name}:{" "}
+                              <NumberFormatter
+                                value={Number(payment.discountAmount)}
+                                prefix="Rp "
+                                thousandSeparator="."
+                                decimalSeparator=","
+                              />
+                            </Badge>
+                          )}
+                        </Table.Td>
+
+                        <Table.Td>
+                          <Text size="sm">{payment.processedBy}</Text>
+                        </Table.Td>
+                      </Table.Tr>
+                    );
+                  })}
                 </Table.Tbody>
               </Table>
             </Table.ScrollContainer>

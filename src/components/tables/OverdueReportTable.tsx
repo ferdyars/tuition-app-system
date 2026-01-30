@@ -267,9 +267,21 @@ export default function OverdueReportTable() {
                         <Table.Tr>
                           <Table.Th>Month</Table.Th>
                           <Table.Th>Due Date</Table.Th>
-                          <Table.Th>Fee Amount</Table.Th>
-                          <Table.Th>Paid Amount</Table.Th>
-                          <Table.Th>Outstanding</Table.Th>
+                          <Table.Th ta="right" align="right">
+                            Fee Amount
+                          </Table.Th>
+                          <Table.Th ta="right" align="right">
+                            Scholarship Amount
+                          </Table.Th>
+                          <Table.Th ta="right" align="right">
+                            Discount Amount
+                          </Table.Th>
+                          <Table.Th ta="right" align="right">
+                            Paid Amount
+                          </Table.Th>
+                          <Table.Th ta="right" align="right">
+                            Outstanding
+                          </Table.Th>
                           <Table.Th>Days Overdue</Table.Th>
                         </Table.Tr>
                       </Table.Thead>
@@ -286,7 +298,7 @@ export default function OverdueReportTable() {
                                 {dayjs(month.dueDate).format("DD/MM/YYYY")}
                               </Text>
                             </Table.Td>
-                            <Table.Td>
+                            <Table.Td ta="right" align="right">
                               <NumberFormatter
                                 value={month.feeAmount}
                                 prefix="Rp "
@@ -294,15 +306,31 @@ export default function OverdueReportTable() {
                                 decimalSeparator=","
                               />
                             </Table.Td>
-                            <Table.Td>
+                            <Table.Td ta="right" align="right" c="blue">
                               <NumberFormatter
-                                value={month.paidAmount}
+                                value={month.scholarshipAmount || "-"}
                                 prefix="Rp "
                                 thousandSeparator="."
                                 decimalSeparator=","
                               />
                             </Table.Td>
-                            <Table.Td>
+                            <Table.Td ta="right" align="right" c="blue">
+                              <NumberFormatter
+                                value={month.discountAmount * -1 || "-"}
+                                prefix="Rp "
+                                thousandSeparator="."
+                                decimalSeparator=","
+                              />
+                            </Table.Td>
+                            <Table.Td ta="right" align="right">
+                              <NumberFormatter
+                                value={month.paidAmount || "-"}
+                                prefix="Rp "
+                                thousandSeparator="."
+                                decimalSeparator=","
+                              />
+                            </Table.Td>
+                            <Table.Td ta="right" align="right">
                               <Text fw={600} c="red">
                                 <NumberFormatter
                                   value={month.outstandingAmount}

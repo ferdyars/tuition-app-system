@@ -473,11 +473,21 @@ export default function StudentPortalPage() {
                             <Table.Thead>
                               <Table.Tr>
                                 <Table.Th>Period</Table.Th>
-                                <Table.Th ta="right">Fee</Table.Th>
-                                <Table.Th ta="right">Scholarship</Table.Th>
-                                <Table.Th ta="right">Paid</Table.Th>
-                                <Table.Th ta="right">Discount</Table.Th>
-                                <Table.Th ta="right">Remaining</Table.Th>
+                                <Table.Th ta="right" align="right">
+                                  Fee
+                                </Table.Th>
+                                <Table.Th ta="right" align="right">
+                                  Scholarship
+                                </Table.Th>
+                                <Table.Th ta="right" align="right">
+                                  Paid
+                                </Table.Th>
+                                <Table.Th ta="right" align="right">
+                                  Discount
+                                </Table.Th>
+                                <Table.Th ta="right" align="right">
+                                  Remaining
+                                </Table.Th>
                                 <Table.Th>Due Date</Table.Th>
                                 <Table.Th>Status</Table.Th>
                               </Table.Tr>
@@ -491,7 +501,7 @@ export default function StudentPortalPage() {
                                       {tuition.year}
                                     </Text>
                                   </Table.Td>
-                                  <Table.Td ta="right">
+                                  <Table.Td ta="right" align="right">
                                     <NumberFormatter
                                       value={tuition.feeAmount}
                                       prefix="Rp "
@@ -499,7 +509,7 @@ export default function StudentPortalPage() {
                                       decimalSeparator=","
                                     />
                                   </Table.Td>
-                                  <Table.Td ta="right">
+                                  <Table.Td ta="right" align="right">
                                     {tuition.scholarshipAmount > 0 ? (
                                       <Text c="teal" size="sm">
                                         -
@@ -516,7 +526,7 @@ export default function StudentPortalPage() {
                                       </Text>
                                     )}
                                   </Table.Td>
-                                  <Table.Td ta="right">
+                                  <Table.Td ta="right" align="right">
                                     <Text c="dark.6" size="sm" fw={500}>
                                       <NumberFormatter
                                         value={tuition.paidAmount}
@@ -526,7 +536,7 @@ export default function StudentPortalPage() {
                                       />
                                     </Text>
                                   </Table.Td>
-                                  <Table.Td ta="right">
+                                  <Table.Td ta="right" align="right">
                                     {tuition.discountAmount > 0 ? (
                                       <Text c="teal" size="sm">
                                         -
@@ -543,7 +553,7 @@ export default function StudentPortalPage() {
                                       </Text>
                                     )}
                                   </Table.Td>
-                                  <Table.Td ta="right">
+                                  <Table.Td ta="right" align="right">
                                     <Text
                                       c={
                                         tuition.remainingAmount > 0

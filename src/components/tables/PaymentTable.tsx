@@ -155,7 +155,9 @@ export default function PaymentTable() {
                 <Table.Th>Student</Table.Th>
                 <Table.Th>Class</Table.Th>
                 <Table.Th>Month</Table.Th>
-                <Table.Th>Amount</Table.Th>
+                <Table.Th ta="right" align="right">
+                  Amount
+                </Table.Th>
                 <Table.Th>Cashier</Table.Th>
                 <Table.Th>Status</Table.Th>
                 {isAdmin && <Table.Th w={80}>Actions</Table.Th>}
@@ -210,9 +212,9 @@ export default function PaymentTable() {
                         : "-"}
                     </Text>
                   </Table.Td>
-                  <Table.Td>
-                    <Stack gap={2}>
-                      <Text size="sm" fw={600} c="green">
+                  <Table.Td align="right">
+                    <Stack gap={2} align="flex-end">
+                      <Text size="sm" fw={600}>
                         <NumberFormatter
                           value={payment.amount}
                           prefix="Rp "
@@ -220,79 +222,38 @@ export default function PaymentTable() {
                           decimalSeparator=","
                         />
                       </Text>
-                      {Number(payment.scholarshipAmount) > 0 &&
-                        (() => {
-                          const scholarshipAmt = Number(
-                            payment.scholarshipAmount,
-                          );
-                          const feeAmt = Number(
-                            payment.tuition?.feeAmount || 0,
-                          );
-                          const isFullScholarship = scholarshipAmt >= feeAmt;
-
-                          return (
-                            <Tooltip
-                              label={
-                                <Stack gap={2}>
-                                  <Text size="xs">
-                                    Scholarship:{" "}
-                                    <NumberFormatter
-                                      value={payment.scholarshipAmount}
-                                      prefix="Rp "
-                                      thousandSeparator="."
-                                      decimalSeparator=","
-                                    />
-                                  </Text>
-                                  {isFullScholarship && (
-                                    <Text size="xs" c="teal">
-                                      Full scholarship covers entire fee
-                                    </Text>
-                                  )}
-                                </Stack>
-                              }
-                            >
-                              <Badge
-                                size="xs"
-                                color={isFullScholarship ? "green" : "teal"}
-                                variant="light"
-                                leftSection={<IconGift size={10} />}
-                              >
-                                {isFullScholarship
-                                  ? "Full Scholarship"
-                                  : "Partial Scholarship"}
-                              </Badge>
-                            </Tooltip>
-                          );
-                        })()}
-                      {Number(payment.tuition?.discountAmount) > 0 &&
-                        (() => {
-                          return (
-                            <Tooltip
-                              label={
-                                <Stack gap={2}>
-                                  <Text size="xs">
-                                    Discounts:{" "}
-                                    <NumberFormatter
-                                      value={payment.tuition?.discountAmount}
-                                      prefix="Rp "
-                                      thousandSeparator="."
-                                      decimalSeparator=","
-                                    />
-                                  </Text>
-                                </Stack>
-                              }
-                            >
-                              <Badge
-                                size="xs"
-                                color={"teal"}
-                                variant="light"
-                                leftSection={<IconDiscount size={10} />}
-                              >
-                                {payment.tuition?.discount?.name || ""}
-                              </Badge>
-                            </Tooltip>
-                          );
-                        })()}
+                      {!!Number(payment.scholarshipAmount) && (
+                        <Badge
+                          size="xs"
+                          color={"blue"}
+                          variant="light"
+                          leftSection={<IconGift size={10} />}
+                        >
+                          Scholarship:{" "}
+                          <NumberFormatter
+                            value={Number(payment.scholarshipAmount)}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Badge>
+                      )}
+                      {!!payment.tuition?.discount && (
+                        <Badge
+                          size="xs"
+                          color={"blue"}
+                          variant="light"
+                          leftSection={<IconDiscount size={10} />}
+                        >
+                          {payment.tuition?.discount?.name}:{" "}
+                          <NumberFormatter
+                            value={Number(payment.tuition?.discountAmount)}
+                            prefix="Rp "
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        </Badge>
+                      )}
                     </Stack>
                   </Table.Td>
                   <Table.Td>

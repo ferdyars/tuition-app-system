@@ -18,6 +18,8 @@ interface OverduePeriod {
   outstandingAmount: number;
   dueDate: string;
   daysOverdue: number;
+  discountAmount: number;
+  scholarshipAmount: number;
 }
 interface OverdueByStudent {
   student: {

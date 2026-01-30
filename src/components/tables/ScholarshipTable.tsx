@@ -129,7 +129,9 @@ export default function ScholarshipTable() {
               <Table.Tr>
                 <Table.Th>Student</Table.Th>
                 <Table.Th>Class</Table.Th>
-                <Table.Th>Nominal</Table.Th>
+                <Table.Th ta="right" align="right">
+                  Amount
+                </Table.Th>
                 <Table.Th>Type</Table.Th>
                 <Table.Th>Created</Table.Th>
                 <Table.Th w={80}>Actions</Table.Th>
@@ -172,7 +174,7 @@ export default function ScholarshipTable() {
                       {scholarship.classAcademic?.className}
                     </Text>
                   </Table.Td>
-                  <Table.Td>
+                  <Table.Td ta="right" align="right">
                     <NumberFormatter
                       value={scholarship.nominal}
                       prefix="Rp "

@@ -11,6 +11,13 @@ interface RecentPayment {
   studentNis: string;
   className: string;
   processedBy: string;
+  scholarshipAmount: number;
+  discountAmount: number;
+  discount: {
+    name: string;
+    description?: string;
+    reason?: string;
+  } | null;
 }
 
 interface DashboardStats {

@@ -173,9 +173,15 @@ export default function TuitionTable() {
                 <Table.Th>Student</Table.Th>
                 <Table.Th>Class</Table.Th>
                 <Table.Th>Period</Table.Th>
-                <Table.Th>Fee Amount</Table.Th>
-                <Table.Th>Discount</Table.Th>
-                <Table.Th>Paid Amount</Table.Th>
+                <Table.Th ta="right" align="right">
+                  Fee Amount
+                </Table.Th>
+                <Table.Th ta="right" align="right">
+                  Discount Amount
+                </Table.Th>
+                <Table.Th ta="right" align="right">
+                  Paid Amount
+                </Table.Th>
                 <Table.Th>Due Date</Table.Th>
                 <Table.Th>Status</Table.Th>
                 <Table.Th w={80}>Actions</Table.Th>
@@ -221,7 +227,7 @@ export default function TuitionTable() {
                       {getPeriodDisplayName(tuition.period)} {tuition.year}
                     </Text>
                   </Table.Td>
-                  <Table.Td>
+                  <Table.Td ta="right" align="right">
                     <NumberFormatter
                       value={tuition.feeAmount}
                       prefix="Rp "
@@ -229,7 +235,7 @@ export default function TuitionTable() {
                       decimalSeparator=","
                     />
                   </Table.Td>
-                  <Table.Td>
+                  <Table.Td ta="right" align="right">
                     {tuition.discount ? (
                       <Tooltip label={tuition.discount.name}>
                         <Badge color="green" variant="light" size="sm">
@@ -248,7 +254,7 @@ export default function TuitionTable() {
                       </Text>
                     )}
                   </Table.Td>
-                  <Table.Td>
+                  <Table.Td ta="right" align="right">
                     <NumberFormatter
                       value={tuition.paidAmount}
                       prefix="Rp "

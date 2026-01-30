@@ -88,6 +88,7 @@ export async function GET(request: NextRequest) {
         include: {
           student: { select: { name: true, nis: true } },
           classAcademic: { select: { className: true } },
+          discount: { select: { name: true, reason: true, description: true } },
         },
       },
       employee: { select: { name: true } },
@@ -116,6 +117,9 @@ export async function GET(request: NextRequest) {
       studentNis: p.tuition.student.nis,
       className: p.tuition.classAcademic.className,
       processedBy: p.employee.name,
+      scholarshipAmount: p.tuition.scholarshipAmount,
+      discountAmount: p.tuition.discountAmount,
+      discount: p.tuition.discount,
     })),
   });
 }
