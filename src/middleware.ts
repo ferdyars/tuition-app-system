@@ -11,6 +11,7 @@ const publicPaths = [
   "/api-docs",
   "/api/swagger",
   "/student-portal",
+  "/api/v1/student-portal",
 ];
 
 export async function middleware(request: NextRequest) {

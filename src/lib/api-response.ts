@@ -1,10 +1,19 @@
-export function successResponse<T>(data: T, statusCode = 200) {
+export function successResponse<T>(
+  data: T,
+  statusCode = 200,
+  cacheControl?: string,
+) {
   return Response.json(
     {
       success: true,
       data,
     },
-    { status: statusCode },
+    {
+      status: statusCode,
+      headers: {
+        "Cache-Control": cacheControl || "no-cache",
+      },
+    },
   );
 }
 
@@ -27,6 +36,8 @@ export function errorResponse(
       success: false,
       error,
     },
-    { status: statusCode },
+    {
+      status: statusCode,
+    },
   );
 }

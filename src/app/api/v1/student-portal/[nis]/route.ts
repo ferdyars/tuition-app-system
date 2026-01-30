@@ -183,16 +183,20 @@ export async function GET(
     },
   });
 
-  return successResponse({
-    student,
-    academicYears: Object.values(groupedByYear),
-    scholarships: scholarships.map((s) => ({
-      id: s.id,
-      name: s.name,
-      nominal: Number(s.nominal),
-      isFullScholarship: s.isFullScholarship,
-      academicYear: s.classAcademic.academicYear.year,
-      className: s.classAcademic.className,
-    })),
-  });
+  return successResponse(
+    {
+      student,
+      academicYears: Object.values(groupedByYear),
+      scholarships: scholarships.map((s) => ({
+        id: s.id,
+        name: s.name,
+        nominal: Number(s.nominal),
+        isFullScholarship: s.isFullScholarship,
+        academicYear: s.classAcademic.academicYear.year,
+        className: s.classAcademic.className,
+      })),
+    },
+    200,
+    "s-maxage=300, stale-while-revalidate=60",
+  );
 }
