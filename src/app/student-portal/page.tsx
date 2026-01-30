@@ -155,7 +155,7 @@ export default function StudentPortalPage() {
         <Center>
           <Stack align="center" gap="xs">
             <IconSchool size={40} color="var(--mantine-color-dark-6)" />
-            <Title order={2} ta="center" c="dark" ta="center">
+            <Title order={2} c="dark" ta="center">
               Student Payment Portal
             </Title>
             <Text c="dark.4" size="sm" ta="center">
@@ -316,11 +316,8 @@ export default function StudentPortalPage() {
                         color="var(--mantine-color-dark-6)"
                       />
                       <Title order={4} c="dark">
-                        {yearData.academicYear.year}
-                      </Title>
-                      <Badge variant="filled" color="dark">
                         {yearData.class.className}
-                      </Badge>
+                      </Title>
                     </Group>
                     <Group gap="xs" wrap="wrap">
                       <Badge color="dark" variant="filled" size="sm">
@@ -758,7 +755,7 @@ export default function StudentPortalPage() {
         )}
 
         {/* Footer */}
-        <Center>
+        <Center ta="center">
           <Text size="sm" c="dark.4" ta="center">
             For payment inquiries, please contact the school administration.
           </Text>
