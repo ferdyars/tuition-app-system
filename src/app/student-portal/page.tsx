@@ -155,7 +155,7 @@ export default function StudentPortalPage() {
         <Center>
           <Stack align="center" gap="xs">
             <IconSchool size={40} color="var(--mantine-color-dark-6)" />
-            <Title order={2} ta="center" c="dark">
+            <Title order={2} ta="center" c="dark" ta="center">
               Student Payment Portal
             </Title>
             <Text c="dark.4" size="sm" ta="center">
@@ -759,7 +759,7 @@ export default function StudentPortalPage() {
 
         {/* Footer */}
         <Center>
-          <Text size="sm" c="dark.4">
+          <Text size="sm" c="dark.4" ta="center">
             For payment inquiries, please contact the school administration.
           </Text>
         </Center>
