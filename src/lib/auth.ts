@@ -40,7 +40,7 @@ export function getTokenFromRequest(request: Request): string | null {
     const cookies = Object.fromEntries(
       cookieHeader.split("; ").map((c) => c.split("=")),
     );
-    return cookies["auth-token"] || null;
+    return cookies["auth-token"] || cookies["student-token"] || null;
   }
 
   return null;

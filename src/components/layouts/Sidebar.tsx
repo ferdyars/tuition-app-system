@@ -4,19 +4,24 @@ import { NavLink } from "@mantine/core";
 import {
   IconAlertTriangle,
   IconBuilding,
+  IconBuildingBank,
   IconCalendar,
   IconCash,
   IconChartBar,
+  IconCreditCard,
   IconDiscount,
   IconGift,
   IconHome,
   IconReceipt,
   IconReportAnalytics,
   IconSchool,
+  IconTestPipe,
+  IconUserCircle,
   IconUsers,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/useAuth";
 
 interface NavItem {
@@ -26,65 +31,96 @@ interface NavItem {
   children?: NavItem[];
 }
 
-const adminLinks: NavItem[] = [
-  { icon: IconHome, label: "Dashboard", href: "/" },
-  { icon: IconUsers, label: "Employees", href: "/employees" },
-  { icon: IconSchool, label: "Students", href: "/students" },
-  { icon: IconCalendar, label: "Academic Years", href: "/academic-years" },
-  { icon: IconBuilding, label: "Classes", href: "/classes" },
-  { icon: IconCash, label: "Tuitions", href: "/tuitions" },
-  { icon: IconGift, label: "Scholarships", href: "/scholarships" },
-  { icon: IconDiscount, label: "Discounts", href: "/discounts" },
-  { icon: IconReceipt, label: "Payments", href: "/payments" },
-  {
-    icon: IconReportAnalytics,
-    label: "Reports",
-    children: [
-      {
-        icon: IconAlertTriangle,
-        label: "Overdue Report",
-        href: "/reports/overdue",
-      },
-      {
-        icon: IconChartBar,
-        label: "Class Summary",
-        href: "/reports/class-summary",
-      },
-    ],
-  },
-];
-
-const cashierLinks: NavItem[] = [
-  { icon: IconHome, label: "Dashboard", href: "/" },
-  { icon: IconSchool, label: "Students", href: "/students" },
-  { icon: IconReceipt, label: "Payments", href: "/payments" },
-  {
-    icon: IconReportAnalytics,
-    label: "Reports",
-    children: [
-      {
-        icon: IconAlertTriangle,
-        label: "Overdue Report",
-        href: "/reports/overdue",
-      },
-      {
-        icon: IconChartBar,
-        label: "Class Summary",
-        href: "/reports/class-summary",
-      },
-    ],
-  },
-];
-
 export default function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const t = useTranslations("admin");
+
+  const adminLinks: NavItem[] = [
+    { icon: IconHome, label: t("dashboard"), href: "/admin/dashboard" },
+    { icon: IconUsers, label: t("employees"), href: "/admin/employees" },
+    { icon: IconSchool, label: t("students"), href: "/admin/students" },
+    {
+      icon: IconCalendar,
+      label: t("academicYears"),
+      href: "/admin/academic-years",
+    },
+    { icon: IconBuilding, label: t("classes"), href: "/admin/classes" },
+    { icon: IconCash, label: t("tuitions"), href: "/admin/tuitions" },
+    { icon: IconGift, label: t("scholarships"), href: "/admin/scholarships" },
+    { icon: IconDiscount, label: t("discounts"), href: "/admin/discounts" },
+    { icon: IconReceipt, label: t("payments"), href: "/admin/payments" },
+    {
+      icon: IconCreditCard,
+      label: t("onlineTransactions"),
+      href: "/admin/online-transactions",
+    },
+    {
+      icon: IconUserCircle,
+      label: t("studentAccounts"),
+      href: "/admin/student-accounts",
+    },
+    {
+      icon: IconBuildingBank,
+      label: t("bankAccounts"),
+      href: "/admin/bank-accounts",
+    },
+    {
+      icon: IconTestPipe,
+      label: t("testTransfer"),
+      href: "/admin/test-transfer",
+    },
+
+    {
+      icon: IconReportAnalytics,
+      label: t("reports"),
+      children: [
+        {
+          icon: IconAlertTriangle,
+          label: t("overdueReport"),
+          href: "/admin/reports/overdue",
+        },
+        {
+          icon: IconChartBar,
+          label: t("classSummary"),
+          href: "/admin/reports/class-summary",
+        },
+      ],
+    },
+  ];
+
+  const cashierLinks: NavItem[] = [
+    { icon: IconHome, label: t("dashboard"), href: "/admin/dashboard" },
+    { icon: IconSchool, label: t("students"), href: "/admin/students" },
+    { icon: IconReceipt, label: t("payments"), href: "/admin/payments" },
+    {
+      icon: IconCreditCard,
+      label: t("onlineTransactions"),
+      href: "/admin/online-transactions",
+    },
+    {
+      icon: IconReportAnalytics,
+      label: t("reports"),
+      children: [
+        {
+          icon: IconAlertTriangle,
+          label: t("overdueReport"),
+          href: "/admin/reports/overdue",
+        },
+        {
+          icon: IconChartBar,
+          label: t("classSummary"),
+          href: "/admin/reports/class-summary",
+        },
+      ],
+    },
+  ];
 
   const links = user?.role === "ADMIN" ? adminLinks : cashierLinks;
 
   const isActive = (href: string) => {
-    if (href === "/") {
-      return pathname === "/";
+    if (href === "/admin/dashboard") {
+      return pathname === "/admin" || pathname === "/admin/dashboard";
     }
     return pathname.startsWith(href);
   };

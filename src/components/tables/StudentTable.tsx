@@ -15,11 +15,13 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconEdit, IconSearch, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDeleteStudent, useStudents } from "@/hooks/api/useStudents";
 
 export default function StudentTable() {
+  const t = useTranslations();
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -34,27 +36,30 @@ export default function StudentTable() {
 
   const handleDelete = (nis: string, name: string) => {
     modals.openConfirmModal({
-      title: "Delete Student",
+      title: t("student.deleteTitle"),
       children: (
         <Text size="sm">
-          Are you sure you want to delete <strong>{name}</strong> ({nis})? This
-          action cannot be undone.
+          {t.rich("student.deleteConfirm", {
+            name,
+            nis,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
+      labels: { confirm: t("common.delete"), cancel: t("common.cancel") },
       confirmProps: { color: "red" },
       onConfirm: () => {
         deleteStudent.mutate(nis, {
           onSuccess: () => {
             notifications.show({
-              title: "Deleted",
-              message: "Student deleted successfully",
+              title: t("common.deleted"),
+              message: t("student.deleteSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -67,7 +72,7 @@ export default function StudentTable() {
   return (
     <Stack gap="md">
       <TextInput
-        placeholder="Search by NIS, NIK, or name..."
+        placeholder={t("student.searchPlaceholder")}
         leftSection={<IconSearch size={16} />}
         value={search}
         onChange={(e) => {
@@ -81,12 +86,12 @@ export default function StudentTable() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>NIS</Table.Th>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>Parent</Table.Th>
-                <Table.Th>Phone</Table.Th>
-                <Table.Th>Join Date</Table.Th>
-                <Table.Th w={100}>Actions</Table.Th>
+                <Table.Th>{t("student.nis")}</Table.Th>
+                <Table.Th>{t("student.name")}</Table.Th>
+                <Table.Th>{t("student.parent")}</Table.Th>
+                <Table.Th>{t("student.phone")}</Table.Th>
+                <Table.Th>{t("student.joinDate")}</Table.Th>
+                <Table.Th w={100}>{t("common.actions")}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -104,7 +109,7 @@ export default function StudentTable() {
                 <Table.Tr>
                   <Table.Td colSpan={6}>
                     <Text ta="center" c="dimmed" py="md">
-                      No students found
+                      {t("student.notFound")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -123,7 +128,9 @@ export default function StudentTable() {
                       <ActionIcon
                         variant="subtle"
                         color="blue"
-                        onClick={() => router.push(`/students/${student.nis}`)}
+                        onClick={() =>
+                          router.push(`/admin/students/${student.nis}`)
+                        }
                       >
                         <IconEdit size={18} />
                       </ActionIcon>

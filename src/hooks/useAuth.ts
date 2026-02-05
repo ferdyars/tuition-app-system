@@ -1,6 +1,6 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useGetMe } from "@/hooks/api/useGetMe";
 import { apiClient } from "@/lib/api-client";
@@ -20,7 +20,7 @@ export function useAuth() {
 
     if (data.success) {
       await queryClient.invalidateQueries({ queryKey: queryKeys.auth.me() });
-      router.push("/");
+      router.push("/admin");
       return { success: true };
     }
 
@@ -45,4 +45,19 @@ export function useAuth() {
     logout,
     isAuthenticated: !!user,
   };
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async (passwords: {
+      currentPassword: string;
+      newPassword: string;
+    }) => {
+      const { data } = await apiClient.post<{
+        success: boolean;
+        data: { message: string };
+      }>("/auth/change-password", passwords);
+      return data.data;
+    },
+  });
 }

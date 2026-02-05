@@ -1,7 +1,9 @@
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import Providers from "./providers";
 import "./globals.css";
 
@@ -10,25 +12,37 @@ export const metadata: Metadata = {
   description: "Manage school tuitions, payments, and scholarships",
 };
 
-export default function RootLayout({
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <ColorSchemeScript />
       </head>
       <body>
-        <Providers>
-          <MantineProvider defaultColorScheme="light">
-            <ModalsProvider>
-              <Notifications position="top-right" />
-              {children}
-            </ModalsProvider>
-          </MantineProvider>
-        </Providers>
+        <NextIntlClientProvider messages={messages}>
+          <Providers>
+            <MantineProvider defaultColorScheme="light">
+              <ModalsProvider modalProps={{ centered: true }}>
+                <Notifications position="top-right" />
+                {children}
+              </ModalsProvider>
+            </MantineProvider>
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

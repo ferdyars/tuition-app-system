@@ -16,6 +16,7 @@ import {
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconEdit, IconKey, IconSearch, IconTrash } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -25,6 +26,7 @@ import {
 } from "@/hooks/api/useEmployees";
 
 export default function EmployeeTable() {
+  const t = useTranslations();
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -42,27 +44,29 @@ export default function EmployeeTable() {
 
   const handleDelete = (id: string, name: string) => {
     modals.openConfirmModal({
-      title: "Delete Employee",
+      title: t("employee.deleteTitle"),
       children: (
         <Text size="sm">
-          Are you sure you want to delete <strong>{name}</strong>? This action
-          cannot be undone.
+          {t.rich("employee.deleteConfirm", {
+            name,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
+      labels: { confirm: t("common.delete"), cancel: t("common.cancel") },
       confirmProps: { color: "red" },
       onConfirm: () => {
         deleteEmployee.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Deleted",
-              message: "Employee deleted successfully",
+              title: t("common.deleted"),
+              message: t("employee.deleteSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -74,26 +78,29 @@ export default function EmployeeTable() {
 
   const handleResetPassword = (id: string, name: string) => {
     modals.openConfirmModal({
-      title: "Reset Password",
+      title: t("employee.resetPasswordTitle"),
       children: (
         <Text size="sm">
-          Reset password for <strong>{name}</strong> to default (123456)?
+          {t.rich("employee.resetPasswordConfirm", {
+            name,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Reset", cancel: "Cancel" },
+      labels: { confirm: t("employee.reset"), cancel: t("common.cancel") },
       confirmProps: { color: "orange" },
       onConfirm: () => {
         resetPassword.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Password Reset",
-              message: "Password has been reset to 123456",
+              title: t("employee.passwordReset"),
+              message: t("employee.resetPasswordSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -107,7 +114,7 @@ export default function EmployeeTable() {
     <Stack gap="md">
       <Group>
         <TextInput
-          placeholder="Search employees..."
+          placeholder={t("employee.searchPlaceholder")}
           leftSection={<IconSearch size={16} />}
           value={search}
           onChange={(e) => {
@@ -117,10 +124,10 @@ export default function EmployeeTable() {
           style={{ flex: 1 }}
         />
         <Select
-          placeholder="Filter by role"
+          placeholder={t("employee.filterByRole")}
           data={[
-            { value: "ADMIN", label: "Admin" },
-            { value: "CASHIER", label: "Cashier" },
+            { value: "ADMIN", label: t("employee.roles.ADMIN") },
+            { value: "CASHIER", label: t("employee.roles.CASHIER") },
           ]}
           value={roleFilter}
           onChange={(value) => {
@@ -137,10 +144,10 @@ export default function EmployeeTable() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th>Role</Table.Th>
-                <Table.Th w={140}>Actions</Table.Th>
+                <Table.Th>{t("employee.name")}</Table.Th>
+                <Table.Th>{t("employee.email")}</Table.Th>
+                <Table.Th>{t("employee.role")}</Table.Th>
+                <Table.Th w={140}>{t("common.actions")}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -165,7 +172,7 @@ export default function EmployeeTable() {
                 <Table.Tr>
                   <Table.Td colSpan={4}>
                     <Text ta="center" c="dimmed" py="md">
-                      No employees found
+                      {t("employee.notFound")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -179,7 +186,7 @@ export default function EmployeeTable() {
                       color={employee.role === "ADMIN" ? "blue" : "green"}
                       variant="light"
                     >
-                      {employee.role}
+                      {t(`employee.roles.${employee.role}`)}
                     </Badge>
                   </Table.Td>
                   <Table.Td>

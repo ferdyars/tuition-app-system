@@ -14,6 +14,16 @@ interface Student {
   startJoinDate: string;
   createdAt: string;
   updatedAt?: string;
+  // Account fields
+  hasAccount: boolean;
+  mustChangePassword: boolean;
+  lastLoginAt: string | null;
+  lastPaymentAt: string | null;
+  accountCreatedAt: string | null;
+  accountCreatedBy: string | null;
+  accountDeleted: boolean;
+  accountDeletedAt: string | null;
+  accountDeletedReason: string | null;
 }
 
 interface StudentListResponse {
@@ -57,11 +67,21 @@ export function useStudent(nis: string) {
   });
 }
 
+interface CreateStudentInput {
+  nis: string;
+  nik: string;
+  name: string;
+  address: string;
+  parentName: string;
+  parentPhone: string;
+  startJoinDate: string;
+}
+
 export function useCreateStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (student: Omit<Student, "createdAt" | "updatedAt">) => {
+    mutationFn: async (student: CreateStudentInput) => {
       const { data } = await apiClient.post<{
         success: boolean;
         data: Student;

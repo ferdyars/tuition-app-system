@@ -76,6 +76,40 @@ export interface DiscountFilters {
   isActive?: boolean;
 }
 
+// Student Portal Filters
+export interface StudentPaymentRequestFilters {
+  page?: number;
+  limit?: number;
+  status?: string;
+}
+
+export interface StudentAccountFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  includeDeleted?: boolean;
+}
+
+export interface NotificationFilters {
+  page?: number;
+  limit?: number;
+  status?: string;
+  messageType?: string;
+}
+
+export interface RateLimitFilters {
+  action?: string;
+  identifier?: string;
+  limit?: number;
+}
+
+export interface AdminPaymentRequestFilters {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}
+
 export const queryKeys = {
   auth: {
     all: ["auth"] as const,
@@ -170,5 +204,74 @@ export const queryKeys = {
       [...queryKeys.discounts.lists(), filters] as const,
     details: () => [...queryKeys.discounts.all, "detail"] as const,
     detail: (id: string) => [...queryKeys.discounts.details(), id] as const,
+  },
+
+  // Student Portal
+  studentAuth: {
+    all: ["student-auth"] as const,
+    me: () => [...queryKeys.studentAuth.all, "me"] as const,
+  },
+
+  studentTuitions: {
+    all: ["student-tuitions"] as const,
+    list: () => [...queryKeys.studentTuitions.all, "list"] as const,
+  },
+
+  studentBanks: {
+    all: ["student-banks"] as const,
+    list: () => [...queryKeys.studentBanks.all, "list"] as const,
+  },
+
+  studentPaymentRequests: {
+    all: ["student-payment-requests"] as const,
+    lists: () => [...queryKeys.studentPaymentRequests.all, "list"] as const,
+    list: (filters: StudentPaymentRequestFilters) =>
+      [...queryKeys.studentPaymentRequests.lists(), filters] as const,
+    details: () => [...queryKeys.studentPaymentRequests.all, "detail"] as const,
+    detail: (id: string) =>
+      [...queryKeys.studentPaymentRequests.details(), id] as const,
+    active: () => [...queryKeys.studentPaymentRequests.all, "active"] as const,
+  },
+
+  // Admin Phase 3
+  studentAccounts: {
+    all: ["student-accounts"] as const,
+    lists: () => [...queryKeys.studentAccounts.all, "list"] as const,
+    list: (filters: StudentAccountFilters) =>
+      [...queryKeys.studentAccounts.lists(), filters] as const,
+  },
+
+  bankAccounts: {
+    all: ["bank-accounts"] as const,
+    lists: () => [...queryKeys.bankAccounts.all, "list"] as const,
+    list: () => [...queryKeys.bankAccounts.lists()] as const,
+    details: () => [...queryKeys.bankAccounts.all, "detail"] as const,
+    detail: (id: string) => [...queryKeys.bankAccounts.details(), id] as const,
+  },
+
+  notifications: {
+    all: ["notifications"] as const,
+    lists: () => [...queryKeys.notifications.all, "list"] as const,
+    list: (filters: NotificationFilters) =>
+      [...queryKeys.notifications.lists(), filters] as const,
+  },
+
+  rateLimits: {
+    all: ["rate-limits"] as const,
+    list: (filters: RateLimitFilters) =>
+      [...queryKeys.rateLimits.all, "list", filters] as const,
+  },
+
+  testTransfer: {
+    all: ["test-transfer"] as const,
+    list: (status: string) =>
+      [...queryKeys.testTransfer.all, "list", status] as const,
+  },
+
+  adminPaymentRequests: {
+    all: ["admin-payment-requests"] as const,
+    lists: () => [...queryKeys.adminPaymentRequests.all, "list"] as const,
+    list: (filters: AdminPaymentRequestFilters) =>
+      [...queryKeys.adminPaymentRequests.lists(), filters] as const,
   },
 } as const;

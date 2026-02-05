@@ -308,7 +308,7 @@ export default function DiscountTable() {
                         <ActionIcon
                           variant="subtle"
                           onClick={() =>
-                            router.push(`/discounts/${discount.id}`)
+                            router.push(`/admin/discounts/${discount.id}`)
                           }
                         >
                           <IconEdit size={18} />

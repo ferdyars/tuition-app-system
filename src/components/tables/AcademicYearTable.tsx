@@ -21,6 +21,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -30,6 +31,7 @@ import {
 } from "@/hooks/api/useAcademicYears";
 
 export default function AcademicYearTable() {
+  const t = useTranslations();
   const router = useRouter();
   const [page, setPage] = useState(1);
 
@@ -40,27 +42,29 @@ export default function AcademicYearTable() {
 
   const handleDelete = (id: string, year: string) => {
     modals.openConfirmModal({
-      title: "Delete Academic Year",
+      title: t("academicYear.deleteTitle"),
       children: (
         <Text size="sm">
-          Are you sure you want to delete academic year <strong>{year}</strong>?
-          This action cannot be undone.
+          {t.rich("academicYear.deleteConfirm", {
+            year,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
+      labels: { confirm: t("common.delete"), cancel: t("common.cancel") },
       confirmProps: { color: "red" },
       onConfirm: () => {
         deleteAcademicYear.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Deleted",
-              message: "Academic year deleted successfully",
+              title: t("common.deleted"),
+              message: t("academicYear.deleteSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -72,26 +76,29 @@ export default function AcademicYearTable() {
 
   const handleSetActive = (id: string, year: string) => {
     modals.openConfirmModal({
-      title: "Set Active Academic Year",
+      title: t("academicYear.setActiveTitle"),
       children: (
         <Text size="sm">
-          Set <strong>{year}</strong> as the active academic year?
+          {t.rich("academicYear.setActiveConfirm", {
+            year,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Set Active", cancel: "Cancel" },
+      labels: { confirm: t("academicYear.setActive"), cancel: t("common.cancel") },
       confirmProps: { color: "blue" },
       onConfirm: () => {
         setActive.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Updated",
-              message: `${year} is now the active academic year`,
+              title: t("common.updated"),
+              message: t("academicYear.setActiveSuccess", { year }),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -108,12 +115,12 @@ export default function AcademicYearTable() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Year</Table.Th>
-                <Table.Th>Start Date</Table.Th>
-                <Table.Th>End Date</Table.Th>
-                <Table.Th>Classes</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th w={140}>Actions</Table.Th>
+                <Table.Th>{t("academicYear.year")}</Table.Th>
+                <Table.Th>{t("academicYear.startDate")}</Table.Th>
+                <Table.Th>{t("academicYear.endDate")}</Table.Th>
+                <Table.Th>{t("academicYear.classes")}</Table.Th>
+                <Table.Th>{t("common.status")}</Table.Th>
+                <Table.Th w={140}>{t("common.actions")}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -131,7 +138,7 @@ export default function AcademicYearTable() {
                 <Table.Tr>
                   <Table.Td colSpan={6}>
                     <Text ta="center" c="dimmed" py="md">
-                      No academic years found
+                      {t("academicYear.notFound")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -147,17 +154,17 @@ export default function AcademicYearTable() {
                   <Table.Td>
                     {ay.isActive ? (
                       <Badge color="green" variant="light">
-                        Active
+                        {t("academicYear.statuses.active")}
                       </Badge>
                     ) : (
                       <Badge color="gray" variant="light">
-                        Inactive
+                        {t("academicYear.statuses.inactive")}
                       </Badge>
                     )}
                   </Table.Td>
                   <Table.Td>
                     <Group gap="xs">
-                      <Tooltip label={ay.isActive ? "Active" : "Set active"}>
+                      <Tooltip label={ay.isActive ? t("academicYear.active") : t("academicYear.setActive")}>
                         <ActionIcon
                           variant="subtle"
                           color={ay.isActive ? "yellow" : "gray"}
@@ -176,7 +183,9 @@ export default function AcademicYearTable() {
                       <ActionIcon
                         variant="subtle"
                         color="blue"
-                        onClick={() => router.push(`/academic-years/${ay.id}`)}
+                        onClick={() =>
+                          router.push(`/admin/academic-years/${ay.id}`)
+                        }
                       >
                         <IconEdit size={18} />
                       </ActionIcon>

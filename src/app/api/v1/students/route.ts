@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import type { NextRequest } from "next/server";
 import { requireAuth, requireRole } from "@/lib/api-auth";
 import { errorResponse, successResponse } from "@/lib/api-response";
@@ -74,6 +75,13 @@ export async function POST(request: NextRequest) {
       return errorResponse("NIK already exists", "DUPLICATE_ENTRY", 409);
     }
 
+    // Get current user for accountCreatedBy
+    const createdBy = auth.employeeId;
+
+    // Normalize phone number and hash as default password
+    const normalizedPassword = parentPhone.replace(/\D/g, "");
+    const hashedPassword = await bcrypt.hash(normalizedPassword, 10);
+
     const student = await prisma.student.create({
       data: {
         nis,
@@ -83,6 +91,12 @@ export async function POST(request: NextRequest) {
         parentName,
         parentPhone,
         startJoinDate: new Date(startJoinDate),
+        // Auto-create account with default password
+        hasAccount: true,
+        password: hashedPassword,
+        mustChangePassword: true,
+        accountCreatedAt: new Date(),
+        accountCreatedBy: createdBy,
       },
     });
 

@@ -158,7 +158,9 @@ export default function ClassAcademicTable() {
                       variant="light"
                       color={cls._count?.studentClasses ? "blue" : "gray"}
                       style={{ cursor: "pointer" }}
-                      onClick={() => router.push(`/classes/${cls.id}/students`)}
+                      onClick={() =>
+                        router.push(`/admin/classes/${cls.id}/students`)
+                      }
                     >
                       {cls._count?.studentClasses ?? 0} students
                     </Badge>
@@ -170,7 +172,7 @@ export default function ClassAcademicTable() {
                           variant="subtle"
                           color="teal"
                           onClick={() =>
-                            router.push(`/classes/${cls.id}/students`)
+                            router.push(`/admin/classes/${cls.id}/students`)
                           }
                         >
                           <IconUsers size={18} />
@@ -180,7 +182,9 @@ export default function ClassAcademicTable() {
                         <ActionIcon
                           variant="subtle"
                           color="blue"
-                          onClick={() => router.push(`/classes/${cls.id}`)}
+                          onClick={() =>
+                            router.push(`/admin/classes/${cls.id}`)
+                          }
                         >
                           <IconEdit size={18} />
                         </ActionIcon>

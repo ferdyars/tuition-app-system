@@ -1,0 +1,47 @@
+"use client";
+
+import { ActionIcon, Tooltip } from "@mantine/core";
+import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { type Locale } from "@/i18n/routing";
+
+interface LanguageSwitcherProps {
+  variant?: "subtle" | "light" | "filled";
+  color?: string;
+}
+
+export function LanguageSwitcher({
+  variant = "subtle",
+  color = "white",
+}: LanguageSwitcherProps) {
+  const locale = useLocale();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const toggleLocale = () => {
+    const newLocale: Locale = locale === "id" ? "en" : "id";
+    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000`;
+    startTransition(() => {
+      router.refresh();
+    });
+  };
+
+  const label = locale === "id" ? "EN" : "ID";
+  const tooltipLabel = locale === "id" ? "Switch to English" : "Ganti ke Indonesia";
+
+  return (
+    <Tooltip label={tooltipLabel}>
+      <ActionIcon
+        variant={variant}
+        color={color}
+        size="lg"
+        onClick={toggleLocale}
+        loading={isPending}
+        style={{ fontWeight: 600, fontSize: 12 }}
+      >
+        {label}
+      </ActionIcon>
+    </Tooltip>
+  );
+}

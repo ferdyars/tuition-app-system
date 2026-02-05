@@ -43,6 +43,28 @@ enum PaymentFrequency {
   SEMESTER
 }
 
+enum PaymentRequestStatus {
+  PENDING
+  EXPIRED
+  VERIFYING
+  VERIFIED
+  FAILED
+  CANCELLED
+}
+
+enum RecordStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum WhatsAppLogStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
 // ============================================
 // EMPLOYEE MANAGEMENT
 // ============================================
@@ -76,10 +98,31 @@ model Student {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  scholarships   Scholarship[]
-  tuitions       Tuition[]
-  studentClasses StudentClass[]
+  // ========== Account Fields (Phase 2) ==========
+  hasAccount         Boolean   @default(false) @map("has_account")
+  password           String?   // Hashed (default: parent phone number)
+  mustChangePassword Boolean   @default(true) @map("must_change_password")
+  lastLoginAt        DateTime? @map("last_login_at")
+  lastPaymentAt      DateTime? @map("last_payment_at")
+  accountCreatedAt   DateTime? @map("account_created_at")
+  accountCreatedBy   String?   @map("account_created_by")
 
+  // Account Soft Delete
+  accountDeleted       Boolean   @default(false) @map("account_deleted")
+  accountDeletedAt     DateTime? @map("account_deleted_at")
+  accountDeletedBy     String?   @map("account_deleted_by")
+  accountDeletedReason String?   @map("account_deleted_reason")
+
+  // Relations
+  scholarships    Scholarship[]
+  tuitions        Tuition[]
+  studentClasses  StudentClass[]
+  paymentRequests PaymentRequest[]
+
+  // Indexes
+  @@index([hasAccount])
+  @@index([hasAccount, accountDeleted])
+  @@index([lastPaymentAt])
   @@map("students")
 }
 
@@ -173,10 +216,11 @@ model Tuition {
   createdAt         DateTime      @default(now()) @map("created_at")
   updatedAt         DateTime      @updatedAt @map("updated_at")
 
-  classAcademic ClassAcademic @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
-  student       Student       @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
-  discount      Discount?     @relation(fields: [discountId], references: [id], onDelete: SetNull)
-  payments      Payment[]
+  classAcademic   ClassAcademic    @relation(fields: [classAcademicId], references: [id], onDelete: Cascade)
+  student         Student          @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
+  discount        Discount?        @relation(fields: [discountId], references: [id], onDelete: SetNull)
+  payments        Payment[]
+  paymentRequests PaymentRequestTuition[]
 
   @@unique([classAcademicId, studentNis, period, year])
   @@index([studentNis])
@@ -261,4 +305,165 @@ model Discount {
   @@index([classAcademicId])
   @@index([isActive])
   @@map("discounts")
+}
+
+// ============================================
+// SCHOOL BANK ACCOUNTS (Phase 2)
+// ============================================
+
+model SchoolBankAccount {
+  id            String   @id @default(uuid())
+  bankName      String   @map("bank_name")
+  bankCode      String   @map("bank_code")
+  accountNumber String   @map("account_number")
+  accountName   String   @map("account_name")
+  logoUrl       String?  @map("logo_url")
+  displayOrder  Int      @default(0) @map("display_order")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  paymentRequests PaymentRequest[]
+  bankEmailLogs   BankEmailLog[]
+
+  @@unique([bankCode, accountNumber])
+  @@index([isActive])
+  @@map("school_bank_accounts")
+}
+
+// ============================================
+// PAYMENT REQUEST (Phase 2)
+// ============================================
+
+model PaymentRequest {
+  id             String               @id @default(uuid())
+  studentNis     String               @map("student_nis")
+  bankAccountId  String?              @map("bank_account_id") // Optional - set when IMAP matches
+  baseAmount     Decimal              @map("base_amount") @db.Decimal(10, 2)
+  uniqueCode     Int                  @map("unique_code")
+  totalAmount    Decimal              @map("total_amount") @db.Decimal(10, 2)
+  idempotencyKey String               @unique @map("idempotency_key")
+  changeCount    Int                  @default(0) @map("change_count")
+  changeHistory  Json?                @map("change_history")
+  status         PaymentRequestStatus @default(PENDING)
+  expiresAt      DateTime             @map("expires_at")
+  verifiedAt     DateTime?            @map("verified_at")
+  emailMatchId   String?              @map("email_match_id")
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+
+  student     Student            @relation(fields: [studentNis], references: [nis], onDelete: Cascade)
+  bankAccount SchoolBankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: Restrict)
+  tuitions    PaymentRequestTuition[]
+
+  @@index([status])
+  @@index([totalAmount])
+  @@index([expiresAt])
+  @@index([bankAccountId, totalAmount])
+  @@index([studentNis])
+  @@map("payment_requests")
+}
+
+// Junction table for PaymentRequest <-> Tuition (many-to-many)
+model PaymentRequestTuition {
+  id               String   @id @default(uuid())
+  paymentRequestId String   @map("payment_request_id")
+  tuitionId        String   @map("tuition_id")
+  amount           Decimal  @db.Decimal(10, 2) // Amount allocated to this tuition
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  paymentRequest PaymentRequest @relation(fields: [paymentRequestId], references: [id], onDelete: Cascade)
+  tuition        Tuition        @relation(fields: [tuitionId], references: [id], onDelete: Cascade)
+
+  @@unique([paymentRequestId, tuitionId])
+  @@index([paymentRequestId])
+  @@index([tuitionId])
+  @@map("payment_request_tuitions")
+}
+
+// ============================================
+// BANK EMAIL LOG (Phase 2)
+// ============================================
+
+model BankEmailLog {
+  id               String    @id @default(uuid())
+  emailUid         String    @unique @map("email_uid")
+  bankAccountId    String?   @map("bank_account_id")
+  receivedAt       DateTime  @map("received_at")
+  fromAddress      String    @map("from_address")
+  subject          String
+  amount           Decimal?  @db.Decimal(10, 2)
+  senderName       String?   @map("sender_name")
+  senderAccount    String?   @map("sender_account")
+  rawContent       String?   @map("raw_content") @db.Text
+  isMatched        Boolean   @default(false) @map("is_matched")
+  matchedRequestId String?   @map("matched_request_id")
+  processedAt      DateTime  @default(now()) @map("processed_at")
+
+  bankAccount SchoolBankAccount? @relation(fields: [bankAccountId], references: [id], onDelete: SetNull)
+
+  @@index([amount])
+  @@index([isMatched])
+  @@index([bankAccountId, amount])
+  @@map("bank_email_logs")
+}
+
+// ============================================
+// IDEMPOTENCY RECORDS (Phase 3)
+// ============================================
+
+model IdempotencyRecord {
+  key       String       @id
+  response  String       @db.Text
+  expiresAt DateTime     @map("expires_at")
+  status    RecordStatus @default(ACTIVE)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  @@index([status, expiresAt])
+  @@map("idempotency_records")
+}
+
+// ============================================
+// RATE LIMIT RECORDS (Phase 3)
+// ============================================
+
+model RateLimitRecord {
+  id          String       @id @default(uuid())
+  key         String       @unique // identifier:action (e.g., "user123:payment_request")
+  action      String       // Action type (payment_request, login, registration)
+  identifier  String       // User ID, IP, or email
+  count       Int          @default(1)
+  windowStart DateTime     @map("window_start")
+  expiresAt   DateTime     @map("expires_at")
+  status      RecordStatus @default(ACTIVE)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@index([status, expiresAt])
+  @@index([action, identifier, status])
+  @@map("rate_limit_records")
+}
+
+// ============================================
+// WHATSAPP LOG (Phase 3)
+// ============================================
+
+model WhatsAppLog {
+  id           String            @id @default(uuid())
+  phone        String
+  messageType  String            @map("message_type") // PAYMENT_VERIFIED, REMINDER, etc.
+  message      String            @db.Text
+  status       WhatsAppLogStatus @default(PENDING)
+  messageId    String?           @map("message_id") // WhatsApp/Fonnte message ID
+  errorMessage String?           @map("error_message")
+  sentAt       DateTime?         @map("sent_at")
+  deliveredAt  DateTime?         @map("delivered_at")
+  readAt       DateTime?         @map("read_at")
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  @@index([status])
+  @@index([phone])
+  @@index([messageType])
+  @@map("whatsapp_logs")
 }

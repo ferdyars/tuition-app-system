@@ -1,88 +1,133 @@
 import { jwtVerify } from "jose";
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.NEXTAUTH_SECRET || "default-secret-change-in-production",
 );
 
-const publicPaths = [
+// ===== PUBLIC ROUTES =====
+const PUBLIC_PATHS = [
+  "/admin/login",
+  "/portal/login",
   "/api/v1/auth/login",
+  "/api/v1/auth/logout",
+  "/api/v1/student-auth/login",
+  "/api/v1/student-auth/logout",
   "/api-docs",
   "/api/swagger",
-  "/student-portal",
-  "/api/v1/student-portal",
 ];
 
+// ===== HELPERS =====
+const isPublicPath = (pathname: string) =>
+  PUBLIC_PATHS.some((path) => pathname === path);
+
+const isApiRoute = (pathname: string) => pathname.startsWith("/api/");
+const isAdminRoute = (pathname: string) =>
+  pathname.startsWith("/admin") && pathname !== "/admin/login";
+
+const isPortalRoute = (pathname: string) =>
+  pathname.startsWith("/portal") && pathname !== "/portal/login";
+
+// ===== MIDDLEWARE =====
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for static files
+  // 1️⃣ Skip static
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
-    pathname === "/api/v1/auth/logout"
+    pathname.endsWith(".ico")
   ) {
     return NextResponse.next();
   }
 
-  // Allow public API paths
-  if (publicPaths.some((path) => pathname.startsWith(path))) {
+  const adminToken = request.cookies.get("auth-token")?.value;
+  const studentToken = request.cookies.get("student-token")?.value;
+
+  // =====================================================
+  // 2️⃣ REDIRECT AUTHENTICATED USERS AWAY FROM LOGIN
+  // =====================================================
+  if (pathname === "/admin/login" && adminToken) {
+    try {
+      await jwtVerify(adminToken, JWT_SECRET);
+      return NextResponse.redirect(new URL("/admin", request.url));
+    } catch {
+      const res = NextResponse.next();
+      res.cookies.delete("auth-token");
+      return res;
+    }
+  }
+
+  if (pathname === "/portal/login" && studentToken) {
+    try {
+      await jwtVerify(studentToken, JWT_SECRET);
+      return NextResponse.redirect(new URL("/portal", request.url));
+    } catch {
+      const res = NextResponse.next();
+      res.cookies.delete("student-token");
+      return res;
+    }
+  }
+
+  // =====================================================
+  // 3️⃣ PUBLIC ROUTES — MUST EXIT
+  // =====================================================
+  if (isPublicPath(pathname)) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get("auth-token")?.value;
-
-  // Handle login page - redirect to home if already authenticated
-  if (pathname === "/login" || pathname.startsWith("/login")) {
-    if (token) {
-      try {
-        await jwtVerify(token, JWT_SECRET);
-        return NextResponse.redirect(new URL("/", request.url));
-      } catch {
-        // Token invalid, clear it and allow login page
-        const response = NextResponse.next();
-        response.cookies.delete("auth-token");
-        return response;
+  // =====================================================
+  // 4️⃣ ADMIN ROUTES
+  // =====================================================
+  if (isAdminRoute(pathname)) {
+    if (!adminToken) {
+      if (isApiRoute(pathname)) {
+        return NextResponse.json(
+          { success: false, error: { message: "Unauthorized" } },
+          { status: 401 },
+        );
       }
-    }
-    return NextResponse.next();
-  }
-
-  // Protected routes - require authentication
-  if (!token) {
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { message: "Not authenticated", code: "UNAUTHORIZED" },
-        },
-        { status: 401 },
-      );
-    }
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  try {
-    await jwtVerify(token, JWT_SECRET);
-    return NextResponse.next();
-  } catch {
-    if (pathname.startsWith("/api/")) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { message: "Invalid token", code: "UNAUTHORIZED" },
-        },
-        { status: 401 },
-      );
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
 
-    const response = NextResponse.redirect(new URL("/login", request.url));
-    response.cookies.delete("auth-token");
-    return response;
+    try {
+      await jwtVerify(adminToken, JWT_SECRET);
+      return NextResponse.next();
+    } catch {
+      const res = NextResponse.redirect(new URL("/admin/login", request.url));
+      res.cookies.delete("auth-token");
+      return res;
+    }
   }
+
+  // =====================================================
+  // 5️⃣ PORTAL ROUTES
+  // =====================================================
+  if (isPortalRoute(pathname)) {
+    if (!studentToken) {
+      if (isApiRoute(pathname)) {
+        return NextResponse.json(
+          { success: false, error: { message: "Unauthorized" } },
+          { status: 401 },
+        );
+      }
+      return NextResponse.redirect(new URL("/portal/login", request.url));
+    }
+
+    try {
+      await jwtVerify(studentToken, JWT_SECRET);
+      return NextResponse.next();
+    } catch {
+      const res = NextResponse.redirect(new URL("/portal/login", request.url));
+      res.cookies.delete("student-token");
+      return res;
+    }
+  }
+
+  return NextResponse.next();
 }
 
+// ===== MATCHER =====
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

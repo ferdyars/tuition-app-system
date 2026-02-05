@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { errorResponse, successResponse } from "@/lib/api-response";
-import { prisma } from "@/lib/prisma";
 import { censorIdentityNumber, censorName, censorPhone } from "@/lib/censor";
+import { prisma } from "@/lib/prisma";
 
 /**
  * GET /api/v1/student-portal/[nis]

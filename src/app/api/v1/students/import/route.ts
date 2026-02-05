@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import type { NextRequest } from "next/server";
 import { requireRole } from "@/lib/api-auth";
 import { errorResponse, successResponse } from "@/lib/api-response";
@@ -25,6 +26,9 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return errorResponse("File is required", "VALIDATION_ERROR", 400);
     }
+
+    // Get current user for accountCreatedBy
+    const createdBy = auth.employeeId;
 
     const buffer = await file.arrayBuffer();
     const { data, errors: readErrors } = readExcelBuffer<StudentRow>(buffer);
@@ -69,6 +73,13 @@ export async function POST(request: NextRequest) {
           });
           updated++;
         } else {
+          // Normalize phone number and hash as default password
+          const normalizedPassword = (row["Parent Phone"] || "").replace(
+            /\D/g,
+            "",
+          );
+          const hashedPassword = await bcrypt.hash(normalizedPassword, 10);
+
           await prisma.student.create({
             data: {
               nis: row.NIS,
@@ -78,6 +89,12 @@ export async function POST(request: NextRequest) {
               parentName: row["Parent Name"],
               parentPhone: row["Parent Phone"],
               startJoinDate: new Date(row["Start Join Date"]),
+              // Auto-create account with default password
+              hasAccount: true,
+              password: hashedPassword,
+              mustChangePassword: true,
+              accountCreatedAt: new Date(),
+              accountCreatedBy: createdBy,
             },
           });
           imported++;
