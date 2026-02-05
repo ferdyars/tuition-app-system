@@ -34,7 +34,7 @@ export function useAuth() {
       queryClient.setQueryData(queryKeys.auth.me(), null);
       queryClient.clear();
       useAuthStore.getState().clear();
-      router.push("/login");
+      router.push("/");
     }
   };
 

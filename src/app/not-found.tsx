@@ -29,7 +29,7 @@ export default function NotFound() {
           <Button
             leftSection={<IconHome size={18} />}
             component={Link}
-            href="/admin/dashboard"
+            href="/"
           >
             Go to Dashboard
           </Button>
