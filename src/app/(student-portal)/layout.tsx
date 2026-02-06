@@ -9,8 +9,8 @@ import {
   Box,
   Burger,
   Button,
-  Divider,
   Group,
+  ScrollArea,
   Stack,
   Text,
   ThemeIcon,
@@ -25,7 +25,6 @@ import {
   IconKey,
   IconLogout,
   IconSchool,
-  IconSettings,
   IconUser,
 } from "@tabler/icons-react";
 import Link from "next/link";
@@ -62,7 +61,7 @@ function getInitials(name: string): string {
   return name
     .split(" ")
     .map((n) => n[0])
-    .slice(0, 2)
+    .slice(0, 3)
     .join("")
     .toUpperCase();
 }
@@ -194,7 +193,7 @@ export default function StudentPortalLayout({
             <Avatar
               radius="xl"
               size="md"
-              color="white"
+              c="white"
               variant="filled"
               styles={{ root: { backgroundColor: "rgba(255,255,255,0.2)" } }}
             >
@@ -219,7 +218,11 @@ export default function StudentPortalLayout({
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md" style={{ backgroundColor: "#f8f9fa" }}>
+      <AppShell.Navbar
+        p="md"
+        style={{ backgroundColor: "#f8f9fa" }}
+        component={ScrollArea}
+      >
         <Stack gap="md" style={{ flex: 1 }}>
           {/* User card on mobile */}
           <Box hiddenFrom="sm">
@@ -231,7 +234,7 @@ export default function StudentPortalLayout({
               }}
             >
               <Group gap="sm">
-                <Avatar radius="xl" size="lg" color="white" variant="filled">
+                <Avatar radius="xl" size="lg" c="blue" variant="filled">
                   {user?.studentName ? (
                     getInitials(user.studentName)
                   ) : (
@@ -300,25 +303,6 @@ export default function StudentPortalLayout({
           </Stack>
 
           <Box style={{ flex: 1 }} />
-
-          <Divider />
-
-          {/* Admin Link */}
-          <UnstyledButton
-            component={Link}
-            href="/admin"
-            p="sm"
-            style={{ borderRadius: "var(--mantine-radius-md)" }}
-          >
-            <Group gap="sm">
-              <ThemeIcon size="lg" radius="md" variant="light" color="gray">
-                <IconSettings size={18} />
-              </ThemeIcon>
-              <Text size="sm" fw={500} c="dimmed">
-                {t("nav.admin")}
-              </Text>
-            </Group>
-          </UnstyledButton>
 
           {/* Logout button on mobile */}
           <Button
