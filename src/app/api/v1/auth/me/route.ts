@@ -11,5 +11,5 @@ export async function GET(request: NextRequest) {
     name: auth.name,
     email: auth.email,
     role: auth.role,
-  });
+  }, undefined, 'max-age=518400, must-revalidate');
 }
