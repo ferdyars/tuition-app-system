@@ -2,11 +2,11 @@
 
 ## [1.0.5] - 2026-02-06
 
-### Features
-- feat: lottie files
+### Fixes
+- missing locale
 
 ### Other
-- chore: release v1.1.0
+- chore: release v1.0.4
 - Merge branch 'main' of github.com:ferdyars/tuition-app-system
 
 
