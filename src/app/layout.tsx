@@ -10,6 +10,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "School Tuition Management System",
   description: "Manage school tuitions, payments, and scholarships",
+  manifest: "/manifest.json",
+  themeColor: "#000000",
 };
 
 export const viewport: Viewport = {

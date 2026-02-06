@@ -4,7 +4,14 @@ import { version } from "./package.json";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-const nextConfig: NextConfig = {
+const withPWA = require("next-pwa")({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === "development",
+});
+
+const nextConfig: NextConfig = withPWA({
   reactStrictMode: true,
   env: {
     APP_VERSION: version,
@@ -34,6 +41,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-};
+});
 
 export default withNextIntl(nextConfig);
