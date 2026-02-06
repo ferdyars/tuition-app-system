@@ -10,8 +10,8 @@ import {
   Title,
 } from "@mantine/core";
 import { IconFileUnknown, IconHome } from "@tabler/icons-react";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 export default function NotFound() {
   const t = useTranslations("error");

@@ -10,8 +10,8 @@ import {
   Title,
 } from "@mantine/core";
 import { IconAlertCircle, IconCheck } from "@tabler/icons-react";
-import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 export default function ChangePasswordPage() {

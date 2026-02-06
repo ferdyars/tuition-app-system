@@ -1,10 +1,10 @@
 "use client";
 
 import { ActionIcon, Tooltip } from "@mantine/core";
-import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 import { useTransition } from "react";
-import { type Locale } from "@/i18n/routing";
+import type { Locale } from "@/i18n/routing";
 
 interface LanguageSwitcherProps {
   variant?: "subtle" | "light" | "filled";
@@ -21,7 +21,11 @@ export function LanguageSwitcher({
 
   const toggleLocale = () => {
     const newLocale: Locale = locale === "id" ? "en" : "id";
-    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000`;
+    cookieStore.set({
+      name: "NEXT_LOCALE",
+      value: newLocale,
+      expires: Date.now() + 31536000,
+    });
     startTransition(() => {
       router.refresh();
     });

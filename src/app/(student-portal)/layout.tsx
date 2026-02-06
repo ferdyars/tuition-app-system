@@ -28,9 +28,9 @@ import {
   IconSettings,
   IconUser,
 } from "@tabler/icons-react";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { LoadingAnimation } from "@/components/ui/LottieAnimation";

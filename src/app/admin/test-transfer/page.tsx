@@ -22,6 +22,7 @@ import {
   IconRefresh,
   IconTestPipe,
 } from "@tabler/icons-react";
+import { useFormatter, useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   useSimulateTransfer,
@@ -54,6 +55,8 @@ interface PaymentRequest {
 }
 
 export default function TestTransferPage() {
+  const t = useTranslations();
+  const format = useFormatter();
   const [statusFilter, setStatusFilter] = useState<string>("PENDING");
 
   const {
@@ -70,31 +73,38 @@ export default function TestTransferPage() {
 
   const handleSimulateTransfer = (pr: PaymentRequest) => {
     modals.openConfirmModal({
-      title: "Simulasi Transfer",
+      title: t("testTransfer.confirmTitle"),
       children: (
         <Stack gap="sm">
-          <Text size="sm">Simulasikan transfer untuk pembayaran:</Text>
+          <Text size="sm">{t("testTransfer.confirmDesc")}</Text>
           <Card withBorder p="sm">
             <Stack gap="xs">
               <Text fw={600}>{pr.student.name}</Text>
               <Text size="sm" c="dimmed">
-                NIS: {pr.student.nis}
+                {t("student.nis")}: {pr.student.nis}
               </Text>
               <Text size="sm">
                 {pr.tuitions.map((t) => `${t.period} ${t.year}`).join(", ")}
               </Text>
               <Text size="lg" fw={700} c="blue">
-                Rp {Number(pr.totalAmount).toLocaleString("id-ID")}
+                <NumberFormatter
+                  value={Number(pr.totalAmount)}
+                  prefix="Rp "
+                  thousandSeparator="."
+                  decimalSeparator=","
+                />
               </Text>
             </Stack>
           </Card>
           <Text size="xs" c="dimmed">
-            Ini akan menandai pembayaran sebagai VERIFIED dan memperbarui status
-            tagihan.
+            {t("testTransfer.confirmNote")}
           </Text>
         </Stack>
       ),
-      labels: { confirm: "Simulasi Transfer", cancel: "Batal" },
+      labels: {
+        confirm: t("testTransfer.confirm"),
+        cancel: t("common.cancel"),
+      },
       confirmProps: { color: "green" },
       onConfirm: () => {
         simulateTransfer.mutate(
@@ -105,19 +115,19 @@ export default function TestTransferPage() {
           {
             onSuccess: () => {
               notifications.show({
-                title: "Transfer Berhasil",
-                message: "Pembayaran telah diverifikasi",
+                title: t("testTransfer.successTitle"),
+                message: t("testTransfer.successMessage"),
                 color: "green",
                 icon: <IconCheck size={16} />,
               });
             },
             onError: (err) => {
               notifications.show({
-                title: "Gagal",
+                title: t("testTransfer.errorTitle"),
                 message:
                   err instanceof Error
                     ? err.message
-                    : "Gagal memproses transfer",
+                    : t("testTransfer.errorMessage"),
                 color: "red",
               });
             },
@@ -129,10 +139,10 @@ export default function TestTransferPage() {
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { color: string; label: string }> = {
-      PENDING: { color: "yellow", label: "Menunggu" },
-      VERIFIED: { color: "green", label: "Terverifikasi" },
-      EXPIRED: { color: "gray", label: "Kadaluarsa" },
-      CANCELLED: { color: "red", label: "Dibatalkan" },
+      PENDING: { color: "yellow", label: t("testTransfer.status.pending") },
+      VERIFIED: { color: "green", label: t("testTransfer.status.verified") },
+      EXPIRED: { color: "gray", label: t("testTransfer.status.expired") },
+      CANCELLED: { color: "red", label: t("testTransfer.status.cancelled") },
     };
     const { color, label } = config[status] || { color: "gray", label: status };
     return <Badge color={color}>{label}</Badge>;
@@ -141,7 +151,7 @@ export default function TestTransferPage() {
   const isExpired = (expiresAt: string) => new Date() > new Date(expiresAt);
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleString("id-ID", {
+    return format.dateTime(new Date(date), {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -154,9 +164,9 @@ export default function TestTransferPage() {
     <Stack gap="lg">
       <Group justify="space-between" align="center">
         <div>
-          <Title order={3}>Test Transfer</Title>
+          <Title order={3}>{t("testTransfer.title")}</Title>
           <Text c="dimmed" size="sm">
-            Simulasi transfer bank untuk testing tanpa integrasi email
+            {t("testTransfer.subtitle")}
           </Text>
         </div>
         <Group>
@@ -164,10 +174,10 @@ export default function TestTransferPage() {
             value={statusFilter}
             onChange={(v) => setStatusFilter(v || "PENDING")}
             data={[
-              { value: "PENDING", label: "Pending" },
-              { value: "VERIFIED", label: "Verified" },
-              { value: "EXPIRED", label: "Expired" },
-              { value: "CANCELLED", label: "Cancelled" },
+              { value: "PENDING", label: t("testTransfer.status.pending") },
+              { value: "VERIFIED", label: t("testTransfer.status.verified") },
+              { value: "EXPIRED", label: t("testTransfer.status.expired") },
+              { value: "CANCELLED", label: t("testTransfer.status.cancelled") },
             ]}
             w={150}
           />
@@ -177,22 +187,22 @@ export default function TestTransferPage() {
             onClick={() => refetch()}
             loading={loading}
           >
-            Refresh
+            {t("testTransfer.refresh")}
           </Button>
         </Group>
       </Group>
 
       {error && (
         <Alert icon={<IconAlertCircle size={18} />} color="red" variant="light">
-          {error instanceof Error ? error.message : "Gagal memuat data"}
+          {error instanceof Error ? error.message : t("common.error")}
         </Alert>
       )}
 
       <Alert icon={<IconTestPipe size={18} />} color="blue" variant="light">
         <Text size="sm">
-          Halaman ini hanya untuk <strong>testing</strong>. Klik tombol
-          "Simulasi Transfer" untuk menandai pembayaran sebagai berhasil tanpa
-          transfer bank yang sebenarnya.
+          {t.rich("testTransfer.testingNote", {
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       </Alert>
 
@@ -201,13 +211,15 @@ export default function TestTransferPage() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Siswa</Table.Th>
-                <Table.Th>Periode</Table.Th>
-                <Table.Th ta="right">Nominal</Table.Th>
-                <Table.Th>Dibuat</Table.Th>
-                <Table.Th>Kadaluarsa</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th ta="center">Aksi</Table.Th>
+                <Table.Th>{t("testTransfer.table.student")}</Table.Th>
+                <Table.Th>{t("testTransfer.table.period")}</Table.Th>
+                <Table.Th ta="right">{t("testTransfer.table.amount")}</Table.Th>
+                <Table.Th>{t("testTransfer.table.created")}</Table.Th>
+                <Table.Th>{t("testTransfer.table.expires")}</Table.Th>
+                <Table.Th>{t("testTransfer.table.status")}</Table.Th>
+                <Table.Th ta="center">
+                  {t("testTransfer.table.action")}
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -215,7 +227,7 @@ export default function TestTransferPage() {
                 <Table.Tr>
                   <Table.Td colSpan={7}>
                     <Text ta="center" py="xl" c="dimmed">
-                      Memuat data...
+                      {t("testTransfer.loading")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -223,7 +235,7 @@ export default function TestTransferPage() {
                 <Table.Tr>
                   <Table.Td colSpan={7}>
                     <Text ta="center" py="xl" c="dimmed">
-                      Tidak ada payment request dengan status {statusFilter}
+                      {t("testTransfer.noPayments", { status: statusFilter })}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -236,7 +248,7 @@ export default function TestTransferPage() {
                           {pr.student.name}
                         </Text>
                         <Text size="xs" c="dimmed">
-                          NIS: {pr.student.nis}
+                          {t("student.nis")}: {pr.student.nis}
                         </Text>
                       </Stack>
                     </Table.Td>
@@ -285,21 +297,25 @@ export default function TestTransferPage() {
                           onClick={() => handleSimulateTransfer(pr)}
                           loading={simulateTransfer.isPending}
                         >
-                          Simulasi Transfer
+                          {t("testTransfer.simulateTransfer")}
                         </Button>
                       ) : pr.status === "VERIFIED" ? (
                         <Badge
                           color="green"
                           leftSection={<IconCheck size={12} />}
                         >
-                          Verified
+                          {t("testTransfer.status.verified")}
                         </Badge>
                       ) : (
                         <Badge
                           color="gray"
                           leftSection={<IconClock size={12} />}
                         >
-                          {pr.status === "PENDING" ? "Expired" : pr.status}
+                          {pr.status === "PENDING"
+                            ? t("testTransfer.status.expired")
+                            : t(
+                                `testTransfer.status.${pr.status.toLowerCase()}`,
+                              ) || pr.status}
                         </Badge>
                       )}
                     </Table.Td>
@@ -314,13 +330,15 @@ export default function TestTransferPage() {
       {bankAccounts.length > 0 && (
         <Card withBorder>
           <Stack gap="sm">
-            <Text fw={600}>Bank Accounts (untuk simulasi)</Text>
+            <Text fw={600}>{t("testTransfer.bankAccounts")}</Text>
             <Table>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Bank</Table.Th>
-                  <Table.Th>No. Rekening</Table.Th>
-                  <Table.Th>Atas Nama</Table.Th>
+                  <Table.Th>{t("testTransfer.bankTable.bank")}</Table.Th>
+                  <Table.Th>
+                    {t("testTransfer.bankTable.accountNumber")}
+                  </Table.Th>
+                  <Table.Th>{t("testTransfer.bankTable.accountName")}</Table.Th>
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>

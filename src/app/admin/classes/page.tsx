@@ -7,8 +7,8 @@ import {
   IconPlus,
   IconUsers,
 } from "@tabler/icons-react";
-import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import ClassAcademicTable from "@/components/tables/ClassAcademicTable";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 

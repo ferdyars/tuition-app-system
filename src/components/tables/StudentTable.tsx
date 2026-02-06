@@ -15,8 +15,8 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconEdit, IconSearch, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useDeleteStudent, useStudents } from "@/hooks/api/useStudents";
 

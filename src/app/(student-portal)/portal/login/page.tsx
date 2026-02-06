@@ -13,8 +13,8 @@ import {
   Title,
 } from "@mantine/core";
 import { IconAlertCircle, IconSchool, IconUser } from "@tabler/icons-react";
-import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 export default function StudentLoginPage() {

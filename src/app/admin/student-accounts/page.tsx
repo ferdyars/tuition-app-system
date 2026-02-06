@@ -17,7 +17,7 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useDebouncedValue, useDisclosure } from "@mantine/hooks";
+import { useDebouncedValue } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import {
@@ -54,6 +54,7 @@ interface StudentAccount {
 }
 
 export default function StudentAccountsPage() {
+  const t = useTranslations();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebouncedValue(search, 300);
@@ -75,30 +76,34 @@ export default function StudentAccountsPage() {
 
   const handleResetPassword = (account: StudentAccount) => {
     modals.openConfirmModal({
-      title: "Reset Password",
+      title: t("studentAccount.resetPassword"),
       children: (
         <Text size="sm">
-          Password untuk <strong>{account.name}</strong> (NIS: {account.nis})
-          akan direset ke nomor HP orang tua. Student perlu login ulang dengan
-          password baru.
+          {t.rich("studentAccount.resetPasswordMessage", {
+            name: account.name,
+            nis: account.nis,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Reset Password", cancel: "Batal" },
+      labels: {
+        confirm: t("studentAccount.resetPassword"),
+        cancel: t("common.cancel"),
+      },
       onConfirm: async () => {
         try {
           const result = await resetPassword.mutateAsync(account.nis);
           notifications.show({
-            title: "Password Direset",
-            message: `Password baru: ${result.newPassword}`,
+            title: t("studentAccount.resetPasswordSuccess"),
+            message: `${t("auth.newPassword")}: ${result.newPassword}`,
             color: "green",
             icon: <IconCheck size={16} />,
             autoClose: 10000,
           });
         } catch (err) {
           notifications.show({
-            title: "Error",
-            message:
-              err instanceof Error ? err.message : "Gagal reset password",
+            title: t("common.error"),
+            message: err instanceof Error ? err.message : t("common.error"),
             color: "red",
           });
         }
@@ -108,14 +113,20 @@ export default function StudentAccountsPage() {
 
   const handleDeleteAccount = (account: StudentAccount) => {
     modals.openConfirmModal({
-      title: "Hapus Akun",
+      title: t("studentAccount.deleteAccount"),
       children: (
         <Text size="sm">
-          Akun <strong>{account.name}</strong> (NIS: {account.nis}) akan di-soft
-          delete. Student tidak dapat login sampai akun dipulihkan.
+          {t.rich("studentAccount.deleteAccountMessage", {
+            name: account.name,
+            nis: account.nis,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Hapus Akun", cancel: "Batal" },
+      labels: {
+        confirm: t("studentAccount.deleteAccount"),
+        cancel: t("common.cancel"),
+      },
       confirmProps: { color: "red" },
       onConfirm: async () => {
         try {
@@ -124,16 +135,15 @@ export default function StudentAccountsPage() {
             reason: "Manual deletion by admin",
           });
           notifications.show({
-            title: "Berhasil",
-            message: "Akun berhasil dihapus",
+            title: t("common.success"),
+            message: t("studentAccount.deleteSuccess"),
             color: "green",
             icon: <IconCheck size={16} />,
           });
         } catch (err) {
           notifications.show({
-            title: "Error",
-            message:
-              err instanceof Error ? err.message : "Gagal menghapus akun",
+            title: t("common.error"),
+            message: err instanceof Error ? err.message : t("common.error"),
             color: "red",
           });
         }
@@ -145,15 +155,16 @@ export default function StudentAccountsPage() {
     try {
       await restoreAccount.mutateAsync(account.nis);
       notifications.show({
-        title: "Berhasil",
-        message: `Akun ${account.name} berhasil dipulihkan`,
+        title: t("common.success"),
+        message: t("studentAccount.restoreSuccess", { name: account.name }),
         color: "green",
         icon: <IconCheck size={16} />,
       });
     } catch (err) {
       notifications.show({
-        title: "Error",
-        message: err instanceof Error ? err.message : "Gagal memulihkan akun",
+        title: t("common.error"),
+        message:
+          err instanceof Error ? err.message : t("studentAccount.restoreError"),
         color: "red",
       });
     }
@@ -162,20 +173,20 @@ export default function StudentAccountsPage() {
   return (
     <Stack gap="lg">
       <Group justify="space-between">
-        <Title order={3}>Student Accounts</Title>
+        <Title order={3}>{t("studentAccount.title")}</Title>
         <Button
           leftSection={<IconRefresh size={18} />}
           variant="outline"
           onClick={() => refetch()}
           loading={isLoading}
         >
-          Refresh
+          {t("studentAccount.refresh")}
         </Button>
       </Group>
 
       {error && (
         <Alert icon={<IconAlertCircle size={18} />} color="red" variant="light">
-          {error instanceof Error ? error.message : "Gagal memuat data"}
+          {error instanceof Error ? error.message : t("common.error")}
         </Alert>
       )}
 
@@ -183,7 +194,7 @@ export default function StudentAccountsPage() {
         <Stack gap="md">
           <Group>
             <TextInput
-              placeholder="Cari NIS, nama, atau orang tua..."
+              placeholder={t("studentAccount.searchPlaceholder")}
               leftSection={<IconSearch size={18} />}
               value={search}
               onChange={(e) => {
@@ -193,7 +204,7 @@ export default function StudentAccountsPage() {
               style={{ flex: 1 }}
             />
             <Switch
-              label="Tampilkan yang dihapus"
+              label={t("studentAccount.includeDeleted")}
               checked={includeDeleted}
               onChange={(e) => {
                 setIncludeDeleted(e.currentTarget.checked);
@@ -210,7 +221,7 @@ export default function StudentAccountsPage() {
             </Stack>
           ) : accounts.length === 0 ? (
             <Alert icon={<IconAlertCircle size={18} />} color="gray">
-              Tidak ada akun student ditemukan
+              {t("student.noStudents")}
             </Alert>
           ) : (
             <>
@@ -218,12 +229,12 @@ export default function StudentAccountsPage() {
                 <Table striped highlightOnHover>
                   <Table.Thead>
                     <Table.Tr>
-                      <Table.Th>NIS</Table.Th>
-                      <Table.Th>Nama</Table.Th>
-                      <Table.Th>Orang Tua</Table.Th>
-                      <Table.Th>No. HP</Table.Th>
-                      <Table.Th>Last Login</Table.Th>
-                      <Table.Th>Status</Table.Th>
+                      <Table.Th>{t("student.nis")}</Table.Th>
+                      <Table.Th>{t("common.name")}</Table.Th>
+                      <Table.Th>{t("studentAccount.parent")}</Table.Th>
+                      <Table.Th>{t("studentAccount.phone")}</Table.Th>
+                      <Table.Th>{t("studentAccount.lastLogin")}</Table.Th>
+                      <Table.Th>{t("common.status")}</Table.Th>
                       <Table.Th />
                     </Table.Tr>
                   </Table.Thead>
@@ -246,15 +257,15 @@ export default function StudentAccountsPage() {
                         <Table.Td>
                           {account.accountDeleted ? (
                             <Badge color="red" variant="light">
-                              Dihapus
+                              {t("studentAccount.status.deleted")}
                             </Badge>
                           ) : account.mustChangePassword ? (
                             <Badge color="yellow" variant="light">
-                              Perlu Ganti Password
+                              {t("studentAccount.status.mustChangePassword")}
                             </Badge>
                           ) : (
                             <Badge color="green" variant="light">
-                              Aktif
+                              {t("studentAccount.status.active")}
                             </Badge>
                           )}
                         </Table.Td>
@@ -271,7 +282,7 @@ export default function StudentAccountsPage() {
                                   onClick={() => handleRestoreAccount(account)}
                                   disabled={restoreAccount.isPending}
                                 >
-                                  Pulihkan Akun
+                                  {t("studentAccount.restore")}
                                 </Menu.Item>
                               ) : (
                                 <>
@@ -280,7 +291,7 @@ export default function StudentAccountsPage() {
                                     onClick={() => handleResetPassword(account)}
                                     disabled={resetPassword.isPending}
                                   >
-                                    Reset Password
+                                    {t("studentAccount.resetPassword")}
                                   </Menu.Item>
                                   <Menu.Item
                                     leftSection={<IconTrash size={14} />}
@@ -288,7 +299,7 @@ export default function StudentAccountsPage() {
                                     onClick={() => handleDeleteAccount(account)}
                                     disabled={deleteAccount.isPending}
                                   >
-                                    Hapus Akun
+                                    {t("studentAccount.deleteAccount")}
                                   </Menu.Item>
                                 </>
                               )}

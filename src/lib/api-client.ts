@@ -55,7 +55,7 @@ async function request<T>(
 
   if (options.responseType === "blob") {
     const blob = await response.blob();
-    return { data: blob as unknown as T };  
+    return { data: blob as unknown as T };
   }
 
   const data = await response.json();

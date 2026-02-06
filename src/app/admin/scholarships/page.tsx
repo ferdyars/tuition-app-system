@@ -2,8 +2,8 @@
 
 import { Button, Group } from "@mantine/core";
 import { IconFileUpload, IconPlus } from "@tabler/icons-react";
-import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import ScholarshipTable from "@/components/tables/ScholarshipTable";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
 

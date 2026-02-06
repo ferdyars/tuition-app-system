@@ -519,7 +519,19 @@
     "deleteConfirm": "Are you sure you want to delete this account?",
     "deleteSuccess": "Account deleted successfully",
     "createSuccess": "Account created successfully",
-    "updateSuccess": "Account updated successfully"
+    "updateSuccess": "Account updated successfully",
+    "noData": "No bank accounts yet. Add a bank to receive transfer payments.",
+    "pending": "Pending",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "bankCode": "Bank Code",
+    "logoUrl": "Logo URL (optional)",
+    "displayOrder": "Display Order",
+    "cannotDelete": "Cannot delete",
+    "cannotDeleteMessage": "Bank account still has pending payments",
+    "deleteMessage": "Bank account <strong>{bankName}</strong> ({accountNumber}) will be permanently deleted. This action cannot be undone."
   },
   "studentAccount": {
     "title": "Student Accounts",
@@ -528,14 +540,14 @@
     "hasAccount": "Has Account",
     "lastLogin": "Last Login",
     "createdAt": "Created At",
-    "createAccount": "Create Account",
+    "createAccount": "Create Portal Account",
     "resetPassword": "Reset Password",
     "deleteAccount": "Delete Account",
     "resetPasswordConfirm": "Are you sure you want to reset this account's password?",
     "resetPasswordSuccess": "Password reset successfully",
     "deleteConfirm": "Are you sure you want to delete this account?",
     "deleteSuccess": "Account deleted successfully",
-    "createSuccess": "Account created successfully",
+    "createSuccess": "Account created successfully!",
     "searchPlaceholder": "Search by ID or name...",
     "filterHasAccount": "Filter Account",
     "hasAccountOptions": {
@@ -543,7 +555,28 @@
       "yes": "Has Account",
       "no": "No Account"
     },
-    "restore": "Restore Account"
+    "restore": "Restore Account",
+    "includeDeleted": "Include Deleted",
+    "resetPasswordMessage": "Password for <strong>{name}</strong> (NIS: {nis}) will be reset to parent's phone number. Student will need to login again with the new password.",
+    "deleteAccountMessage": "Account <strong>{name}</strong> (NIS: {nis}) will be soft deleted. Student cannot login until account is restored.",
+    "restoreSuccess": "Account {name} restored successfully",
+    "restoreError": "Failed to restore account",
+    "deleteReason": "Manual deletion by admin",
+    "portalAccount": "Student Portal Account",
+    "noAccountMsg": "This student does not have a portal account yet.",
+    "accountDeletedMsg": "Account has been deleted. Student cannot login.",
+    "defaultPasswordMsg": "Default password: <strong>{password}</strong>",
+    "givePasswordMsg": "Give this password to the student's parent/guardian. Student will be asked to change password on first login.",
+    "createConfirm": "Portal account will be created with default password (parent's phone number): <strong>{phone}</strong>",
+    "close": "Close",
+    "refresh": "Refresh",
+    "parent": "Parent",
+    "phone": "Phone",
+    "status": {
+      "active": "Active",
+      "mustChangePassword": "Change Password",
+      "deleted": "Deleted"
+    }
   },
   "report": {
     "title": "Reports",

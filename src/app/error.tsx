@@ -11,8 +11,8 @@ import {
   Title,
 } from "@mantine/core";
 import { IconAlertTriangle, IconHome, IconRefresh } from "@tabler/icons-react";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 
 export default function ErrorLayout({

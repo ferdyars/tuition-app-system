@@ -21,8 +21,8 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
-import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   useAcademicYears,

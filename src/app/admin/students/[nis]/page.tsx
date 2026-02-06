@@ -24,6 +24,7 @@ import {
   IconUserPlus,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { use, useState } from "react";
 import StudentForm from "@/components/forms/StudentForm";
 import PageHeader from "@/components/ui/PageHeader/PageHeader";
@@ -42,6 +43,7 @@ export default function EditStudentPage({
 }) {
   const { nis } = use(params);
   const router = useRouter();
+  const t = useTranslations();
   const { data: student, isLoading, refetch } = useStudent(nis);
   const updateStudent = useUpdateStudent();
 
@@ -79,15 +81,15 @@ export default function EditStudentPage({
       {
         onSuccess: () => {
           notifications.show({
-            title: "Success",
-            message: "Student updated successfully",
+            title: t("common.success"),
+            message: t("student.updateSuccess"),
             color: "green",
           });
           router.push("/admin/students");
         },
         onError: (error) => {
           notifications.show({
-            title: "Error",
+            title: t("common.error"),
             message: error.message,
             color: "red",
           });
@@ -101,16 +103,16 @@ export default function EditStudentPage({
       onSuccess: (data) => {
         setCreatedPassword(data.defaultPassword);
         notifications.show({
-          title: "Berhasil",
-          message: "Akun student berhasil dibuat",
+          title: t("common.success"),
+          message: t("studentAccount.createSuccess"),
           color: "green",
         });
         refetch();
       },
       onError: (err) => {
         notifications.show({
-          title: "Error",
-          message: err instanceof Error ? err.message : "Gagal membuat akun",
+          title: t("common.error"),
+          message: err instanceof Error ? err.message : t("common.error"),
           color: "red",
         });
         closeCreateModal();
@@ -122,16 +124,16 @@ export default function EditStudentPage({
     resetPassword.mutate(nis, {
       onSuccess: (data) => {
         notifications.show({
-          title: "Berhasil",
-          message: `Password direset ke: ${data.newPassword}`,
+          title: t("common.success"),
+          message: `${t("studentAccount.resetPasswordSuccess")}: ${data.newPassword}`,
           color: "green",
         });
         closeResetModal();
       },
       onError: (err) => {
         notifications.show({
-          title: "Error",
-          message: err instanceof Error ? err.message : "Gagal reset password",
+          title: t("common.error"),
+          message: err instanceof Error ? err.message : t("common.error"),
           color: "red",
         });
       },
@@ -144,8 +146,8 @@ export default function EditStudentPage({
       {
         onSuccess: () => {
           notifications.show({
-            title: "Berhasil",
-            message: "Akun berhasil dihapus",
+            title: t("common.success"),
+            message: t("studentAccount.deleteSuccess"),
             color: "green",
           });
           closeDeleteModal();
@@ -153,9 +155,8 @@ export default function EditStudentPage({
         },
         onError: (err) => {
           notifications.show({
-            title: "Error",
-            message:
-              err instanceof Error ? err.message : "Gagal menghapus akun",
+            title: t("common.error"),
+            message: err instanceof Error ? err.message : t("common.error"),
             color: "red",
           });
         },
@@ -167,16 +168,21 @@ export default function EditStudentPage({
     restoreAccount.mutate(nis, {
       onSuccess: () => {
         notifications.show({
-          title: "Berhasil",
-          message: "Akun berhasil dipulihkan",
+          title: t("common.success"),
+          message: t("studentAccount.restoreSuccess", {
+            name: student?.name || "",
+          }),
           color: "green",
         });
         refetch();
       },
       onError: (err) => {
         notifications.show({
-          title: "Error",
-          message: err instanceof Error ? err.message : "Gagal memulihkan akun",
+          title: t("common.error"),
+          message:
+            err instanceof Error
+              ? err.message
+              : t("studentAccount.restoreError"),
           color: "red",
         });
       },
@@ -184,7 +190,7 @@ export default function EditStudentPage({
   };
 
   if (isLoading) return <LoadingOverlay visible />;
-  if (!student) return <Text>Student not found</Text>;
+  if (!student) return <Text>{t("student.noStudents")}</Text>;
 
   const hasAccount = student.hasAccount;
   const isDeleted = student.accountDeleted;
@@ -192,8 +198,8 @@ export default function EditStudentPage({
   return (
     <>
       <PageHeader
-        title="Edit Student"
-        description={`Editing ${student.name}`}
+        title={t("student.edit")}
+        description={`${t("student.edit")} ${student.name}`}
       />
 
       <Stack gap="lg">
@@ -210,42 +216,42 @@ export default function EditStudentPage({
         {/* Account Management */}
         <Card withBorder maw={600}>
           <Stack gap="md">
-            <Title order={5}>Student Portal Account</Title>
+            <Title order={5}>{t("studentAccount.portalAccount")}</Title>
 
             {!hasAccount ? (
               <>
                 <Alert icon={<IconAlertCircle size={18} />} color="gray">
-                  Student ini belum memiliki akun portal.
+                  {t("studentAccount.noAccountMsg")}
                 </Alert>
                 <Button
                   leftSection={<IconUserPlus size={18} />}
                   onClick={openCreateModal}
                 >
-                  Buat Akun Portal
+                  {t("studentAccount.createAccount")}
                 </Button>
               </>
             ) : isDeleted ? (
               <>
                 <Alert icon={<IconAlertCircle size={18} />} color="red">
-                  Akun telah dihapus. Student tidak dapat login.
+                  {t("studentAccount.accountDeletedMsg")}
                 </Alert>
                 <Button
                   variant="outline"
                   onClick={handleRestoreAccount}
                   loading={restoreAccount.isPending}
                 >
-                  Pulihkan Akun
+                  {t("studentAccount.restore")}
                 </Button>
               </>
             ) : (
               <>
                 <Group>
                   <Badge color="green" variant="light">
-                    Akun Aktif
+                    {t("studentAccount.status.active")}
                   </Badge>
                   {student.mustChangePassword && (
                     <Badge color="yellow" variant="light">
-                      Perlu Ganti Password
+                      {t("studentAccount.status.mustChangePassword")}
                     </Badge>
                   )}
                 </Group>
@@ -258,7 +264,7 @@ export default function EditStudentPage({
                     leftSection={<IconKey size={18} />}
                     onClick={openResetModal}
                   >
-                    Reset Password
+                    {t("studentAccount.resetPassword")}
                   </Button>
                   <Button
                     variant="outline"
@@ -266,7 +272,7 @@ export default function EditStudentPage({
                     leftSection={<IconTrash size={18} />}
                     onClick={openDeleteModal}
                   >
-                    Hapus Akun
+                    {t("studentAccount.deleteAccount")}
                   </Button>
                 </Group>
               </>
@@ -282,20 +288,22 @@ export default function EditStudentPage({
           closeCreateModal();
           setCreatedPassword(null);
         }}
-        title="Buat Akun Portal"
+        title={t("studentAccount.createAccount")}
       >
         <Stack gap="md">
           {createdPassword ? (
             <>
               <Alert icon={<IconCheck size={18} />} color="green">
-                Akun berhasil dibuat!
+                {t("studentAccount.createSuccess")}
               </Alert>
               <Text>
-                Password default: <strong>{createdPassword}</strong>
+                {t.rich("studentAccount.defaultPasswordMsg", {
+                  password: createdPassword,
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </Text>
               <Text size="sm" c="dimmed">
-                Berikan password ini kepada orang tua/wali siswa. Student akan
-                diminta untuk mengganti password saat pertama kali login.
+                {t("studentAccount.givePasswordMsg")}
               </Text>
               <Button
                 onClick={() => {
@@ -303,24 +311,26 @@ export default function EditStudentPage({
                   setCreatedPassword(null);
                 }}
               >
-                Tutup
+                {t("studentAccount.close")}
               </Button>
             </>
           ) : (
             <>
               <Text>
-                Akun portal akan dibuat dengan password default nomor HP orang
-                tua: <strong>{student.parentPhone}</strong>
+                {t.rich("studentAccount.createConfirm", {
+                  phone: student.parentPhone,
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </Text>
               <Group justify="flex-end">
                 <Button variant="outline" onClick={closeCreateModal}>
-                  Batal
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   onClick={handleCreateAccount}
                   loading={createAccount.isPending}
                 >
-                  Buat Akun
+                  {t("studentAccount.createAccount")}
                 </Button>
               </Group>
             </>
@@ -332,22 +342,25 @@ export default function EditStudentPage({
       <Modal
         opened={resetPasswordModalOpened}
         onClose={closeResetModal}
-        title="Reset Password"
+        title={t("studentAccount.resetPassword")}
       >
         <Stack gap="md">
           <Text>
-            Password akan direset ke nomor HP orang tua:{" "}
-            <strong>{student.parentPhone}</strong>
+            {t.rich("studentAccount.resetPasswordMessage", {
+              name: student.name,
+              nis: student.nis,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </Text>
           <Group justify="flex-end">
             <Button variant="outline" onClick={closeResetModal}>
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               onClick={handleResetPassword}
               loading={resetPassword.isPending}
             >
-              Reset Password
+              {t("studentAccount.resetPassword")}
             </Button>
           </Group>
         </Stack>
@@ -357,23 +370,26 @@ export default function EditStudentPage({
       <Modal
         opened={deleteAccountModalOpened}
         onClose={closeDeleteModal}
-        title="Hapus Akun"
+        title={t("studentAccount.deleteAccount")}
       >
         <Stack gap="md">
           <Text>
-            Akun akan di-soft delete. Student tidak dapat login sampai akun
-            dipulihkan.
+            {t.rich("studentAccount.deleteAccountMessage", {
+              name: student.name,
+              nis: student.nis,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </Text>
           <Group justify="flex-end">
             <Button variant="outline" onClick={closeDeleteModal}>
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               color="red"
               onClick={handleDeleteAccount}
               loading={deleteAccount.isPending}
             >
-              Hapus Akun
+              {t("studentAccount.deleteAccount")}
             </Button>
           </Group>
         </Stack>

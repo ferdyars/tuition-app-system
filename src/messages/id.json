@@ -519,7 +519,19 @@
     "deleteConfirm": "Apakah Anda yakin ingin menghapus rekening ini?",
     "deleteSuccess": "Rekening berhasil dihapus",
     "createSuccess": "Rekening berhasil dibuat",
-    "updateSuccess": "Rekening berhasil diperbarui"
+    "updateSuccess": "Rekening berhasil diperbarui",
+    "noData": "Belum ada bank account. Tambahkan bank untuk menerima pembayaran transfer.",
+    "pending": "Pending",
+    "status": {
+      "active": "Aktif",
+      "inactive": "Nonaktif"
+    },
+    "bankCode": "Kode Bank",
+    "logoUrl": "Logo URL (opsional)",
+    "displayOrder": "Urutan Tampilan",
+    "cannotDelete": "Tidak dapat dihapus",
+    "cannotDeleteMessage": "Bank account masih memiliki pembayaran pending",
+    "deleteMessage": "Bank account <strong>{bankName}</strong> ({accountNumber}) akan dihapus permanen. Aksi ini tidak dapat dibatalkan."
   },
   "studentAccount": {
     "title": "Akun Siswa",
@@ -528,14 +540,14 @@
     "hasAccount": "Memiliki Akun",
     "lastLogin": "Login Terakhir",
     "createdAt": "Tanggal Dibuat",
-    "createAccount": "Buat Akun",
+    "createAccount": "Buat Akun Portal",
     "resetPassword": "Reset Password",
     "deleteAccount": "Hapus Akun",
     "resetPasswordConfirm": "Apakah Anda yakin ingin mereset password akun ini?",
     "resetPasswordSuccess": "Password berhasil direset",
     "deleteConfirm": "Apakah Anda yakin ingin menghapus akun ini?",
     "deleteSuccess": "Akun berhasil dihapus",
-    "createSuccess": "Akun berhasil dibuat",
+    "createSuccess": "Akun berhasil dibuat!",
     "searchPlaceholder": "Cari berdasarkan NIS atau nama...",
     "filterHasAccount": "Filter Akun",
     "hasAccountOptions": {
@@ -543,7 +555,28 @@
       "yes": "Memiliki Akun",
       "no": "Belum Memiliki Akun"
     },
-    "restore": "Pulihkan Akun"
+    "restore": "Pulihkan Akun",
+    "includeDeleted": "Tampilkan yang dihapus",
+    "resetPasswordMessage": "Password untuk <strong>{name}</strong> (NIS: {nis}) akan direset ke nomor HP orang tua. Student perlu login ulang dengan password baru.",
+    "deleteAccountMessage": "Akun <strong>{name}</strong> (NIS: {nis}) akan di-soft delete. Student tidak dapat login sampai akun dipulihkan.",
+    "restoreSuccess": "Akun {name} berhasil dipulihkan",
+    "restoreError": "Gagal memulihkan akun",
+    "deleteReason": "Penghapusan manual oleh admin",
+    "portalAccount": "Akun Portal Siswa",
+    "noAccountMsg": "Student ini belum memiliki akun portal.",
+    "accountDeletedMsg": "Akun telah dihapus. Student tidak dapat login.",
+    "defaultPasswordMsg": "Password default: <strong>{password}</strong>",
+    "givePasswordMsg": "Berikan password ini kepada orang tua/wali siswa. Student akan diminta untuk mengganti password saat pertama kali login.",
+    "createConfirm": "Akun portal akan dibuat dengan password default nomor HP orang tua: <strong>{phone}</strong>",
+    "close": "Tutup",
+    "refresh": "Refresh",
+    "parent": "Orang Tua",
+    "phone": "No. HP",
+    "status": {
+      "active": "Aktif",
+      "mustChangePassword": "Perlu Ganti Password",
+      "deleted": "Dihapus"
+    }
   },
   "report": {
     "title": "Laporan",

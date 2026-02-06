@@ -129,36 +129,39 @@ export default function BankAccountsPage() {
   const handleDelete = (bank: BankAccount) => {
     if (bank.pendingPayments > 0) {
       notifications.show({
-        title: "Tidak dapat dihapus",
-        message: "Bank account masih memiliki pembayaran pending",
+        title: t("bankAccount.cannotDelete"),
+        message: t("bankAccount.cannotDeleteMessage"),
         color: "red",
       });
       return;
     }
 
     modals.openConfirmModal({
-      title: "Hapus Bank Account",
+      title: t("common.delete"),
       children: (
         <Text size="sm">
-          Bank account <strong>{bank.bankName}</strong> ({bank.accountNumber})
-          akan dihapus permanen. Aksi ini tidak dapat dibatalkan.
+          {t.rich("bankAccount.deleteMessage", {
+            bankName: bank.bankName,
+            accountNumber: bank.accountNumber,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Hapus", cancel: "Batal" },
+      labels: { confirm: t("common.delete"), cancel: t("common.cancel") },
       confirmProps: { color: "red" },
       onConfirm: async () => {
         try {
           await deleteBankAccount.mutateAsync(bank.id);
           notifications.show({
-            title: "Berhasil",
-            message: "Bank account berhasil dihapus",
+            title: t("common.success"),
+            message: t("bankAccount.deleteSuccess"),
             color: "green",
             icon: <IconCheck size={16} />,
           });
         } catch (err) {
           notifications.show({
-            title: "Error",
-            message: err instanceof Error ? err.message : "Gagal menghapus",
+            title: t("common.error"),
+            message: err instanceof Error ? err.message : t("common.error"),
             color: "red",
           });
         }
@@ -172,15 +175,15 @@ export default function BankAccountsPage() {
   return (
     <Stack gap="lg">
       <Group justify="space-between">
-        <Title order={3}>Bank Accounts</Title>
+        <Title order={3}>{t("bankAccount.title")}</Title>
         <Button leftSection={<IconPlus size={18} />} onClick={handleOpenCreate}>
-          Tambah Bank
+          {t("bankAccount.add")}
         </Button>
       </Group>
 
       {error && (
         <Alert icon={<IconAlertCircle size={18} />} color="red" variant="light">
-          {error instanceof Error ? error.message : "Gagal memuat data"}
+          {error instanceof Error ? error.message : t("common.error")}
         </Alert>
       )}
 
@@ -193,19 +196,18 @@ export default function BankAccountsPage() {
           </Stack>
         ) : bankAccounts.length === 0 ? (
           <Alert icon={<IconAlertCircle size={18} />} color="gray">
-            Belum ada bank account. Tambahkan bank untuk menerima pembayaran
-            transfer.
+            {t("bankAccount.noData")}
           </Alert>
         ) : (
           <Table.ScrollContainer minWidth={700}>
             <Table striped highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
-                  <Table.Th>Bank</Table.Th>
-                  <Table.Th>No. Rekening</Table.Th>
-                  <Table.Th>Nama Rekening</Table.Th>
-                  <Table.Th>Pending</Table.Th>
-                  <Table.Th>Status</Table.Th>
+                  <Table.Th>{t("bankAccount.bankName")}</Table.Th>
+                  <Table.Th>{t("bankAccount.accountNumber")}</Table.Th>
+                  <Table.Th>{t("bankAccount.accountName")}</Table.Th>
+                  <Table.Th>{t("bankAccount.pending")}</Table.Th>
+                  <Table.Th>{t("common.status")}</Table.Th>
                   <Table.Th />
                 </Table.Tr>
               </Table.Thead>
@@ -216,7 +218,7 @@ export default function BankAccountsPage() {
                       <Stack gap={0}>
                         <Text fw={500}>{bank.bankName}</Text>
                         <Text size="xs" c="dimmed">
-                          Kode: {bank.bankCode}
+                          {t("bankAccount.bankCode")}: {bank.bankCode}
                         </Text>
                       </Stack>
                     </Table.Td>
@@ -236,7 +238,9 @@ export default function BankAccountsPage() {
                         color={bank.isActive ? "green" : "gray"}
                         variant="light"
                       >
-                        {bank.isActive ? "Aktif" : "Nonaktif"}
+                        {bank.isActive
+                          ? t("bankAccount.status.active")
+                          : t("bankAccount.status.inactive")}
                       </Badge>
                     </Table.Td>
                     <Table.Td>
@@ -269,55 +273,55 @@ export default function BankAccountsPage() {
       <Modal
         opened={modalOpened}
         onClose={closeModal}
-        title={selectedId ? "Edit Bank Account" : "Tambah Bank Account"}
+        title={selectedId ? t("bankAccount.edit") : t("bankAccount.add")}
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
             <TextInput
-              label="Nama Bank"
+              label={t("bankAccount.bankName")}
               placeholder="BCA, Mandiri, BNI, BRI"
               required
               {...form.getInputProps("bankName")}
             />
             <TextInput
-              label="Kode Bank"
+              label={t("bankAccount.bankCode")}
               placeholder="014, 008, 009, 002"
               required
               {...form.getInputProps("bankCode")}
             />
             <TextInput
-              label="No. Rekening"
+              label={t("bankAccount.accountNumber")}
               placeholder="1234567890"
               required
               {...form.getInputProps("accountNumber")}
             />
             <TextInput
-              label="Nama Rekening"
+              label={t("bankAccount.accountName")}
               placeholder="YAYASAN SEKOLAH XYZ"
               required
               {...form.getInputProps("accountName")}
             />
             <TextInput
-              label="Logo URL (optional)"
+              label={t("bankAccount.logoUrl")}
               placeholder="/images/banks/bca.png"
               {...form.getInputProps("logoUrl")}
             />
             <NumberInput
-              label="Urutan Tampilan"
+              label={t("bankAccount.displayOrder")}
               min={0}
               {...form.getInputProps("displayOrder")}
             />
             <Switch
-              label="Aktif"
+              label={t("bankAccount.isActive")}
               {...form.getInputProps("isActive", { type: "checkbox" })}
             />
 
             <Group justify="flex-end">
               <Button variant="outline" onClick={closeModal}>
-                Batal
+                {t("common.cancel")}
               </Button>
               <Button type="submit" loading={isSubmitting}>
-                {selectedId ? "Simpan" : "Tambah"}
+                {t("common.save")}
               </Button>
             </Group>
           </Stack>
