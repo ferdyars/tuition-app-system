@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3] - 2026-02-06
+
+### Fixes
+- fix: overlaps sidebar
+
+
+
 ## [1.0.2] - 2026-02-06
 
 ### Other
