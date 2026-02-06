@@ -59,12 +59,7 @@ export default function StudentAccountsPage() {
   const [debouncedSearch] = useDebouncedValue(search, 300);
   const [includeDeleted, setIncludeDeleted] = useState(false);
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-  } = useStudentAccounts({
+  const { data, isLoading, error, refetch } = useStudentAccounts({
     page,
     limit: 10,
     search: debouncedSearch || undefined,
@@ -102,7 +97,8 @@ export default function StudentAccountsPage() {
         } catch (err) {
           notifications.show({
             title: "Error",
-            message: err instanceof Error ? err.message : "Gagal reset password",
+            message:
+              err instanceof Error ? err.message : "Gagal reset password",
             color: "red",
           });
         }
@@ -115,8 +111,8 @@ export default function StudentAccountsPage() {
       title: "Hapus Akun",
       children: (
         <Text size="sm">
-          Akun <strong>{account.name}</strong> (NIS: {account.nis}) akan
-          di-soft delete. Student tidak dapat login sampai akun dipulihkan.
+          Akun <strong>{account.name}</strong> (NIS: {account.nis}) akan di-soft
+          delete. Student tidak dapat login sampai akun dipulihkan.
         </Text>
       ),
       labels: { confirm: "Hapus Akun", cancel: "Batal" },
@@ -136,7 +132,8 @@ export default function StudentAccountsPage() {
         } catch (err) {
           notifications.show({
             title: "Error",
-            message: err instanceof Error ? err.message : "Gagal menghapus akun",
+            message:
+              err instanceof Error ? err.message : "Gagal menghapus akun",
             color: "red",
           });
         }
@@ -241,7 +238,9 @@ export default function StudentAccountsPage() {
                         <Table.Td>{account.parentPhone}</Table.Td>
                         <Table.Td>
                           {account.lastLoginAt
-                            ? dayjs(account.lastLoginAt).format("DD/MM/YY HH:mm")
+                            ? dayjs(account.lastLoginAt).format(
+                                "DD/MM/YY HH:mm",
+                              )
                             : "-"}
                         </Table.Td>
                         <Table.Td>
@@ -303,7 +302,11 @@ export default function StudentAccountsPage() {
               </Table.ScrollContainer>
 
               <Group justify="center">
-                <Pagination value={page} onChange={setPage} total={totalPages} />
+                <Pagination
+                  value={page}
+                  onChange={setPage}
+                  total={totalPages}
+                />
               </Group>
             </>
           )}

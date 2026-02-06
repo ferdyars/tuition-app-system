@@ -81,7 +81,7 @@ export default function StudentLoginPage() {
             )}
 
             <TextInput
-              label="NIS (Nomor Induk Siswa)"
+              label={t("portal.nisLabel")}
               placeholder={t("portal.nisPlaceholder")}
               leftSection={<IconUser size={18} />}
               value={nis}
@@ -90,7 +90,7 @@ export default function StudentLoginPage() {
             />
 
             <PasswordInput
-              label="Password"
+              label={t("auth.password")}
               placeholder={t("portal.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.currentTarget.value)}
@@ -101,10 +101,13 @@ export default function StudentLoginPage() {
               {t("auth.login")}
             </Button>
 
-            <Text size="xs" c="dimmed" ta="center">
-              Password default adalah nomor HP orang tua.
-              <br />
-              Hubungi admin jika belum memiliki akun.
+            <Text
+              size="xs"
+              c="dimmed"
+              ta="center"
+              style={{ whiteSpace: "pre-line" }}
+            >
+              {t("portal.defaultPasswordHelp")}
             </Text>
           </Stack>
         </form>

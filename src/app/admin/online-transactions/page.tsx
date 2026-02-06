@@ -173,7 +173,9 @@ export default function OnlineTransactionsPage() {
                             {pr.bankAccount?.bankName || "-"}
                           </Text>
                         </Table.Td>
-                        <Table.Td>{getStatusBadge(pr.status, pr.expiresAt)}</Table.Td>
+                        <Table.Td>
+                          {getStatusBadge(pr.status, pr.expiresAt)}
+                        </Table.Td>
                         <Table.Td>
                           <Group gap="xs">
                             <IconClock size={14} />
@@ -190,7 +192,11 @@ export default function OnlineTransactionsPage() {
 
               {totalPages > 1 && (
                 <Group justify="center">
-                  <Pagination value={page} onChange={setPage} total={totalPages} />
+                  <Pagination
+                    value={page}
+                    onChange={setPage}
+                    total={totalPages}
+                  />
                 </Group>
               )}
             </>

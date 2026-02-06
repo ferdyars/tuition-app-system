@@ -91,7 +91,11 @@
     "passwordMinLength": "Password baru minimal 8 karakter",
     "passwordChangeError": "Gagal mengubah password",
     "defaultPasswordWarning": "Anda menggunakan password default. Silakan ubah password untuk keamanan akun.",
-    "passwordRequirements": "Password harus minimal 8 karakter."
+    "passwordRequirements": "Password harus minimal 8 karakter.",
+    "profile": "Profil",
+    "passwordRequired": "Password saat ini wajib diisi",
+    "newPasswordMinChars": "Password baru minimal 6 karakter",
+    "passwordsDoNotMatch": "Password tidak cocok"
   },
   "portal": {
     "greeting": {
@@ -106,7 +110,9 @@
     "loginTitle": "Portal Orang Tua",
     "loginSubtitle": "Masuk dengan NIS siswa",
     "nisPlaceholder": "Masukkan NIS siswa",
-    "passwordPlaceholder": "Masukkan password"
+    "passwordPlaceholder": "Masukkan password",
+    "nisLabel": "NIS (Nomor Induk Siswa)",
+    "defaultPasswordHelp": "Password default adalah nomor HP orang tua.\nHubungi admin jika belum memiliki akun."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -130,7 +136,20 @@
     "quickStats": "Statistik Cepat",
     "registeredClasses": "{count} Kelas Terdaftar",
     "noDataYet": "Belum ada data",
-    "paidOf": "{paid}/{total} Lunas"
+    "paidOf": "{paid}/{total} Lunas",
+    "totalOutstanding": "Total Tunggakan",
+    "collectionProgress": "Progres Koleksi",
+    "overallCollectionRate": "Tingkat Koleksi Keseluruhan",
+    "employees": "Karyawan",
+    "totalTuitions": "Total Tagihan",
+    "noRecentPayments": "Tidak ada pembayaran terbaru",
+    "date": "Tanggal",
+    "student": "Siswa",
+    "amount": "Nominal",
+    "processedBy": "Diproses Oleh",
+    "paid": "Lunas",
+    "partial": "Sebagian",
+    "unpaid": "Belum Bayar"
   },
   "tuition": {
     "title": "Tagihan SPP",
@@ -196,6 +215,32 @@
       "title": "Selamat! Semua tagihan sudah lunas",
       "message": "Terima kasih telah melakukan pembayaran tepat waktu"
     },
+    "paymentExpiredDesc": "Waktu pembayaran habis. Silakan buat pembayaran baru.",
+    "selectMinOne": "Pilih minimal satu tagihan",
+    "confirmPayment": "Konfirmasi Pembayaran",
+    "willCreatePayment": "Anda akan membuat pembayaran untuk {count} tagihan dengan total:",
+    "afterConfirm": "Setelah dikonfirmasi, Anda memiliki waktu 5 menit untuk menyelesaikan transfer.",
+    "yesCreate": "Ya, Buat Pembayaran",
+    "paymentCreated": "Pembayaran Dibuat",
+    "completeTransferTime": "Silakan selesaikan transfer dalam waktu 5 menit",
+    "failedCreate": "Gagal membuat pembayaran",
+    "cancelConfirmTitle": "Batalkan Pembayaran?",
+    "cancelConfirmDesc": "Apakah Anda yakin ingin membatalkan pembayaran ini? Anda dapat membuat pembayaran baru setelah membatalkan.",
+    "yesCancel": "Ya, Batalkan",
+    "paymentCancelled": "Pembayaran Dibatalkan",
+    "cancelledSuccess": "Pembayaran berhasil dibatalkan",
+    "failedCancel": "Gagal membatalkan pembayaran",
+    "copiedTitle": "Tersalin",
+    "copiedToClipboard": "{label} berhasil disalin ke clipboard",
+    "paidLabel": "Dibayar:",
+    "backToHome": "Kembali ke Beranda",
+    "paidBadge": "Lunas",
+    "paymentFor": "Pembayaran untuk",
+    "copy": "Salin",
+    "accountHolder": "a.n.",
+    "accountNoLabel": "No. Rekening {bank}",
+    "selectAllCount": "Pilih Semua ({count} tagihan)",
+    "guardian": "Wali:",
     "noHistory": "Belum ada riwayat transaksi",
     "downloadReceipt": "Unduh Bukti Pembayaran (PDF)",
     "nominal": "Nominal",
@@ -229,8 +274,9 @@
     "message": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi atau hubungi administrator jika masalah berlanjut.",
     "goHome": "Ke Beranda",
     "notFound": "Halaman Tidak Ditemukan",
-    "notFoundMessage": "Halaman yang Anda cari tidak ditemukan.",
+    "notFoundMessage": "Halaman yang Anda cari tidak ditemukan atau telah dipindahkan.",
     "somethingWentWrong": "Terjadi Kesalahan",
+    "goToDashboard": "Ke Dashboard",
     "tryAgain": "Coba Lagi",
     "refreshPage": "Muat Ulang Halaman"
   },
@@ -572,6 +618,9 @@
       "accountName": "Atas Nama"
     },
     "refresh": "Refresh"
+  },
+  "header": {
+    "title": "School Tuition"
   },
   "table": {
     "showing": "Menampilkan {from} - {to} dari {total}",

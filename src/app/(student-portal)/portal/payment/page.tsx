@@ -29,6 +29,7 @@ import {
   IconMoodSmile,
   IconUser,
 } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { PaymentSkeleton } from "@/components/ui/PortalSkeleton";
@@ -53,30 +54,6 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-function formatPeriod(period: string): string {
-  const periodMap: Record<string, string> = {
-    JULY: "Juli",
-    AUGUST: "Agustus",
-    SEPTEMBER: "September",
-    OCTOBER: "Oktober",
-    NOVEMBER: "November",
-    DECEMBER: "Desember",
-    JANUARY: "Januari",
-    FEBRUARY: "Februari",
-    MARCH: "Maret",
-    APRIL: "April",
-    MAY: "Mei",
-    JUNE: "Juni",
-    Q1: "Kuartal 1",
-    Q2: "Kuartal 2",
-    Q3: "Kuartal 3",
-    Q4: "Kuartal 4",
-    SEM1: "Semester 1",
-    SEM2: "Semester 2",
-  };
-  return periodMap[period] || period;
-}
-
 function groupByAcademicYear(
   tuitions: StudentTuition[],
 ): Record<string, StudentTuition[]> {
@@ -95,6 +72,7 @@ function groupByAcademicYear(
 
 export default function StudentPaymentPage() {
   const router = useRouter();
+  const t = useTranslations();
   const [step, setStep] = useState<"select" | "waiting">("select");
   const [selectedTuitions, setSelectedTuitions] = useState<string[]>([]);
   const [countdown, setCountdown] = useState(300);
@@ -107,6 +85,22 @@ export default function StudentPaymentPage() {
     useActivePaymentRequest();
   const createPayment = useCreatePaymentRequest();
   const cancelPayment = useCancelPaymentRequest();
+
+  const formatPeriod = (period: string): string => {
+    // Check months first
+    const monthKey = `months.${period}` as const;
+    const monthTranslation = t.raw(monthKey);
+    if (monthTranslation !== monthKey) {
+      return monthTranslation as string;
+    }
+    // Check periods (Q1, Q2, SEM1, etc.)
+    const periodKey = `periods.${period}` as const;
+    const periodTranslation = t.raw(periodKey);
+    if (periodTranslation !== periodKey) {
+      return periodTranslation as string;
+    }
+    return period;
+  };
 
   // Auto-switch to waiting if there's an active payment
   useEffect(() => {
@@ -150,13 +144,13 @@ export default function StudentPaymentPage() {
 
       if (diff === 0) {
         setStep("select");
-        setError("Waktu pembayaran habis. Silakan buat pembayaran baru.");
+        setError(t("payment.paymentExpiredDesc"));
         refetchActive();
       }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [step, activePayment, refetchActive]);
+  }, [step, activePayment, refetchActive, t]);
 
   // Poll for payment status changes
   useEffect(() => {
@@ -197,28 +191,31 @@ export default function StudentPaymentPage() {
 
   const handleCreatePayment = () => {
     if (selectedTuitions.length === 0) {
-      setError("Pilih minimal satu tagihan");
+      setError(t("payment.selectMinOne"));
       return;
     }
 
     modals.openConfirmModal({
-      title: "Konfirmasi Pembayaran",
+      title: t("payment.confirmPayment"),
       children: (
         <Stack gap="xs">
           <Text size="sm">
-            Anda akan membuat pembayaran untuk {selectedTuitions.length} tagihan
-            dengan total:
+            {t("payment.willCreatePayment", {
+              count: selectedTuitions.length,
+            })}
           </Text>
           <Text size="lg" fw={700} c="blue" ta="center">
             Rp {totalAmount.toLocaleString("id-ID")}
           </Text>
           <Text size="xs" c="dimmed">
-            Setelah dikonfirmasi, Anda memiliki waktu 5 menit untuk
-            menyelesaikan transfer.
+            {t("payment.afterConfirm")}
           </Text>
         </Stack>
       ),
-      labels: { confirm: "Ya, Buat Pembayaran", cancel: "Batal" },
+      labels: {
+        confirm: t("payment.yesCreate"),
+        cancel: t("common.cancel"),
+      },
       confirmProps: { color: "blue" },
       onConfirm: async () => {
         setError(null);
@@ -230,14 +227,14 @@ export default function StudentPaymentPage() {
           refetchActive();
           createPayment.resetIdempotencyKey();
           notifications.show({
-            title: "Pembayaran Dibuat",
-            message: "Silakan selesaikan transfer dalam waktu 5 menit",
+            title: t("payment.paymentCreated"),
+            message: t("payment.completeTransferTime"),
             color: "blue",
             icon: <IconCheck size={16} />,
           });
         } catch (err) {
           setError(
-            err instanceof Error ? err.message : "Gagal membuat pembayaran",
+            err instanceof Error ? err.message : t("payment.failedCreate"),
           );
         }
       },
@@ -248,14 +245,12 @@ export default function StudentPaymentPage() {
     if (!activePayment) return;
 
     modals.openConfirmModal({
-      title: "Batalkan Pembayaran?",
-      children: (
-        <Text size="sm">
-          Apakah Anda yakin ingin membatalkan pembayaran ini? Anda dapat membuat
-          pembayaran baru setelah membatalkan.
-        </Text>
-      ),
-      labels: { confirm: "Ya, Batalkan", cancel: "Tidak" },
+      title: t("payment.cancelConfirmTitle"),
+      children: <Text size="sm">{t("payment.cancelConfirmDesc")}</Text>,
+      labels: {
+        confirm: t("payment.yesCancel"),
+        cancel: t("common.no"),
+      },
       confirmProps: { color: "red" },
       onConfirm: async () => {
         try {
@@ -263,12 +258,12 @@ export default function StudentPaymentPage() {
           setStep("select");
           refetchActive();
           notifications.show({
-            title: "Pembayaran Dibatalkan",
-            message: "Pembayaran berhasil dibatalkan",
+            title: t("payment.paymentCancelled"),
+            message: t("payment.cancelledSuccess"),
             color: "orange",
           });
         } catch {
-          setError("Gagal membatalkan pembayaran");
+          setError(t("payment.failedCancel"));
         }
       },
     });
@@ -277,8 +272,8 @@ export default function StudentPaymentPage() {
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     notifications.show({
-      title: "Tersalin",
-      message: `${label} berhasil disalin ke clipboard`,
+      title: t("payment.copiedTitle"),
+      message: t("payment.copiedToClipboard", { label }),
       color: "green",
       icon: <IconCheck size={16} />,
       autoClose: 2000,
@@ -298,14 +293,14 @@ export default function StudentPaymentPage() {
     if (hasPendingPayment) {
       return (
         <Badge color="blue" size="xs">
-          Dalam Proses
+          {t("payment.inProcess")}
         </Badge>
       );
     }
     const statusMap: Record<string, { color: string; label: string }> = {
-      UNPAID: { color: "red", label: "Belum Bayar" },
-      PARTIAL: { color: "yellow", label: "Sebagian" },
-      PAID: { color: "green", label: "Lunas" },
+      UNPAID: { color: "red", label: t("tuition.status.unpaid") },
+      PARTIAL: { color: "yellow", label: t("tuition.status.partial") },
+      PAID: { color: "green", label: t("tuition.status.paid") },
     };
     const { color, label } = statusMap[status] || {
       color: "gray",
@@ -336,7 +331,7 @@ export default function StudentPaymentPage() {
             NIS: {user?.nis}
           </Text>
           <Text size="xs" c="dimmed" truncate>
-            Wali: {user?.parentName}
+            {t("payment.guardian")} {user?.parentName}
           </Text>
         </Box>
       </Group>
@@ -354,10 +349,10 @@ export default function StudentPaymentPage() {
               <IconMoodSmile size={36} />
             </ThemeIcon>
             <Text size="lg" fw={600} c="green.8" ta="center">
-              Selamat! Semua tagihan sudah lunas
+              {t("payment.allPaid.title")}
             </Text>
             <Text size="sm" c="green.7" ta="center">
-              Terima kasih telah melakukan pembayaran tepat waktu
+              {t("payment.allPaid.message")}
             </Text>
           </Stack>
         </Card>
@@ -367,7 +362,7 @@ export default function StudentPaymentPage() {
           onClick={() => router.push("/portal")}
           fullWidth
         >
-          Kembali ke Beranda
+          {t("payment.backToHome")}
         </Button>
       </Stack>
     );
@@ -388,8 +383,8 @@ export default function StudentPaymentPage() {
           </ActionIcon>
         )}
         <Title order={4}>
-          {step === "select" && "Pembayaran"}
-          {step === "waiting" && "Menunggu Transfer"}
+          {step === "select" && t("payment.title")}
+          {step === "waiting" && t("payment.waiting")}
         </Title>
       </Group>
 
@@ -421,11 +416,13 @@ export default function StudentPaymentPage() {
                     <Group justify="space-between" align="center">
                       <Group gap="xs">
                         <Text fw={600} size="sm">
-                          Tahun Ajaran {academicYear}
+                          {t("dashboard.academicYear", {
+                            year: academicYear,
+                          })}
                         </Text>
                         {allPaidInYear && (
                           <Badge color="green" size="xs">
-                            Lunas
+                            {t("payment.paidBadge")}
                           </Badge>
                         )}
                       </Group>
@@ -456,7 +453,9 @@ export default function StudentPaymentPage() {
                               }
                             }}
                           >
-                            {allSelected ? "Batal" : "Pilih Semua"}
+                            {allSelected
+                              ? t("common.cancel")
+                              : t("payment.selectAll")}
                           </Button>
                         );
                       })()}
@@ -557,7 +556,7 @@ export default function StudentPaymentPage() {
                                   tuition.status === "PARTIAL" &&
                                   !hasPendingPayment && (
                                     <Text size="xs" c="dimmed">
-                                      Dibayar: Rp{" "}
+                                      {t("payment.paidLabel")} Rp{" "}
                                       {Number(
                                         tuition.paidAmount,
                                       ).toLocaleString("id-ID")}
@@ -565,7 +564,7 @@ export default function StudentPaymentPage() {
                                   )}
                                 {hasPendingPayment && (
                                   <Text size="xs" c="blue">
-                                    Menunggu transfer
+                                    {t("payment.waitingTransfer")}
                                   </Text>
                                 )}
                               </Stack>
@@ -602,7 +601,9 @@ export default function StudentPaymentPage() {
                   <Group justify="space-between">
                     <Stack gap={0}>
                       <Text size="sm" fw={500}>
-                        Total {selectedTuitions.length} Tagihan
+                        {t("payment.totalSelected", {
+                          count: selectedTuitions.length,
+                        })}
                       </Text>
                       {selectableTuitions.length > selectedTuitions.length && (
                         <Button
@@ -612,7 +613,9 @@ export default function StudentPaymentPage() {
                           h="auto"
                           onClick={handleSelectAllUnpaid}
                         >
-                          Pilih Semua ({selectableTuitions.length} tagihan)
+                          {t("payment.selectAllCount", {
+                            count: selectableTuitions.length,
+                          })}
                         </Button>
                       )}
                       {selectedTuitions.length === selectableTuitions.length &&
@@ -624,7 +627,7 @@ export default function StudentPaymentPage() {
                             h="auto"
                             onClick={() => setSelectedTuitions([])}
                           >
-                            Batal Pilih Semua
+                            {t("payment.deselectAll")}
                           </Button>
                         )}
                     </Stack>
@@ -643,7 +646,7 @@ export default function StudentPaymentPage() {
                     onClick={handleCreatePayment}
                     loading={createPayment.isPending}
                   >
-                    Buat Pembayaran
+                    {t("payment.createPayment")}
                   </Button>
                 </Stack>
               </Card>
@@ -661,7 +664,7 @@ export default function StudentPaymentPage() {
             p="sm"
           >
             <Group justify="space-between">
-              <Text size="sm">Selesaikan dalam</Text>
+              <Text size="sm">{t("payment.completeIn")}</Text>
               <Badge size="lg" color={countdown < 60 ? "red" : "blue"}>
                 {formatTime(countdown)}
               </Badge>
@@ -672,16 +675,16 @@ export default function StudentPaymentPage() {
           <Card withBorder p="sm">
             <Stack gap="xs">
               <Text size="xs" c="dimmed">
-                Pembayaran untuk
+                {t("payment.paymentFor")}
               </Text>
-              {activePayment.tuitions.map((t, i) => (
+              {activePayment.tuitions.map((t_item, i) => (
                 <Group key={i} justify="space-between" wrap="nowrap">
                   <Text fw={500} size="sm">
-                    {formatPeriod(t.period)} {t.year}
+                    {formatPeriod(t_item.period)} {t_item.year}
                   </Text>
                   <Text size="sm" c="dimmed">
                     <NumberFormatter
-                      value={Number(t.amount)}
+                      value={Number(t_item.amount)}
                       prefix="Rp "
                       thousandSeparator="."
                       decimalSeparator=","
@@ -696,7 +699,7 @@ export default function StudentPaymentPage() {
           <Card withBorder p="md">
             <Stack gap="sm" align="center">
               <Text size="xs" c="dimmed">
-                Total Transfer
+                {t("payment.totalTransfer")}
               </Text>
               <Title order={2} c="blue">
                 <NumberFormatter
@@ -707,18 +710,21 @@ export default function StudentPaymentPage() {
                 />
               </Title>
               <Text size="xs" c="dimmed">
-                Rp {Number(activePayment.baseAmount).toLocaleString("id-ID")} +
-                kode unik {activePayment.uniqueCode}
+                Rp {Number(activePayment.baseAmount).toLocaleString("id-ID")} +{" "}
+                {t("payment.uniqueCode")} {activePayment.uniqueCode}
               </Text>
               <Button
                 variant="light"
                 size="sm"
                 leftSection={<IconCopy size={16} />}
                 onClick={() =>
-                  handleCopy(activePayment.totalAmount.toString(), "Nominal")
+                  handleCopy(
+                    activePayment.totalAmount.toString(),
+                    t("payment.nominal"),
+                  )
                 }
               >
-                Salin Nominal
+                {t("payment.copyAmount")}
               </Button>
             </Stack>
           </Card>
@@ -727,7 +733,7 @@ export default function StudentPaymentPage() {
           <Card withBorder p="sm">
             <Stack gap="sm">
               <Text fw={600} size="sm">
-                Transfer ke salah satu rekening berikut:
+                {t("payment.transferTo")}
               </Text>
               <Stack gap="xs">
                 {banks?.map((bank) => (
@@ -741,7 +747,7 @@ export default function StudentPaymentPage() {
                           {bank.accountNumber}
                         </Text>
                         <Text size="xs" c="dimmed">
-                          a.n. {bank.accountName}
+                          {t("payment.accountHolder")} {bank.accountName}
                         </Text>
                       </Stack>
                       <Button
@@ -750,11 +756,13 @@ export default function StudentPaymentPage() {
                         onClick={() =>
                           handleCopy(
                             bank.accountNumber,
-                            `No. Rekening ${bank.bankName}`,
+                            t("payment.accountNoLabel", {
+                              bank: bank.bankName,
+                            }),
                           )
                         }
                       >
-                        Salin
+                        {t("payment.copy")}
                       </Button>
                     </Group>
                   </Paper>
@@ -766,11 +774,7 @@ export default function StudentPaymentPage() {
           <Divider />
 
           <Alert color="yellow" variant="light" p="sm">
-            <Text size="xs">
-              Transfer <strong>tepat</strong> sesuai nominal di atas ke salah
-              satu rekening. Pembayaran akan diverifikasi otomatis setelah
-              transfer diterima.
-            </Text>
+            <Text size="xs">{t("payment.transferExact")}</Text>
           </Alert>
 
           {/* Sticky Cancel Button */}
@@ -794,7 +798,7 @@ export default function StudentPaymentPage() {
                 loading={cancelPayment.isPending}
                 fullWidth
               >
-                Batalkan Pembayaran
+                {t("payment.cancelPayment")}
               </Button>
             </Box>
           )}

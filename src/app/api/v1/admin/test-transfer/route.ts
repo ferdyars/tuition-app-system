@@ -25,7 +25,11 @@ export async function POST(request: NextRequest) {
     const { paymentRequestId, bankAccountId } = body;
 
     if (!paymentRequestId) {
-      return errorResponse("paymentRequestId wajib diisi", "VALIDATION_ERROR", 400);
+      return errorResponse(
+        "paymentRequestId wajib diisi",
+        "VALIDATION_ERROR",
+        400,
+      );
     }
 
     // Find the payment request
@@ -47,7 +51,7 @@ export async function POST(request: NextRequest) {
       return errorResponse(
         `Payment request sudah ${paymentRequest.status}`,
         "INVALID_STATUS",
-        400
+        400,
       );
     }
 

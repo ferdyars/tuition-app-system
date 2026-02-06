@@ -10,9 +10,12 @@ import {
   Title,
 } from "@mantine/core";
 import { IconFileUnknown, IconHome } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 export default function NotFound() {
+  const t = useTranslations("error");
+
   return (
     <Container size="sm" py="xl">
       <Paper withBorder p="xl" radius="md">
@@ -21,17 +24,17 @@ export default function NotFound() {
             <IconFileUnknown size={40} />
           </ThemeIcon>
           <Title order={2} ta="center">
-            Page Not Found
+            {t("notFound")}
           </Title>
           <Text c="dimmed" ta="center" maw={400}>
-            The page you are looking for does not exist or has been moved.
+            {t("notFoundMessage")}
           </Text>
           <Button
             leftSection={<IconHome size={18} />}
             component={Link}
             href="/"
           >
-            Go to Dashboard
+            {t("goToDashboard")}
           </Button>
         </Stack>
       </Paper>

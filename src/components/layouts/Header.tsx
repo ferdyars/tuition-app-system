@@ -53,11 +53,11 @@ export default function Header({
     },
     validate: {
       currentPassword: (value) =>
-        value.length < 1 ? t("auth.currentPassword") + " required" : null,
+        value.length < 1 ? t("auth.passwordRequired") : null,
       newPassword: (value) =>
-        value.length < 6 ? t("auth.newPassword") + " min 6 chars" : null,
+        value.length < 6 ? t("auth.newPasswordMinChars") : null,
       confirmPassword: (value, values) =>
-        value !== values.newPassword ? "Passwords do not match" : null,
+        value !== values.newPassword ? t("auth.passwordsDoNotMatch") : null,
     },
   });
 
@@ -84,7 +84,7 @@ export default function Header({
             message:
               error instanceof Error
                 ? error.message
-                : "Failed to change password",
+                : t("auth.passwordChangeError"),
             color: "red",
           });
         },
@@ -111,7 +111,7 @@ export default function Header({
           visibleFrom="sm"
           size="sm"
         />
-        <Title order={3}>School Tuition</Title>
+        <Title order={3}>{t("header.title")}</Title>
       </Group>
 
       <Group gap="sm">
@@ -148,7 +148,9 @@ export default function Header({
           </Menu.Target>
 
           <Menu.Dropdown>
-            <Menu.Item leftSection={<IconUser size={14} />}>Profile</Menu.Item>
+            <Menu.Item leftSection={<IconUser size={14} />}>
+              {t("auth.profile")}
+            </Menu.Item>
             <Menu.Item
               leftSection={<IconKey size={14} />}
               onClick={openPasswordModal}

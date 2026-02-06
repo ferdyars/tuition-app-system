@@ -62,7 +62,7 @@ export default function LoginPage() {
         <Stack gap="md">
           <TextInput
             label={t("auth.username")}
-            placeholder="admin@school.com"
+            placeholder={t("auth.username")}
             value={email}
             onChange={(e) => setEmail(e.currentTarget.value)}
             required

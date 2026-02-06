@@ -11,6 +11,7 @@ import {
   Title,
 } from "@mantine/core";
 import { IconAlertTriangle, IconHome, IconRefresh } from "@tabler/icons-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -21,6 +22,8 @@ export default function ErrorLayout({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations("error");
+
   useEffect(() => {
     console.error("Application error:", error);
   }, [error]);
@@ -33,11 +36,10 @@ export default function ErrorLayout({
             <IconAlertTriangle size={40} />
           </ThemeIcon>
           <Title order={2} ta="center">
-            Something went wrong
+            {t("somethingWentWrong")}
           </Title>
           <Text c="dimmed" ta="center" maw={400}>
-            An unexpected error occurred. Please try again or contact support if
-            the problem persists.
+            {t("message")}
           </Text>
           {error.message && (
             <Paper withBorder p="sm" bg="red.0" w="100%" maw={400}>
@@ -48,7 +50,7 @@ export default function ErrorLayout({
           )}
           <Group>
             <Button leftSection={<IconRefresh size={18} />} onClick={reset}>
-              Try Again
+              {t("tryAgain")}
             </Button>
             <Button
               variant="light"
@@ -56,7 +58,7 @@ export default function ErrorLayout({
               component={Link}
               href="/"
             >
-              Go Home
+              {t("goHome")}
             </Button>
           </Group>
         </Stack>

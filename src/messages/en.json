@@ -91,7 +91,11 @@
     "passwordMinLength": "New password must be at least 8 characters",
     "passwordChangeError": "Failed to change password",
     "defaultPasswordWarning": "You are using the default password. Please change your password for account security.",
-    "passwordRequirements": "Password must be at least 8 characters."
+    "passwordRequirements": "Password must be at least 8 characters.",
+    "profile": "Profile",
+    "passwordRequired": "Current password is required",
+    "newPasswordMinChars": "New password must be at least 6 characters",
+    "passwordsDoNotMatch": "Passwords do not match"
   },
   "portal": {
     "greeting": {
@@ -106,7 +110,9 @@
     "loginTitle": "Parent Portal",
     "loginSubtitle": "Login with student ID",
     "nisPlaceholder": "Enter student ID",
-    "passwordPlaceholder": "Enter password"
+    "passwordPlaceholder": "Enter password",
+    "nisLabel": "NIS (Student ID)",
+    "defaultPasswordHelp": "Default password is parent's phone number.\nContact admin if you don't have an account."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -130,7 +136,20 @@
     "quickStats": "Quick Stats",
     "registeredClasses": "{count} Registered Classes",
     "noDataYet": "No data yet",
-    "paidOf": "{paid}/{total} Paid"
+    "paidOf": "{paid}/{total} Paid",
+    "totalOutstanding": "Total Outstanding",
+    "collectionProgress": "Collection Progress",
+    "overallCollectionRate": "Overall Collection Rate",
+    "employees": "Employees",
+    "totalTuitions": "Total Tuitions",
+    "noRecentPayments": "No recent payments",
+    "date": "Date",
+    "student": "Student",
+    "amount": "Amount",
+    "processedBy": "Processed By",
+    "paid": "Paid",
+    "partial": "Partial",
+    "unpaid": "Unpaid"
   },
   "tuition": {
     "title": "School Fees",
@@ -196,6 +215,32 @@
       "title": "Congratulations! All bills are paid",
       "message": "Thank you for making payments on time"
     },
+    "paymentExpiredDesc": "Payment time expired. Please create a new payment.",
+    "selectMinOne": "Select at least one bill",
+    "confirmPayment": "Confirm Payment",
+    "willCreatePayment": "You will create payment for {count} bills with total:",
+    "afterConfirm": "After confirmation, you have 5 minutes to complete the transfer.",
+    "yesCreate": "Yes, Create Payment",
+    "paymentCreated": "Payment Created",
+    "completeTransferTime": "Please complete transfer within 5 minutes",
+    "failedCreate": "Failed to create payment",
+    "cancelConfirmTitle": "Cancel Payment?",
+    "cancelConfirmDesc": "Are you sure you want to cancel this payment? You can create a new payment after canceling.",
+    "yesCancel": "Yes, Cancel",
+    "paymentCancelled": "Payment Cancelled",
+    "cancelledSuccess": "Payment cancelled successfully",
+    "failedCancel": "Failed to cancel payment",
+    "copiedTitle": "Copied",
+    "copiedToClipboard": "{label} copied to clipboard",
+    "paidLabel": "Paid:",
+    "backToHome": "Back to Home",
+    "paidBadge": "Paid",
+    "paymentFor": "Payment for",
+    "copy": "Copy",
+    "accountHolder": "a.n.",
+    "accountNoLabel": "Account No. {bank}",
+    "selectAllCount": "Select All ({count} bills)",
+    "guardian": "Guardian:",
     "noHistory": "No transaction history yet",
     "downloadReceipt": "Download Payment Receipt (PDF)",
     "nominal": "Amount",
@@ -229,8 +274,9 @@
     "message": "An unexpected error occurred. Please try again or contact administrator if the problem persists.",
     "goHome": "Go Home",
     "notFound": "Page Not Found",
-    "notFoundMessage": "The page you are looking for does not exist.",
+    "notFoundMessage": "The page you are looking for does not exist or has been moved.",
     "somethingWentWrong": "Something Went Wrong",
+    "goToDashboard": "Go to Dashboard",
     "tryAgain": "Try Again",
     "refreshPage": "Refresh Page"
   },
@@ -572,6 +618,9 @@
       "accountName": "Account Name"
     },
     "refresh": "Refresh"
+  },
+  "header": {
+    "title": "School Tuition"
   },
   "table": {
     "showing": "Showing {from} - {to} of {total}",

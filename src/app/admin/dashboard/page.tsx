@@ -134,7 +134,7 @@ export default function DashboardPage() {
           loading={isLoading}
         />
         <StatCard
-          title="Total Outstanding"
+          title={t("dashboard.totalOutstanding")}
           value={
             <NumberFormatter
               value={stats?.totalOutstanding ?? 0}
@@ -153,14 +153,14 @@ export default function DashboardPage() {
       <SimpleGrid cols={{ base: 1, lg: 2 }}>
         <Card withBorder>
           <Stack gap="md">
-            <Text fw={600}>Collection Progress</Text>
+            <Text fw={600}>{t("dashboard.collectionProgress")}</Text>
             {isLoading ? (
               <Skeleton height={60} />
             ) : (
               <>
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    Overall Collection Rate
+                    {t("dashboard.overallCollectionRate")}
                   </Text>
                   <Text
                     fw={700}
@@ -189,18 +189,21 @@ export default function DashboardPage() {
                 <Group justify="center" gap="xl">
                   <Group gap="xs">
                     <Badge color="green" variant="dot" />
-                    <Text size="sm">Paid: {stats?.tuitionStats.paid ?? 0}</Text>
+                    <Text size="sm">
+                      {t("dashboard.paid")}: {stats?.tuitionStats.paid ?? 0}
+                    </Text>
                   </Group>
                   <Group gap="xs">
                     <Badge color="yellow" variant="dot" />
                     <Text size="sm">
-                      Partial: {stats?.tuitionStats.partial ?? 0}
+                      {t("dashboard.partial")}:{" "}
+                      {stats?.tuitionStats.partial ?? 0}
                     </Text>
                   </Group>
                   <Group gap="xs">
                     <Badge color="red" variant="dot" />
                     <Text size="sm">
-                      Unpaid: {stats?.tuitionStats.unpaid ?? 0}
+                      {t("dashboard.unpaid")}: {stats?.tuitionStats.unpaid ?? 0}
                     </Text>
                   </Group>
                 </Group>
@@ -223,7 +226,7 @@ export default function DashboardPage() {
                     </ThemeIcon>
                     <div>
                       <Text size="xs" c="dimmed">
-                        Employees
+                        {t("dashboard.employees")}
                       </Text>
                       <Text fw={600}>{stats?.totalEmployees ?? 0}</Text>
                     </div>
@@ -236,7 +239,7 @@ export default function DashboardPage() {
                     </ThemeIcon>
                     <div>
                       <Text size="xs" c="dimmed">
-                        Total Tuitions
+                        {t("dashboard.totalTuitions")}
                       </Text>
                       <Text fw={600}>{stats?.tuitionStats.total ?? 0}</Text>
                     </div>
@@ -263,11 +266,11 @@ export default function DashboardPage() {
               <Table striped highlightOnHover>
                 <Table.Thead>
                   <Table.Tr>
-                    <Table.Th>Date</Table.Th>
-                    <Table.Th>Student</Table.Th>
-                    <Table.Th>Class</Table.Th>
-                    <Table.Th ta="right">Amount</Table.Th>
-                    <Table.Th>Processed By</Table.Th>
+                    <Table.Th>{t("dashboard.date")}</Table.Th>
+                    <Table.Th>{t("dashboard.student")}</Table.Th>
+                    <Table.Th>{t("dashboard.class")}</Table.Th>
+                    <Table.Th ta="right">{t("dashboard.amount")}</Table.Th>
+                    <Table.Th>{t("dashboard.processedBy")}</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -310,7 +313,7 @@ export default function DashboardPage() {
                               variant="light"
                               leftSection={<IconGift size={10} />}
                             >
-                              Scholarship:{" "}
+                              {t("admin.scholarships")}:{" "}
                               <NumberFormatter
                                 value={Number(payment.scholarshipAmount)}
                                 prefix="Rp "
@@ -348,7 +351,7 @@ export default function DashboardPage() {
             </Table.ScrollContainer>
           ) : (
             <Text c="dimmed" ta="center" py="md">
-              No recent payments
+              {t("dashboard.noRecentPayments")}
             </Text>
           )}
         </Stack>

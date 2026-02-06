@@ -230,12 +230,16 @@ export default function StudentDashboardPage() {
                   <Box>
                     <Title order={5}>{group.className}</Title>
                     <Text size="sm" c="dimmed">
-                      {t("dashboard.academicYear", { year: group.academicYear })}
+                      {t("dashboard.academicYear", {
+                        year: group.academicYear,
+                      })}
                     </Text>
                   </Box>
                   <Badge
                     color={
-                      group.tuitions.every((tuition) => tuition.status === "PAID")
+                      group.tuitions.every(
+                        (tuition) => tuition.status === "PAID",
+                      )
                         ? "green"
                         : "orange"
                     }
@@ -340,7 +344,9 @@ export default function StudentDashboardPage() {
                           <Table.Th>{t("tuition.period")}</Table.Th>
                           <Table.Th ta="right">{t("tuition.fee")}</Table.Th>
                           <Table.Th ta="right">{t("tuition.paid")}</Table.Th>
-                          <Table.Th ta="right">{t("tuition.remaining")}</Table.Th>
+                          <Table.Th ta="right">
+                            {t("tuition.remaining")}
+                          </Table.Th>
                           <Table.Th>{t("tuition.dueDate")}</Table.Th>
                           <Table.Th>{t("common.status")}</Table.Th>
                         </Table.Tr>

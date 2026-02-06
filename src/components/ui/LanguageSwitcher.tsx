@@ -28,7 +28,8 @@ export function LanguageSwitcher({
   };
 
   const label = locale === "id" ? "EN" : "ID";
-  const tooltipLabel = locale === "id" ? "Switch to English" : "Ganti ke Indonesia";
+  const tooltipLabel =
+    locale === "id" ? "Switch to English" : "Ganti ke Indonesia";
 
   return (
     <Tooltip label={tooltipLabel}>

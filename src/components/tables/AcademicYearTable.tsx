@@ -85,7 +85,10 @@ export default function AcademicYearTable() {
           })}
         </Text>
       ),
-      labels: { confirm: t("academicYear.setActive"), cancel: t("common.cancel") },
+      labels: {
+        confirm: t("academicYear.setActive"),
+        cancel: t("common.cancel"),
+      },
       confirmProps: { color: "blue" },
       onConfirm: () => {
         setActive.mutate(id, {
@@ -164,7 +167,13 @@ export default function AcademicYearTable() {
                   </Table.Td>
                   <Table.Td>
                     <Group gap="xs">
-                      <Tooltip label={ay.isActive ? t("academicYear.active") : t("academicYear.setActive")}>
+                      <Tooltip
+                        label={
+                          ay.isActive
+                            ? t("academicYear.active")
+                            : t("academicYear.setActive")
+                        }
+                      >
                         <ActionIcon
                           variant="subtle"
                           color={ay.isActive ? "yellow" : "gray"}

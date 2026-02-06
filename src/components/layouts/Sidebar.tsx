@@ -1,6 +1,6 @@
 "use client";
 
-import { NavLink } from "@mantine/core";
+import { NavLink, Stack, Text } from "@mantine/core";
 import {
   IconAlertTriangle,
   IconBuilding,
@@ -130,42 +130,47 @@ export default function Sidebar() {
   };
 
   return (
-    <nav>
-      {links.map((link) => {
-        if (link.children) {
+    <Stack justify="space-between" h="100%">
+      <nav>
+        {links.map((link) => {
+          if (link.children) {
+            return (
+              <NavLink
+                key={link.label}
+                label={link.label}
+                leftSection={<link.icon size={20} />}
+                defaultOpened={hasActiveChild(link.children)}
+                childrenOffset={28}
+              >
+                {link.children.map((child) => (
+                  <NavLink
+                    key={child.href}
+                    component={Link}
+                    href={child.href!}
+                    label={child.label}
+                    leftSection={<child.icon size={18} />}
+                    active={isActive(child.href!)}
+                  />
+                ))}
+              </NavLink>
+            );
+          }
+
           return (
             <NavLink
-              key={link.label}
+              key={link.href}
+              component={Link}
+              href={link.href!}
               label={link.label}
               leftSection={<link.icon size={20} />}
-              defaultOpened={hasActiveChild(link.children)}
-              childrenOffset={28}
-            >
-              {link.children.map((child) => (
-                <NavLink
-                  key={child.href}
-                  component={Link}
-                  href={child.href!}
-                  label={child.label}
-                  leftSection={<child.icon size={18} />}
-                  active={isActive(child.href!)}
-                />
-              ))}
-            </NavLink>
+              active={isActive(link.href!)}
+            />
           );
-        }
-
-        return (
-          <NavLink
-            key={link.href}
-            component={Link}
-            href={link.href!}
-            label={link.label}
-            leftSection={<link.icon size={20} />}
-            active={isActive(link.href!)}
-          />
-        );
-      })}
-    </nav>
+        })}
+      </nav>
+      <Text size="xs" c="dimmed" ta="center" py="sm">
+        v{process.env.APP_VERSION}
+      </Text>
+    </Stack>
   );
 }
