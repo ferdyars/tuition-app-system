@@ -28,6 +28,7 @@ import {
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { PaymentStatus } from "@/generated/prisma/client";
 import { useCreatePayment } from "@/hooks/api/usePayments";
 import { useStudents } from "@/hooks/api/useStudents";
@@ -53,6 +54,7 @@ interface PaymentResult {
 }
 
 export default function PaymentForm() {
+  const t = useTranslations();
   const router = useRouter();
   const [studentNis, setStudentNis] = useState<string | null>(null);
   const [tuitionId, setTuitionId] = useState<string | null>(null);
@@ -106,8 +108,8 @@ export default function PaymentForm() {
   const handleSubmit = () => {
     if (!tuitionId || !amount) {
       notifications.show({
-        title: "Validation Error",
-        message: "Please select a tuition and enter an amount",
+        title: t("common.validationError"),
+        message: t("payment.validationTuitionAmount"),
         color: "red",
       });
       return;
@@ -123,8 +125,10 @@ export default function PaymentForm() {
         onSuccess: (data) => {
           setResult(data);
           notifications.show({
-            title: "Payment Successful",
-            message: `Payment of Rp ${Number(amount).toLocaleString("id-ID")} processed`,
+            title: t("payment.paymentSuccessful"),
+            message: t("payment.paymentSuccessMessage", {
+              amount: Number(amount).toLocaleString("id-ID"),
+            }),
             color: "green",
           });
           // Reset form for next payment
@@ -134,7 +138,7 @@ export default function PaymentForm() {
         },
         onError: (error) => {
           notifications.show({
-            title: "Payment Failed",
+            title: t("payment.paymentFailed"),
             message: error.message,
             color: "red",
           });
@@ -170,8 +174,8 @@ export default function PaymentForm() {
     <Paper withBorder p="lg" maw={700}>
       <Stack gap="md">
         <Select
-          label="Select Student"
-          placeholder="Search student by NIS or name"
+          label={t("payment.selectStudentLabel")}
+          placeholder={t("payment.searchStudentPlaceholder")}
           leftSection={<IconUser size={18} />}
           data={studentOptions}
           value={studentNis}
@@ -187,8 +191,8 @@ export default function PaymentForm() {
 
         {studentNis && (
           <Select
-            label="Select Tuition"
-            placeholder="Select unpaid tuition"
+            label={t("payment.selectTuitionLabel")}
+            placeholder={t("payment.selectUnpaid")}
             leftSection={<IconReceipt size={18} />}
             data={tuitionOptions}
             value={tuitionId}
@@ -206,7 +210,7 @@ export default function PaymentForm() {
         {unpaidTuitions.length === 0 && studentNis && !loadingTuitions && (
           <Alert icon={<IconCheck size={18} />} color="green" variant="light">
             <Text size="sm">
-              This student has no unpaid tuitions. All payments are complete!
+              {t("payment.allComplete")}
             </Text>
           </Alert>
         )}
@@ -215,12 +219,12 @@ export default function PaymentForm() {
           <Card withBorder>
             <Stack gap="sm">
               <Text size="sm" fw={600}>
-                Tuition Details
+                {t("payment.tuitionDetails")}
               </Text>
               <SimpleGrid cols={2}>
                 <div>
                   <Text size="xs" c="dimmed">
-                    Class
+                    {t("payment.classLabel")}
                   </Text>
                   <Text size="sm">
                     {selectedTuition.classAcademic?.className}
@@ -228,7 +232,7 @@ export default function PaymentForm() {
                 </div>
                 <div>
                   <Text size="xs" c="dimmed">
-                    Period
+                    {t("payment.periodLabel")}
                   </Text>
                   <Text size="sm">
                     {getPeriodDisplayName(selectedTuition.period)}{" "}
@@ -237,7 +241,7 @@ export default function PaymentForm() {
                 </div>
                 <div>
                   <Text size="xs" c="dimmed">
-                    Fee Amount
+                    {t("payment.feeAmountLabel")}
                   </Text>
                   <Text size="sm" fw={600}>
                     <NumberFormatter
@@ -250,7 +254,7 @@ export default function PaymentForm() {
                 </div>
                 <div>
                   <Text size="xs" c="dimmed">
-                    Already Paid
+                    {t("payment.alreadyPaid")}
                   </Text>
                   <Text size="sm" c="green">
                     <NumberFormatter
@@ -272,8 +276,10 @@ export default function PaymentForm() {
                     variant="light"
                     title={
                       selectedTuition.scholarshipSummary.hasFullScholarship
-                        ? "Full Scholarship"
-                        : `${selectedTuition.scholarshipSummary.count} Scholarship${selectedTuition.scholarshipSummary.count > 1 ? "s" : ""} Applied`
+                        ? t("payment.fullScholarship")
+                        : t("payment.scholarshipsApplied", {
+                            count: selectedTuition.scholarshipSummary.count,
+                          })
                     }
                   >
                     <Stack gap="xs">
@@ -307,7 +313,7 @@ export default function PaymentForm() {
                           }}
                         >
                           <Text size="sm" fw={600}>
-                            Total Scholarship:
+                            {t("payment.totalScholarship")}
                           </Text>
                           <Text size="sm" fw={600} c="teal">
                             -
@@ -333,7 +339,7 @@ export default function PaymentForm() {
                     icon={<IconDiscount size={18} />}
                     color="green"
                     variant="light"
-                    title="Discount Applied"
+                    title={t("payment.discountAppliedTitle")}
                   >
                     <Stack gap="xs">
                       <Group justify="space-between">
@@ -363,7 +369,7 @@ export default function PaymentForm() {
                 <Card withBorder bg="gray.0" p="sm">
                   <Stack gap="xs">
                     <Group justify="space-between">
-                      <Text size="sm">Original Fee:</Text>
+                      <Text size="sm">{t("payment.originalFee")}</Text>
                       <Text size="sm" td="line-through" c="dimmed">
                         <NumberFormatter
                           value={selectedTuition.feeAmount}
@@ -375,7 +381,7 @@ export default function PaymentForm() {
                     </Group>
                     <Group justify="space-between">
                       <Text size="sm" fw={600}>
-                        Amount to Pay:
+                        {t("payment.amountToPay")}
                       </Text>
                       <Text size="sm" fw={600} c="blue">
                         <NumberFormatter
@@ -393,7 +399,7 @@ export default function PaymentForm() {
               <div>
                 <Group justify="space-between" mb={4}>
                   <Text size="xs" c="dimmed">
-                    Payment Progress
+                    {t("payment.paymentProgress")}
                   </Text>
                   <Text size="xs" c="dimmed">
                     {paidPercentage.toFixed(0)}%
@@ -403,7 +409,7 @@ export default function PaymentForm() {
               </div>
               <Group justify="space-between">
                 <Text size="sm" fw={600} c="red">
-                  Remaining:{" "}
+                  {t("payment.remainingLabel")}{" "}
                   <NumberFormatter
                     value={remainingAmount}
                     prefix="Rp "
@@ -416,7 +422,7 @@ export default function PaymentForm() {
                     selectedTuition.status === "PARTIAL" ? "yellow" : "red"
                   }
                 >
-                  {selectedTuition.status}
+                  {t(`tuition.status.${selectedTuition.status.toLowerCase()}`)}
                 </Badge>
               </Group>
             </Stack>
@@ -427,8 +433,8 @@ export default function PaymentForm() {
           <>
             <Group align="flex-end">
               <NumberInput
-                label="Payment Amount"
-                placeholder="Enter payment amount"
+                label={t("payment.paymentAmountLabel")}
+                placeholder={t("payment.paymentAmountPlaceholder")}
                 value={amount}
                 onChange={setAmount}
                 min={1}
@@ -440,13 +446,13 @@ export default function PaymentForm() {
                 style={{ flex: 1 }}
               />
               <Button variant="light" onClick={handlePayFull}>
-                Pay Full
+                {t("payment.payFull")}
               </Button>
             </Group>
 
             <Textarea
-              label="Notes (Optional)"
-              placeholder="Payment notes..."
+              label={t("payment.notesOptional")}
+              placeholder={t("payment.notesPlaceholder")}
               value={notes}
               onChange={(e) => setNotes(e.currentTarget.value)}
               rows={2}
@@ -459,10 +465,10 @@ export default function PaymentForm() {
             >
               <Text size="sm">
                 {Number(amount) >= remainingAmount
-                  ? "This payment will mark the tuition as PAID."
+                  ? t("payment.willMarkPaid")
                   : Number(amount) > 0
-                    ? "This will be recorded as a partial payment."
-                    : "Enter the payment amount to proceed."}
+                    ? t("payment.partialPaymentNote")
+                    : t("payment.enterAmountNote")}
               </Text>
             </Alert>
 
@@ -473,10 +479,10 @@ export default function PaymentForm() {
                 loading={createPayment.isPending}
                 disabled={!amount || Number(amount) <= 0}
               >
-                Process Payment
+                {t("payment.processPayment")}
               </Button>
               <Button variant="light" onClick={() => router.push("/payments")}>
-                View Payments
+                {t("payment.viewPayments")}
               </Button>
             </Group>
           </>
@@ -486,7 +492,7 @@ export default function PaymentForm() {
           <Alert
             icon={<IconCheck size={18} />}
             color="green"
-            title="Payment Processed"
+            title={t("payment.paymentProcessed")}
           >
             <Stack gap="xs">
               <Group gap="md">
@@ -496,22 +502,22 @@ export default function PaymentForm() {
                   }
                   size="lg"
                 >
-                  {result.result.newStatus}
+                  {t(`tuition.status.${result.result.newStatus.toLowerCase()}`)}
                 </Badge>
                 {result.result.scholarshipAmount > 0 && (
                   <Badge color="teal" variant="light" size="lg">
-                    Scholarship Applied
+                    {t("payment.scholarshipAppliedBadge")}
                   </Badge>
                 )}
                 {result.result.discountAmount > 0 && (
                   <Badge color="green" variant="light" size="lg">
-                    Discount Applied
+                    {t("payment.discountAppliedBadge")}
                   </Badge>
                 )}
               </Group>
               <SimpleGrid cols={2}>
                 <Text size="sm">
-                  Total Paid:{" "}
+                  {t("payment.totalPaidResult")}{" "}
                   <NumberFormatter
                     value={result.result.newPaidAmount}
                     prefix="Rp "
@@ -520,7 +526,7 @@ export default function PaymentForm() {
                   />
                 </Text>
                 <Text size="sm">
-                  Remaining:{" "}
+                  {t("payment.remainingLabel")}{" "}
                   <NumberFormatter
                     value={result.result.remainingAmount}
                     prefix="Rp "
@@ -532,7 +538,7 @@ export default function PaymentForm() {
                   result.result.discountAmount > 0) && (
                   <>
                     <Text size="sm" c="dimmed">
-                      Original Fee:{" "}
+                      {t("payment.originalFeeResult")}{" "}
                       <NumberFormatter
                         value={result.result.feeAmount}
                         prefix="Rp "
@@ -541,7 +547,7 @@ export default function PaymentForm() {
                       />
                     </Text>
                     <Text size="sm" c="dimmed">
-                      Effective Fee:{" "}
+                      {t("payment.effectiveFee")}{" "}
                       <NumberFormatter
                         value={result.result.effectiveFeeAmount}
                         prefix="Rp "
@@ -551,7 +557,7 @@ export default function PaymentForm() {
                     </Text>
                     {result.result.scholarshipAmount > 0 && (
                       <Text size="sm" c="teal">
-                        Scholarship: -
+                        {t("payment.scholarshipDeduction")} -
                         <NumberFormatter
                           value={result.result.scholarshipAmount}
                           prefix="Rp "
@@ -562,7 +568,7 @@ export default function PaymentForm() {
                     )}
                     {result.result.discountAmount > 0 && (
                       <Text size="sm" c="green">
-                        Discount: -
+                        {t("payment.discountDeduction")} -
                         <NumberFormatter
                           value={result.result.discountAmount}
                           prefix="Rp "

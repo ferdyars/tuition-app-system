@@ -22,6 +22,7 @@ import {
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import { useClassAcademics } from "@/hooks/api/useClassAcademics";
 import { useCreateScholarship } from "@/hooks/api/useScholarships";
@@ -42,16 +43,8 @@ interface CreationResult {
   };
 }
 
-const SCHOLARSHIP_TYPES = [
-  { value: "Academic", label: "Academic Scholarship" },
-  { value: "Sports", label: "Sports Scholarship" },
-  { value: "Arts", label: "Arts Scholarship" },
-  { value: "Need-based", label: "Need-based Scholarship" },
-  { value: "Merit", label: "Merit Scholarship" },
-  { value: "Other", label: "Other" },
-];
-
 export default function ScholarshipForm() {
+  const t = useTranslations();
   const router = useRouter();
   const [academicYearId, setAcademicYearId] = useState<string | null>(null);
   const [classAcademicId, setClassAcademicId] = useState<string | null>(null);
@@ -61,6 +54,15 @@ export default function ScholarshipForm() {
   );
   const [nominal, setNominal] = useState<number | string>(500000);
   const [result, setResult] = useState<CreationResult | null>(null);
+
+  const SCHOLARSHIP_TYPES = [
+    { value: "Academic", label: t("scholarship.scholarshipTypes.Academic") },
+    { value: "Sports", label: t("scholarship.scholarshipTypes.Sports") },
+    { value: "Arts", label: t("scholarship.scholarshipTypes.Arts") },
+    { value: "Need-based", label: t("scholarship.scholarshipTypes.NeedBased") },
+    { value: "Merit", label: t("scholarship.scholarshipTypes.Merit") },
+    { value: "Other", label: t("scholarship.scholarshipTypes.Other") },
+  ];
 
   const { data: academicYearsData, isLoading: loadingYears } = useAcademicYears(
     {
@@ -94,8 +96,8 @@ export default function ScholarshipForm() {
   const handleSubmit = () => {
     if (!studentNis || !classAcademicId || !nominal || !scholarshipName) {
       notifications.show({
-        title: "Validation Error",
-        message: "Please fill in all required fields",
+        title: t("common.validationError"),
+        message: t("common.fillRequired"),
         color: "red",
       });
       return;
@@ -112,16 +114,18 @@ export default function ScholarshipForm() {
         onSuccess: (data) => {
           setResult(data);
           notifications.show({
-            title: "Scholarship Created",
+            title: t("scholarship.createdTitle"),
             message: data.applicationResult?.tuitionsAffected
-              ? `Scholarship created and ${data.applicationResult.tuitionsAffected} tuitions auto-paid`
-              : "Scholarship created successfully",
+              ? t("scholarship.createdAndAutoPaid", {
+                  count: data.applicationResult.tuitionsAffected,
+                })
+              : t("scholarship.createSuccess"),
             color: "green",
           });
         },
         onError: (error) => {
           notifications.show({
-            title: "Error",
+            title: t("common.error"),
             message: error.message,
             color: "red",
           });
@@ -133,7 +137,7 @@ export default function ScholarshipForm() {
   const academicYearOptions =
     academicYearsData?.academicYears.map((ay) => ({
       value: ay.id,
-      label: `${ay.year}${ay.isActive ? " (Active)" : ""}`,
+      label: `${ay.year}${ay.isActive ? ` (${t("academicYear.statuses.active")})` : ""}`,
     })) || [];
 
   const classOptions =
@@ -152,8 +156,8 @@ export default function ScholarshipForm() {
     <Paper withBorder p="lg" maw={600}>
       <Stack gap="md">
         <Select
-          label="Academic Year"
-          placeholder="Select academic year"
+          label={t("class.academicYear")}
+          placeholder={t("scholarship.selectAcademicYear")}
           data={academicYearOptions}
           value={academicYearId}
           onChange={(value) => {
@@ -165,8 +169,8 @@ export default function ScholarshipForm() {
         />
 
         <Select
-          label="Class"
-          placeholder="Select class"
+          label={t("class.title")}
+          placeholder={t("scholarship.selectClass")}
           data={classOptions}
           value={classAcademicId}
           onChange={setClassAcademicId}
@@ -176,8 +180,8 @@ export default function ScholarshipForm() {
         />
 
         <Select
-          label="Student"
-          placeholder="Select student"
+          label={t("scholarship.student")}
+          placeholder={t("scholarship.selectStudent")}
           data={studentOptions}
           value={studentNis}
           onChange={setStudentNis}
@@ -187,8 +191,8 @@ export default function ScholarshipForm() {
         />
 
         <Select
-          label="Scholarship Type"
-          placeholder="Select scholarship type"
+          label={t("scholarship.scholarshipType")}
+          placeholder={t("scholarship.selectType")}
           data={SCHOLARSHIP_TYPES}
           value={scholarshipName}
           onChange={setScholarshipName}
@@ -202,14 +206,14 @@ export default function ScholarshipForm() {
             <Group gap="xs" mb="xs">
               <IconInfoCircle size={18} color="var(--mantine-color-blue-6)" />
               <Text size="sm" fw={600}>
-                Class Tuition Reference
+                {t("scholarship.tuitionReference")}
               </Text>
             </Group>
             {classTuitionFee ? (
               <Stack gap="xs">
                 <Group justify="space-between">
                   <Text size="sm" c="dimmed">
-                    Monthly Tuition Fee:
+                    {t("scholarship.monthlyTuitionFee")}
                   </Text>
                   <Text size="sm" fw={600}>
                     <NumberFormatter
@@ -221,25 +225,25 @@ export default function ScholarshipForm() {
                   </Text>
                 </Group>
                 <Text size="xs" c="dimmed">
-                  Set scholarship nominal up to this amount for full
-                  scholarship, or less for partial scholarship.
+                  {t("scholarship.nominalHint")}
                 </Text>
               </Stack>
             ) : (
               <Text size="sm" c="dimmed">
-                No tuitions generated yet for this class. Create tuitions first
-                to see the fee amount.
+                {t("scholarship.noTuitions")}
               </Text>
             )}
           </Card>
         )}
 
         <NumberInput
-          label="Scholarship Nominal (Monthly)"
-          placeholder="Enter scholarship amount"
+          label={t("scholarship.nominal")}
+          placeholder={t("scholarship.nominalPlaceholder")}
           description={
             classTuitionFee
-              ? `Max: Rp ${classTuitionFee.toLocaleString("id-ID")} (full scholarship)`
+              ? t("scholarship.maxNominal", {
+                  amount: classTuitionFee.toLocaleString("id-ID"),
+                })
               : undefined
           }
           value={nominal}
@@ -267,20 +271,15 @@ export default function ScholarshipForm() {
             <Text size="sm">
               {Number(nominal) >= classTuitionFee ? (
                 <>
-                  <strong>Full Scholarship:</strong> All unpaid tuitions for
-                  this student in this class will be automatically marked as
-                  paid.
+                  <strong>{t("scholarship.fullScholarshipLabel")}</strong>{" "}
+                  {t("scholarship.fullScholarshipDesc")}
                 </>
               ) : (
                 <>
-                  <strong>Partial Scholarship:</strong> Student will pay{" "}
-                  <NumberFormatter
-                    value={classTuitionFee - Number(nominal)}
-                    prefix="Rp "
-                    thousandSeparator="."
-                    decimalSeparator=","
-                  />{" "}
-                  per month (original fee minus scholarship).
+                  <strong>{t("scholarship.partialScholarshipLabel")}</strong>{" "}
+                  {t("scholarship.partialScholarshipDesc", {
+                    amount: `Rp ${(classTuitionFee - Number(nominal)).toLocaleString("id-ID")}`,
+                  })}
                 </>
               )}
             </Text>
@@ -294,8 +293,7 @@ export default function ScholarshipForm() {
             variant="light"
           >
             <Text size="sm">
-              Select a class with generated tuitions to see fee reference and
-              automatically determine if this is a full or partial scholarship.
+              {t("scholarship.selectClassHint")}
             </Text>
           </Alert>
         )}
@@ -307,10 +305,10 @@ export default function ScholarshipForm() {
             loading={createScholarship.isPending}
             disabled={!studentNis || !classAcademicId || !nominal}
           >
-            Create Scholarship
+            {t("scholarship.createButton")}
           </Button>
           <Button variant="light" onClick={() => router.push("/scholarships")}>
-            View Scholarships
+            {t("scholarship.viewList")}
           </Button>
         </Group>
 
@@ -318,7 +316,7 @@ export default function ScholarshipForm() {
           <Alert
             icon={<IconCheck size={18} />}
             color="green"
-            title="Scholarship Created"
+            title={t("scholarship.createdTitle")}
           >
             <Stack gap="xs">
               <Group gap="md">
@@ -328,14 +326,17 @@ export default function ScholarshipForm() {
                   }
                   size="lg"
                 >
-                  {result.scholarship.isFullScholarship ? "Full" : "Partial"}{" "}
-                  Scholarship
+                  {result.scholarship.isFullScholarship
+                    ? t("scholarship.full")
+                    : t("scholarship.partial")}{" "}
+                  {t("scholarship.title")}
                 </Badge>
               </Group>
               {result.applicationResult && (
                 <Text size="sm">
-                  Auto-paid {result.applicationResult.tuitionsAffected} tuition
-                  records
+                  {t("scholarship.autoPaid", {
+                    count: result.applicationResult.tuitionsAffected,
+                  })}
                 </Text>
               )}
             </Stack>

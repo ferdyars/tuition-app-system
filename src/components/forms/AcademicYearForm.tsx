@@ -3,6 +3,7 @@
 import { Button, Checkbox, Stack, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
+import { useTranslations } from "next-intl";
 
 interface AcademicYearFormValues {
   year: string;
@@ -34,6 +35,8 @@ export default function AcademicYearForm({
   isLoading,
   isEdit,
 }: AcademicYearFormProps) {
+  const t = useTranslations();
+
   const form = useForm<AcademicYearFormValues>({
     initialValues: {
       year: initialData?.year || "",
@@ -45,15 +48,17 @@ export default function AcademicYearForm({
     },
     validate: {
       year: (value) => {
-        if (!value) return "Year is required";
+        if (!value) return t("academicYear.yearRequired");
         if (!/^\d{4}\/\d{4}$/.test(value))
-          return "Format must be YYYY/YYYY (e.g., 2024/2025)";
+          return t("academicYear.yearFormat");
         const [start, end] = value.split("/").map(Number);
-        if (end !== start + 1) return "End year must be start year + 1";
+        if (end !== start + 1) return t("academicYear.yearEndMismatch");
         return null;
       },
-      startDate: (value) => (!value ? "Start date is required" : null),
-      endDate: (value) => (!value ? "End date is required" : null),
+      startDate: (value) =>
+        !value ? t("academicYear.startDateRequired") : null,
+      endDate: (value) =>
+        !value ? t("academicYear.endDateRequired") : null,
     },
   });
 
@@ -81,33 +86,33 @@ export default function AcademicYearForm({
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack gap="md">
         <TextInput
-          label="Academic Year"
-          placeholder="2024/2025"
+          label={t("academicYear.name")}
+          placeholder={t("academicYear.yearPlaceholder")}
           required
           disabled={isEdit}
           {...form.getInputProps("year")}
           onChange={(e) => handleYearChange(e.currentTarget.value)}
         />
         <DatePickerInput
-          label="Start Date"
+          label={t("academicYear.startDate")}
           placeholder="DD/MM/YYYY"
           required
           valueFormat="DD/MM/YYYY"
           {...form.getInputProps("startDate")}
         />
         <DatePickerInput
-          label="End Date"
+          label={t("academicYear.endDate")}
           placeholder="DD/MM/YYYY"
           required
           valueFormat="DD/MM/YYYY"
           {...form.getInputProps("endDate")}
         />
         <Checkbox
-          label="Set as active academic year"
+          label={t("academicYear.setAsActive")}
           {...form.getInputProps("isActive", { type: "checkbox" })}
         />
         <Button type="submit" loading={isLoading}>
-          {isEdit ? "Update Academic Year" : "Create Academic Year"}
+          {isEdit ? t("common.update") : t("common.create")}
         </Button>
       </Stack>
     </form>

@@ -19,6 +19,7 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconFilter, IconSearch, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { PaymentStatus } from "@/generated/prisma/client";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
@@ -36,6 +37,7 @@ const STATUS_COLORS: Record<PaymentStatus, string> = {
 };
 
 export default function TuitionTable() {
+  const t = useTranslations();
   const [page, setPage] = useState(1);
   const [classAcademicId, setClassAcademicId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -63,27 +65,30 @@ export default function TuitionTable() {
 
   const handleDelete = (id: string, studentName: string, monthName: string) => {
     modals.openConfirmModal({
-      title: "Delete Tuition",
+      title: t("tuition.deleteTitle"),
       children: (
         <Text size="sm">
-          Are you sure you want to delete the {monthName} tuition for{" "}
-          <strong>{studentName}</strong>? This action cannot be undone.
+          {t.rich("tuition.deleteConfirm", {
+            period: monthName,
+            name: studentName,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
+      labels: { confirm: t("common.delete"), cancel: t("common.cancel") },
       confirmProps: { color: "red" },
       onConfirm: () => {
         deleteTuition.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Deleted",
-              message: "Tuition deleted successfully",
+              title: t("common.deleted"),
+              message: t("tuition.deleteSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -102,21 +107,21 @@ export default function TuitionTable() {
   // Build period options grouped by frequency type
   const periodOptions = [
     {
-      group: "Monthly",
+      group: t("tuition.monthly"),
       items: PERIODS.MONTHLY.map((p) => ({
         value: p,
         label: getPeriodDisplayName(p),
       })),
     },
     {
-      group: "Quarterly",
+      group: t("tuition.quarterly"),
       items: PERIODS.QUARTERLY.map((p) => ({
         value: p,
         label: getPeriodDisplayName(p),
       })),
     },
     {
-      group: "Semester",
+      group: t("tuition.semester"),
       items: PERIODS.SEMESTER.map((p) => ({
         value: p,
         label: getPeriodDisplayName(p),
@@ -129,7 +134,7 @@ export default function TuitionTable() {
       <Paper withBorder p="md">
         <Group gap="md" grow>
           <Select
-            placeholder="Filter by class"
+            placeholder={t("tuition.filterByClass")}
             leftSection={<IconFilter size={16} />}
             data={classOptions}
             value={classAcademicId}
@@ -138,18 +143,18 @@ export default function TuitionTable() {
             searchable
           />
           <Select
-            placeholder="Filter by status"
+            placeholder={t("tuition.filterByStatus")}
             data={[
-              { value: "UNPAID", label: "Unpaid" },
-              { value: "PARTIAL", label: "Partial" },
-              { value: "PAID", label: "Paid" },
+              { value: "UNPAID", label: t("tuition.status.unpaid") },
+              { value: "PARTIAL", label: t("tuition.status.partial") },
+              { value: "PAID", label: t("tuition.status.paid") },
             ]}
             value={status}
             onChange={setStatus}
             clearable
           />
           <Select
-            placeholder="Filter by period"
+            placeholder={t("tuition.filterByPeriod")}
             data={periodOptions}
             value={period}
             onChange={setPeriod}
@@ -157,7 +162,7 @@ export default function TuitionTable() {
             searchable
           />
           <TextInput
-            placeholder="Search student NIS"
+            placeholder={t("tuition.searchStudent")}
             leftSection={<IconSearch size={16} />}
             value={studentSearch}
             onChange={(e) => setStudentSearch(e.currentTarget.value)}
@@ -170,21 +175,21 @@ export default function TuitionTable() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Student</Table.Th>
-                <Table.Th>Class</Table.Th>
-                <Table.Th>Period</Table.Th>
+                <Table.Th>{t("tuition.student")}</Table.Th>
+                <Table.Th>{t("tuition.class")}</Table.Th>
+                <Table.Th>{t("tuition.period")}</Table.Th>
                 <Table.Th ta="right" align="right">
-                  Fee Amount
+                  {t("tuition.feeAmount")}
                 </Table.Th>
                 <Table.Th ta="right" align="right">
-                  Discount Amount
+                  {t("tuition.discountAmount")}
                 </Table.Th>
                 <Table.Th ta="right" align="right">
-                  Paid Amount
+                  {t("tuition.paidAmount")}
                 </Table.Th>
-                <Table.Th>Due Date</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th w={80}>Actions</Table.Th>
+                <Table.Th>{t("tuition.dueDate")}</Table.Th>
+                <Table.Th>{t("common.status")}</Table.Th>
+                <Table.Th w={80}>{t("common.actions")}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -202,7 +207,7 @@ export default function TuitionTable() {
                 <Table.Tr>
                   <Table.Td colSpan={9}>
                     <Text ta="center" c="dimmed" py="md">
-                      No tuitions found
+                      {t("tuition.notFound")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -272,12 +277,12 @@ export default function TuitionTable() {
                       color={STATUS_COLORS[tuition.status]}
                       variant="light"
                     >
-                      {tuition.status}
+                      {t(`tuition.status.${tuition.status.toLowerCase()}`)}
                     </Badge>
                   </Table.Td>
                   <Table.Td>
                     <Group gap="xs">
-                      <Tooltip label="Delete">
+                      <Tooltip label={t("common.delete")}>
                         <ActionIcon
                           variant="subtle"
                           color="red"

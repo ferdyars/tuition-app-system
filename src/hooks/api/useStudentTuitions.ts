@@ -30,10 +30,19 @@ interface TuitionsResponse {
 export function useStudentTuitions() {
   return useQuery({
     queryKey: queryKeys.studentTuitions.list(),
+    retryOnMount: false,
     queryFn: async () => {
       const { data } =
         await studentApiClient.get<TuitionsResponse>("/student/tuitions");
       return data.data.tuitions;
+    },
+    staleTime: (query) => {
+      if (
+        query.state.data?.every((tuition) => tuition.pendingPaymentId === null)
+      ) {
+        return Infinity;
+      }
+      return 0;
     },
   });
 }

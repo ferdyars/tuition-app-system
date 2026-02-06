@@ -25,6 +25,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import { useClassAcademics } from "@/hooks/api/useClassAcademics";
@@ -33,6 +34,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getMonthDisplayName } from "@/lib/business-logic/tuition-generator";
 
 export default function PaymentTable() {
+  const t = useTranslations();
   const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [classAcademicId, setClassAcademicId] = useState<string | null>(null);
@@ -61,40 +63,38 @@ export default function PaymentTable() {
 
   const handleDelete = (id: string, studentName: string, amount: string) => {
     modals.openConfirmModal({
-      title: "Reverse Payment",
+      title: t("payment.reverseTitle"),
       children: (
         <Stack gap="xs">
           <Text size="sm">
-            Are you sure you want to reverse the payment of{" "}
-            <strong>
-              <NumberFormatter
-                value={amount}
-                prefix="Rp "
-                thousandSeparator="."
-                decimalSeparator=","
-              />
-            </strong>{" "}
-            for <strong>{studentName}</strong>?
+            {t.rich("payment.reverseConfirm", {
+              amount: `Rp ${Number(amount).toLocaleString("id-ID")}`,
+              name: studentName,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </Text>
           <Text size="sm" c="red">
-            This will update the tuition status accordingly.
+            {t("payment.reverseNote")}
           </Text>
         </Stack>
       ),
-      labels: { confirm: "Reverse Payment", cancel: "Cancel" },
+      labels: {
+        confirm: t("payment.reverseButton"),
+        cancel: t("common.cancel"),
+      },
       confirmProps: { color: "red" },
       onConfirm: () => {
         deletePayment.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Payment Reversed",
-              message: "Payment has been reversed successfully",
+              title: t("payment.reversed"),
+              message: t("payment.reverseSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -117,7 +117,7 @@ export default function PaymentTable() {
       <Paper withBorder p="md">
         <Group gap="md" grow>
           <Select
-            placeholder="Filter by class"
+            placeholder={t("tuition.filterByClass")}
             leftSection={<IconFilter size={16} />}
             data={classOptions}
             value={classAcademicId}
@@ -126,20 +126,20 @@ export default function PaymentTable() {
             searchable
           />
           <TextInput
-            placeholder="Search student NIS"
+            placeholder={t("payment.searchStudent")}
             leftSection={<IconSearch size={16} />}
             value={studentSearch}
             onChange={(e) => setStudentSearch(e.currentTarget.value)}
           />
           <TextInput
             type="date"
-            placeholder="From date"
+            placeholder={t("payment.fromDate")}
             value={dateFrom}
             onChange={(e) => setDateFrom(e.currentTarget.value)}
           />
           <TextInput
             type="date"
-            placeholder="To date"
+            placeholder={t("payment.toDate")}
             value={dateTo}
             onChange={(e) => setDateTo(e.currentTarget.value)}
           />
@@ -151,16 +151,16 @@ export default function PaymentTable() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Date</Table.Th>
-                <Table.Th>Student</Table.Th>
-                <Table.Th>Class</Table.Th>
-                <Table.Th>Month</Table.Th>
+                <Table.Th>{t("common.date")}</Table.Th>
+                <Table.Th>{t("tuition.student")}</Table.Th>
+                <Table.Th>{t("tuition.class")}</Table.Th>
+                <Table.Th>{t("payment.month")}</Table.Th>
                 <Table.Th ta="right" align="right">
-                  Amount
+                  {t("common.amount")}
                 </Table.Th>
-                <Table.Th>Cashier</Table.Th>
-                <Table.Th>Status</Table.Th>
-                {isAdmin && <Table.Th w={80}>Actions</Table.Th>}
+                <Table.Th>{t("payment.cashier")}</Table.Th>
+                <Table.Th>{t("common.status")}</Table.Th>
+                {isAdmin && <Table.Th w={80}>{t("common.actions")}</Table.Th>}
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -178,7 +178,7 @@ export default function PaymentTable() {
                 <Table.Tr>
                   <Table.Td colSpan={isAdmin ? 8 : 7}>
                     <Text ta="center" c="dimmed" py="md">
-                      No payments found
+                      {t("payment.notFound")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -229,7 +229,7 @@ export default function PaymentTable() {
                           variant="light"
                           leftSection={<IconGift size={10} />}
                         >
-                          Scholarship:{" "}
+                          {t("payment.scholarship")}:{" "}
                           <NumberFormatter
                             value={Number(payment.scholarshipAmount)}
                             prefix="Rp "
@@ -271,13 +271,17 @@ export default function PaymentTable() {
                       variant="light"
                       size="sm"
                     >
-                      {payment.tuition?.status}
+                      {payment.tuition?.status
+                        ? t(
+                            `tuition.status.${payment.tuition.status.toLowerCase()}`,
+                          )
+                        : "-"}
                     </Badge>
                   </Table.Td>
                   {isAdmin && (
                     <Table.Td>
                       <Group gap="xs">
-                        <Tooltip label="Reverse Payment">
+                        <Tooltip label={t("payment.reverseButton")}>
                           <ActionIcon
                             variant="subtle"
                             color="red"

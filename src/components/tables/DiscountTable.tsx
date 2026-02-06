@@ -23,6 +23,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import {
@@ -34,6 +35,7 @@ import {
 import { getPeriodDisplayName } from "@/lib/business-logic/tuition-generator";
 
 export default function DiscountTable() {
+  const t = useTranslations();
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [academicYearId, setAcademicYearId] = useState<string | null>(null);
@@ -58,32 +60,34 @@ export default function DiscountTable() {
 
   const handleDelete = (id: string, name: string) => {
     modals.openConfirmModal({
-      title: "Delete Discount",
+      title: t("discount.deleteTitle"),
       children: (
         <Stack gap="xs">
           <Text size="sm">
-            Are you sure you want to delete the discount <strong>{name}</strong>
-            ?
+            {t.rich("discount.deleteConfirm", {
+              name,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </Text>
           <Text size="sm" c="dimmed">
-            This will remove the discount from all affected tuitions.
+            {t("discount.deleteNote")}
           </Text>
         </Stack>
       ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
+      labels: { confirm: t("common.delete"), cancel: t("common.cancel") },
       confirmProps: { color: "red" },
       onConfirm: () => {
         deleteDiscount.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Deleted",
-              message: "Discount deleted successfully",
+              title: t("common.deleted"),
+              message: t("discount.deleteSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -98,15 +102,18 @@ export default function DiscountTable() {
       const preview = await applyPreview.mutateAsync(id);
 
       modals.openConfirmModal({
-        title: "Apply Discount",
+        title: t("discount.applyTitle"),
         children: (
           <Stack gap="xs">
             <Text size="sm">
-              Apply <strong>{name}</strong> to{" "}
-              <strong>{preview.summary.tuitionCount}</strong> tuitions?
+              {t.rich("discount.applyConfirm", {
+                name,
+                count: preview.summary.tuitionCount,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </Text>
             <Text size="sm">
-              Total discount:{" "}
+              {t("discount.totalDiscount")}{" "}
               <NumberFormatter
                 value={preview.summary.totalDiscountAmount}
                 prefix="Rp "
@@ -116,33 +123,40 @@ export default function DiscountTable() {
             </Text>
             {preview.affectedTuitions.length > 0 && (
               <Text size="xs" c="dimmed">
-                Affecting students:{" "}
-                {[
-                  ...new Set(
-                    preview.affectedTuitions.map((t) => t.studentName),
-                  ),
-                ]
-                  .slice(0, 5)
-                  .join(", ")}
-                {preview.affectedTuitions.length > 5 && " and more..."}
+                {t("discount.affectingStudents", {
+                  students: [
+                    ...new Set(
+                      preview.affectedTuitions.map((t) => t.studentName),
+                    ),
+                  ]
+                    .slice(0, 5)
+                    .join(", "),
+                })}
+                {preview.affectedTuitions.length > 5 &&
+                  ` ${t("discount.andMore")}`}
               </Text>
             )}
           </Stack>
         ),
-        labels: { confirm: "Apply", cancel: "Cancel" },
+        labels: {
+          confirm: t("discount.applyDiscount"),
+          cancel: t("common.cancel"),
+        },
         confirmProps: { color: "blue" },
         onConfirm: () => {
           applyDiscount.mutate(id, {
             onSuccess: (result) => {
               notifications.show({
-                title: "Discount Applied",
-                message: `Applied to ${result.results.tuitionsUpdated} tuitions`,
+                title: t("discount.applied"),
+                message: t("discount.appliedCount", {
+                  count: result.results.tuitionsUpdated,
+                }),
                 color: "green",
               });
             },
             onError: (error) => {
               notifications.show({
-                title: "Error",
+                title: t("common.error"),
                 message: error.message,
                 color: "red",
               });
@@ -152,9 +166,11 @@ export default function DiscountTable() {
       });
     } catch (error) {
       notifications.show({
-        title: "Error",
+        title: t("common.error"),
         message:
-          error instanceof Error ? error.message : "Failed to preview discount",
+          error instanceof Error
+            ? error.message
+            : t("discount.previewError"),
         color: "red",
       });
     }
@@ -163,7 +179,7 @@ export default function DiscountTable() {
   const academicYearOptions =
     academicYearsData?.academicYears.map((ay) => ({
       value: ay.id,
-      label: `${ay.year}${ay.isActive ? " (Active)" : ""}`,
+      label: `${ay.year}${ay.isActive ? ` (${t("common.active")})` : ""}`,
     })) || [];
 
   return (
@@ -171,7 +187,7 @@ export default function DiscountTable() {
       <Paper withBorder p="md">
         <Group gap="md">
           <Select
-            placeholder="Filter by academic year"
+            placeholder={t("discount.filterByYear")}
             leftSection={<IconFilter size={16} />}
             data={academicYearOptions}
             value={academicYearId || activeYear?.id || null}
@@ -181,10 +197,10 @@ export default function DiscountTable() {
             w={250}
           />
           <Select
-            placeholder="Filter by status"
+            placeholder={t("discount.filterByStatus")}
             data={[
-              { value: "true", label: "Active" },
-              { value: "false", label: "Inactive" },
+              { value: "true", label: t("common.active") },
+              { value: "false", label: t("common.inactive") },
             ]}
             value={isActive}
             onChange={setIsActive}
@@ -199,15 +215,15 @@ export default function DiscountTable() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Name</Table.Th>
+                <Table.Th>{t("common.name")}</Table.Th>
                 <Table.Th ta="right" align="right">
-                  Amount
+                  {t("common.amount")}
                 </Table.Th>
-                <Table.Th>Scope</Table.Th>
-                <Table.Th>Target Periods</Table.Th>
-                <Table.Th>Applied To</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th w={120}>Actions</Table.Th>
+                <Table.Th>{t("discount.scope")}</Table.Th>
+                <Table.Th>{t("discount.targetPeriods")}</Table.Th>
+                <Table.Th>{t("discount.appliedTo")}</Table.Th>
+                <Table.Th>{t("common.status")}</Table.Th>
+                <Table.Th w={120}>{t("common.actions")}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -225,7 +241,7 @@ export default function DiscountTable() {
                 <Table.Tr>
                   <Table.Td colSpan={7}>
                     <Text ta="center" c="dimmed" py="md">
-                      No discounts found
+                      {t("discount.notFound")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -259,7 +275,7 @@ export default function DiscountTable() {
                     >
                       {discount.classAcademic
                         ? discount.classAcademic.className
-                        : "School-wide"}
+                        : t("discount.schoolWide")}
                     </Badge>
                   </Table.Td>
                   <Table.Td>
@@ -278,7 +294,9 @@ export default function DiscountTable() {
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm">
-                      {discount._count?.tuitions || 0} tuitions
+                      {t("discount.tuitionsCount", {
+                        count: discount._count?.tuitions || 0,
+                      })}
                     </Text>
                   </Table.Td>
                   <Table.Td>
@@ -286,12 +304,14 @@ export default function DiscountTable() {
                       color={discount.isActive ? "green" : "gray"}
                       variant="light"
                     >
-                      {discount.isActive ? "Active" : "Inactive"}
+                      {discount.isActive
+                        ? t("common.active")
+                        : t("common.inactive")}
                     </Badge>
                   </Table.Td>
                   <Table.Td>
                     <Group gap="xs">
-                      <Tooltip label="Apply to existing tuitions">
+                      <Tooltip label={t("discount.applyToExisting")}>
                         <ActionIcon
                           variant="subtle"
                           color="blue"
@@ -304,7 +324,7 @@ export default function DiscountTable() {
                           <IconPlayerPlay size={18} />
                         </ActionIcon>
                       </Tooltip>
-                      <Tooltip label="Edit">
+                      <Tooltip label={t("common.edit")}>
                         <ActionIcon
                           variant="subtle"
                           onClick={() =>
@@ -314,7 +334,7 @@ export default function DiscountTable() {
                           <IconEdit size={18} />
                         </ActionIcon>
                       </Tooltip>
-                      <Tooltip label="Delete">
+                      <Tooltip label={t("common.delete")}>
                         <ActionIcon
                           variant="subtle"
                           color="red"

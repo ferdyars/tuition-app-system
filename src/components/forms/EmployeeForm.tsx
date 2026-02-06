@@ -2,6 +2,7 @@
 
 import { Button, Select, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useTranslations } from "next-intl";
 
 interface EmployeeFormValues {
   name: string;
@@ -22,6 +23,8 @@ export default function EmployeeForm({
   isLoading,
   isEdit,
 }: EmployeeFormProps) {
+  const t = useTranslations();
+
   const form = useForm<EmployeeFormValues>({
     initialValues: {
       name: initialData?.name || "",
@@ -29,9 +32,10 @@ export default function EmployeeForm({
       role: initialData?.role || "CASHIER",
     },
     validate: {
-      name: (value) => (value.length < 1 ? "Name is required" : null),
+      name: (value) =>
+        value.length < 1 ? t("employee.nameRequired") : null,
       email: (value) =>
-        /^\S+@\S+$/.test(value) ? null : "Invalid email address",
+        /^\S+@\S+$/.test(value) ? null : t("employee.emailInvalid"),
     },
   });
 
@@ -39,28 +43,28 @@ export default function EmployeeForm({
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack gap="md">
         <TextInput
-          label="Name"
-          placeholder="Enter employee name"
+          label={t("employee.name")}
+          placeholder={t("employee.namePlaceholder")}
           required
           {...form.getInputProps("name")}
         />
         <TextInput
-          label="Email"
-          placeholder="employee@school.com"
+          label={t("employee.email")}
+          placeholder={t("employee.emailPlaceholder")}
           required
           {...form.getInputProps("email")}
         />
         <Select
-          label="Role"
+          label={t("employee.role")}
           data={[
-            { value: "ADMIN", label: "Admin" },
-            { value: "CASHIER", label: "Cashier" },
+            { value: "ADMIN", label: t("employee.roles.ADMIN") },
+            { value: "CASHIER", label: t("employee.roles.CASHIER") },
           ]}
           required
           {...form.getInputProps("role")}
         />
         <Button type="submit" loading={isLoading}>
-          {isEdit ? "Update Employee" : "Create Employee"}
+          {isEdit ? t("common.update") : t("common.create")}
         </Button>
       </Stack>
     </form>

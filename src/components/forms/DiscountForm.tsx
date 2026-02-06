@@ -21,6 +21,7 @@ import { notifications } from "@mantine/notifications";
 import { IconCheck, IconInfoCircle, IconPercentage } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import { useClassAcademics } from "@/hooks/api/useClassAcademics";
 import {
@@ -37,18 +38,19 @@ interface DiscountFormProps {
   discountId?: string;
 }
 
-const REASON_PRESETS = [
-  { value: "COVID Relief", label: "COVID Relief" },
-  { value: "School Anniversary", label: "School Anniversary" },
-  { value: "Economic Support", label: "Economic Support" },
-  { value: "Early Payment", label: "Early Payment Discount" },
-  { value: "Sibling Discount", label: "Sibling Discount" },
-  { value: "Other", label: "Other" },
-];
-
 export default function DiscountForm({ discountId }: DiscountFormProps) {
+  const t = useTranslations();
   const router = useRouter();
   const isEdit = !!discountId;
+
+  const REASON_PRESETS = [
+    { value: "COVID Relief", label: t("discount.reasons.COVIDRelief") },
+    { value: "School Anniversary", label: t("discount.reasons.SchoolAnniversary") },
+    { value: "Economic Support", label: t("discount.reasons.EconomicSupport") },
+    { value: "Early Payment", label: t("discount.reasons.EarlyPayment") },
+    { value: "Sibling Discount", label: t("discount.reasons.SiblingDiscount") },
+    { value: "Other", label: t("discount.reasons.Other") },
+  ];
 
   // Form state
   const [name, setName] = useState("");
@@ -108,8 +110,8 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
   const handleSubmit = () => {
     if (!name.trim()) {
       notifications.show({
-        title: "Validation Error",
-        message: "Please enter a name",
+        title: t("common.validationError"),
+        message: t("discount.validationNameRequired"),
         color: "red",
       });
       return;
@@ -117,8 +119,8 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
 
     if (!discountAmount || Number(discountAmount) <= 0) {
       notifications.show({
-        title: "Validation Error",
-        message: "Please enter a valid discount amount",
+        title: t("common.validationError"),
+        message: t("discount.validationAmountRequired"),
         color: "red",
       });
       return;
@@ -126,8 +128,8 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
 
     if (!academicYearId) {
       notifications.show({
-        title: "Validation Error",
-        message: "Please select an academic year",
+        title: t("common.validationError"),
+        message: t("discount.validationYearRequired"),
         color: "red",
       });
       return;
@@ -135,8 +137,8 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
 
     if (targetPeriods.length === 0) {
       notifications.show({
-        title: "Validation Error",
-        message: "Please select at least one target period",
+        title: t("common.validationError"),
+        message: t("discount.validationPeriodsRequired"),
         color: "red",
       });
       return;
@@ -158,15 +160,15 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
         {
           onSuccess: () => {
             notifications.show({
-              title: "Success",
-              message: "Discount updated successfully",
+              title: t("common.success"),
+              message: t("discount.updateSuccess"),
               color: "green",
             });
             router.push("/discounts");
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -187,15 +189,15 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
         {
           onSuccess: () => {
             notifications.show({
-              title: "Success",
-              message: "Discount created successfully",
+              title: t("common.success"),
+              message: t("discount.createSuccess"),
               color: "green",
             });
             router.push("/discounts");
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -208,21 +210,21 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
   // Build period options
   const periodOptions = [
     {
-      group: "Monthly",
+      group: t("tuition.monthly"),
       items: PERIODS.MONTHLY.map((p) => ({
         value: p,
         label: getPeriodDisplayName(p),
       })),
     },
     {
-      group: "Quarterly",
+      group: t("tuition.quarterly"),
       items: PERIODS.QUARTERLY.map((p) => ({
         value: p,
         label: getPeriodDisplayName(p),
       })),
     },
     {
-      group: "Semester",
+      group: t("tuition.semester"),
       items: PERIODS.SEMESTER.map((p) => ({
         value: p,
         label: getPeriodDisplayName(p),
@@ -233,7 +235,7 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
   const academicYearOptions =
     academicYearsData?.academicYears.map((ay) => ({
       value: ay.id,
-      label: `${ay.year}${ay.isActive ? " (Active)" : ""}`,
+      label: `${ay.year}${ay.isActive ? ` (${t("academicYear.statuses.active")})` : ""}`,
     })) || [];
 
   const classOptions =
@@ -248,24 +250,24 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
     <Paper withBorder p="lg" maw={600}>
       <Stack gap="md">
         <TextInput
-          label="Discount Name"
-          placeholder="e.g., COVID Relief Q2"
+          label={t("discount.name")}
+          placeholder={t("discount.namePlaceholder")}
           value={name}
           onChange={(e) => setName(e.currentTarget.value)}
           required
         />
 
         <Textarea
-          label="Description"
-          placeholder="Optional description of the discount"
+          label={t("common.description")}
+          placeholder={t("discount.descriptionPlaceholder")}
           value={description}
           onChange={(e) => setDescription(e.currentTarget.value)}
           rows={2}
         />
 
         <Select
-          label="Reason"
-          placeholder="Select or enter a reason"
+          label={t("discount.reason")}
+          placeholder={t("discount.reasonPlaceholder")}
           data={REASON_PRESETS}
           value={reason}
           onChange={setReason}
@@ -274,9 +276,9 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
         />
 
         <NumberInput
-          label="Discount Amount"
-          description="Fixed amount to deduct from tuition fee"
-          placeholder="Enter discount amount"
+          label={t("discount.amount")}
+          description={t("discount.amountDescription")}
+          placeholder={t("discount.amountPlaceholder")}
           value={discountAmount}
           onChange={setDiscountAmount}
           min={0}
@@ -287,11 +289,11 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
           leftSection={<IconPercentage size={16} />}
         />
 
-        <Divider label="Scope" labelPosition="center" />
+        <Divider label={t("discount.scope")} labelPosition="center" />
 
         <Select
-          label="Academic Year"
-          placeholder="Select academic year"
+          label={t("class.academicYear")}
+          placeholder={t("discount.selectAcademicYear")}
           data={academicYearOptions}
           value={academicYearId}
           onChange={(value) => {
@@ -303,7 +305,7 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
         />
 
         <Checkbox
-          label="Apply to all classes (School-wide)"
+          label={t("discount.applyAllClasses")}
           checked={isSchoolWide}
           onChange={(e) => {
             setIsSchoolWide(e.currentTarget.checked);
@@ -316,8 +318,8 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
 
         {!isSchoolWide && (
           <Select
-            label="Specific Class"
-            placeholder="Select class"
+            label={t("discount.specificClass")}
+            placeholder={t("discount.selectClass")}
             data={classOptions}
             value={classAcademicId}
             onChange={setClassAcademicId}
@@ -327,12 +329,12 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
           />
         )}
 
-        <Divider label="Target Periods" labelPosition="center" />
+        <Divider label={t("discount.targetPeriods")} labelPosition="center" />
 
         <MultiSelect
-          label="Target Periods"
-          description="Select which periods this discount applies to"
-          placeholder="Select periods"
+          label={t("discount.targetPeriods")}
+          description={t("discount.periodsDescription")}
+          placeholder={t("discount.selectPeriods")}
           data={periodOptions}
           value={targetPeriods}
           onChange={setTargetPeriods}
@@ -344,7 +346,7 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
         {targetPeriods.length > 0 && (
           <Group gap={4}>
             <Text size="sm" c="dimmed">
-              Selected:
+              {t("discount.selectedLabel")}
             </Text>
             {targetPeriods.map((p) => (
               <Badge key={p} size="sm" variant="light">
@@ -357,20 +359,18 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
         <Alert icon={<IconInfoCircle size={18} />} color="blue" variant="light">
           <Text size="sm">
             {isSchoolWide
-              ? "This discount will apply to all classes in the selected academic year."
-              : "This discount will only apply to the selected class."}
+              ? t("discount.schoolWideInfo")
+              : t("discount.classOnlyInfo")}
           </Text>
           <Text size="sm" mt="xs">
-            Discounts are automatically applied to new tuitions during
-            generation. Use the &quot;Apply&quot; action to apply to existing
-            tuitions.
+            {t("discount.autoApplyInfo")}
           </Text>
         </Alert>
 
         {isEdit && (
           <Checkbox
-            label="Active"
-            description="Inactive discounts won't be applied to new tuitions"
+            label={t("discount.activeCheckbox")}
+            description={t("discount.inactiveDesc")}
             checked={isActive}
             onChange={(e) => setIsActive(e.currentTarget.checked)}
           />
@@ -381,14 +381,16 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
             icon={<IconCheck size={18} />}
             color="green"
             variant="light"
-            title="Usage Statistics"
+            title={t("discount.usageStats")}
           >
             <Stack gap="xs">
               <Text size="sm">
-                Applied to: {discountData.stats.totalTuitionsApplied} tuitions
+                {t("discount.appliedToCount", {
+                  count: discountData.stats.totalTuitionsApplied,
+                })}
               </Text>
               <Text size="sm">
-                Total discount given:{" "}
+                {t("discount.totalDiscountGiven")}{" "}
                 <NumberFormatter
                   value={discountData.stats.totalDiscountApplied}
                   prefix="Rp "
@@ -412,10 +414,10 @@ export default function DiscountForm({ discountId }: DiscountFormProps) {
               targetPeriods.length === 0
             }
           >
-            {isEdit ? "Update Discount" : "Create Discount"}
+            {isEdit ? t("common.update") : t("common.create")}
           </Button>
           <Button variant="light" onClick={() => router.push("/discounts")}>
-            Cancel
+            {t("common.cancel")}
           </Button>
         </Group>
       </Stack>

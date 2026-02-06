@@ -3,6 +3,7 @@
 import { Button, Stack, Textarea, TextInput } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
+import { useTranslations } from "next-intl";
 
 interface StudentFormValues {
   nis: string;
@@ -43,6 +44,8 @@ export default function StudentForm({
   isLoading,
   isEdit,
 }: StudentFormProps) {
+  const t = useTranslations();
+
   const form = useForm<StudentFormValues>({
     initialValues: {
       nis: initialData?.nis || "",
@@ -56,16 +59,18 @@ export default function StudentForm({
         : null,
     },
     validate: {
-      nis: (value) => (value.length < 1 ? "NIS is required" : null),
+      nis: (value) => (value.length < 1 ? t("student.nisRequired") : null),
       nik: (value) =>
-        value.length !== 16 ? "NIK must be exactly 16 digits" : null,
-      name: (value) => (value.length < 1 ? "Name is required" : null),
-      address: (value) => (value.length < 1 ? "Address is required" : null),
+        value.length !== 16 ? t("student.nikDigits") : null,
+      name: (value) => (value.length < 1 ? t("student.nameRequired") : null),
+      address: (value) =>
+        value.length < 1 ? t("student.addressRequired") : null,
       parentName: (value) =>
-        value.length < 1 ? "Parent name is required" : null,
+        value.length < 1 ? t("student.parentNameRequired") : null,
       parentPhone: (value) =>
-        value.length < 10 ? "Phone must be at least 10 digits" : null,
-      startJoinDate: (value) => (!value ? "Start date is required" : null),
+        value.length < 10 ? t("student.phoneMinDigits") : null,
+      startJoinDate: (value) =>
+        !value ? t("student.startDateRequired") : null,
     },
   });
 
@@ -84,52 +89,52 @@ export default function StudentForm({
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack gap="md">
         <TextInput
-          label="NIS (Student ID)"
-          placeholder="2024001"
+          label={t("student.nis")}
+          placeholder={t("student.nisPlaceholder")}
           required
           disabled={isEdit}
           {...form.getInputProps("nis")}
         />
         <TextInput
-          label="NIK (National ID)"
-          placeholder="3578123456789012"
+          label={t("student.nik")}
+          placeholder={t("student.nikPlaceholder")}
           required
           maxLength={16}
           {...form.getInputProps("nik")}
         />
         <TextInput
-          label="Student Name"
-          placeholder="Ahmad Rizki"
+          label={t("student.name")}
+          placeholder={t("student.namePlaceholder")}
           required
           {...form.getInputProps("name")}
         />
         <Textarea
-          label="Address"
-          placeholder="Jl. Merdeka No. 123"
+          label={t("student.address")}
+          placeholder={t("student.addressPlaceholder")}
           required
           {...form.getInputProps("address")}
         />
         <TextInput
-          label="Parent Name"
-          placeholder="Budi Santoso"
+          label={t("student.parentName")}
+          placeholder={t("student.parentNamePlaceholder")}
           required
           {...form.getInputProps("parentName")}
         />
         <TextInput
-          label="Parent Phone"
-          placeholder="081234567890"
+          label={t("student.parentPhone")}
+          placeholder={t("student.parentPhonePlaceholder")}
           required
           {...form.getInputProps("parentPhone")}
         />
         <DatePickerInput
-          label="Start Join Date"
+          label={t("student.joinDate")}
           placeholder="DD/MM/YYYY"
           required
           valueFormat="DD/MM/YYYY"
           {...form.getInputProps("startJoinDate")}
         />
         <Button type="submit" loading={isLoading}>
-          {isEdit ? "Update Student" : "Create Student"}
+          {isEdit ? t("common.update") : t("common.create")}
         </Button>
       </Stack>
     </form>

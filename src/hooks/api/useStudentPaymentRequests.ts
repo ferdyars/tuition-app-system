@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { queryKeys, type StudentPaymentRequestFilters } from "@/lib/query-keys";
 import { studentApiClient } from "@/lib/student-api-client";
+import { getFrontendExpiryFromBackend } from "@/lib/business-logic/payment-timing";
 
 interface TuitionInfo {
   id?: string;
@@ -105,9 +106,27 @@ export function useStudentPaymentRequest(id: string) {
     },
     enabled: !!id,
     refetchInterval: (query) => {
+      if (typeof query.state.data === "undefined") return false;
+      if (
+        getFrontendExpiryFromBackend(new Date(query.state.data.expiresAt)) <
+        new Date()
+      ) {
+        return false;
+      }
+
       // Poll every 5 seconds if status is PENDING
       const status = query.state.data?.status;
       return status === "PENDING" ? 5000 : false;
+    },
+    select(data) {
+      if (typeof data === "undefined") return undefined;
+      if (
+        getFrontendExpiryFromBackend(new Date(data.expiresAt)) < new Date() &&
+        data.status === "PENDING"
+      ) {
+        data.status = "EXPIRED";
+      }
+      return data;
     },
   });
 }
@@ -123,6 +142,18 @@ export function useActivePaymentRequest() {
       return data.data;
     },
     refetchInterval: (query) => {
+      if (
+        typeof query.state.data === "undefined" ||
+        query.state.data === null
+      ) {
+        return undefined;
+      }
+      if (
+        getFrontendExpiryFromBackend(new Date(query.state.data.expiresAt)) <
+        new Date()
+      ) {
+        return false;
+      }
       // Poll every 5 seconds if there's an active pending request
       const status = query.state.data?.status;
       return status === "PENDING" ? 5000 : false;

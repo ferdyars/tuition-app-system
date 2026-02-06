@@ -9,6 +9,7 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useTranslations } from "next-intl";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 
 interface ClassAcademicFormValues {
@@ -34,6 +35,7 @@ export default function ClassAcademicForm({
   isLoading,
   isEdit,
 }: ClassAcademicFormProps) {
+  const t = useTranslations();
   const { data: academicYearsData } = useAcademicYears({ limit: 100 });
 
   const form = useForm<ClassAcademicFormValues>({
@@ -43,25 +45,27 @@ export default function ClassAcademicForm({
       section: initialData?.section || "",
     },
     validate: {
-      academicYearId: (value) => (!value ? "Academic year is required" : null),
+      academicYearId: (value) =>
+        !value ? t("class.academicYearRequired") : null,
       grade: (value) =>
-        value < 1 || value > 12 ? "Grade must be between 1 and 12" : null,
-      section: (value) => (value.length < 1 ? "Section is required" : null),
+        value < 1 || value > 12 ? t("class.gradeRange") : null,
+      section: (value) =>
+        value.length < 1 ? t("class.sectionRequired") : null,
     },
   });
 
   const academicYearOptions =
     academicYearsData?.academicYears.map((ay) => ({
       value: ay.id,
-      label: `${ay.year}${ay.isActive ? " (Active)" : ""}`,
+      label: `${ay.year}${ay.isActive ? ` (${t("academicYear.statuses.active")})` : ""}`,
     })) || [];
 
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack gap="md">
         <Select
-          label="Academic Year"
-          placeholder="Select academic year"
+          label={t("class.academicYear")}
+          placeholder={t("class.selectAcademicYear")}
           data={academicYearOptions}
           required
           searchable
@@ -69,23 +73,23 @@ export default function ClassAcademicForm({
         />
         <Group grow>
           <NumberInput
-            label="Grade"
-            placeholder="1-12"
+            label={t("class.grade")}
+            placeholder={t("class.gradePlaceholder")}
             required
             min={1}
             max={12}
             {...form.getInputProps("grade")}
           />
           <TextInput
-            label="Section"
-            placeholder="A, B, IPA, IPS, etc."
+            label={t("class.section")}
+            placeholder={t("class.sectionPlaceholder")}
             required
             {...form.getInputProps("section")}
           />
         </Group>
 
         <Button type="submit" loading={isLoading}>
-          {isEdit ? "Update Class" : "Create Class"}
+          {isEdit ? t("common.update") : t("common.create")}
         </Button>
       </Stack>
     </form>

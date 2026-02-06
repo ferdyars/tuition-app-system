@@ -35,6 +35,7 @@ import {
   useCancelPaymentRequest,
   useStudentPaymentRequest,
 } from "@/hooks/api/useStudentPaymentRequests";
+import { getFrontendExpiryFromBackend } from "@/lib/business-logic/payment-timing";
 
 function formatPeriod(period: string): string {
   const periodMap: Record<string, string> = {
@@ -217,7 +218,9 @@ export default function PaymentDetailPage() {
   }
 
   const statusConfig = getStatusConfig(payment.status);
-  const isPending = payment.status === "PENDING";
+  const isExpired =
+    getFrontendExpiryFromBackend(new Date(payment.expiresAt)) < new Date();
+  const isPending = payment.status === "PENDING" && !isExpired;
   const isVerified = payment.status === "VERIFIED";
 
   return (
@@ -227,7 +230,7 @@ export default function PaymentDetailPage() {
         <Group gap="xs">
           <ActionIcon
             variant="subtle"
-            onClick={() => router.push("/portal/payment")}
+            onClick={() => router.replace("/portal/history")}
           >
             <IconArrowLeft size={20} />
           </ActionIcon>
@@ -553,14 +556,6 @@ export default function PaymentDetailPage() {
               Unduh Bukti Pembayaran (PDF)
             </Button>
           )}
-          <Button
-            variant="outline"
-            leftSection={<IconArrowLeft size={18} />}
-            onClick={() => router.push("/portal/payment")}
-            fullWidth
-          >
-            Kembali ke Daftar Pembayaran
-          </Button>
         </Stack>
       </Box>
     </Stack>

@@ -15,8 +15,19 @@ export async function GET(
 
     const { id } = await params;
     const result = await getPaymentRequest(id, session.studentNis);
+    const isCache = [
+      result.status === "VERIFIED",
+      result.status === "CANCELLED",
+      result.status === "FAILED",
+      result.expiresAt.getTime() < Date.now() - 300000,
+    ].some(Boolean);
+    let cacheControl: string | undefined;
 
-    return successResponse(result);
+    if (isCache) {
+      cacheControl = "public, max-age=31536000, immutable";
+    }
+
+    return successResponse(result, undefined, cacheControl);
   } catch (error) {
     console.error("Get payment request error:", error);
     if (error instanceof Error) {

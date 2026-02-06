@@ -15,6 +15,7 @@ import { useTranslations } from "next-intl";
 import { EmptyAnimation } from "@/components/ui/LottieAnimation";
 import { PaymentSkeleton } from "@/components/ui/PortalSkeleton";
 import { useStudentPaymentRequests } from "@/hooks/api/useStudentPaymentRequests";
+import { getFrontendExpiryFromBackend } from "@/lib/business-logic/payment-timing";
 
 export default function TransactionHistoryPage() {
   const t = useTranslations();
@@ -22,7 +23,17 @@ export default function TransactionHistoryPage() {
     limit: 50,
   });
 
-  const paymentRequests = paymentRequestsData?.paymentRequests || [];
+  const paymentRequests = (paymentRequestsData?.paymentRequests || []).map(
+    (pr) => {
+      if (
+        getFrontendExpiryFromBackend(new Date(pr.expiresAt)) < new Date() &&
+        pr.status === "PENDING"
+      ) {
+        pr.status = "EXPIRED";
+      }
+      return pr;
+    },
+  );
 
   const formatPeriod = (period: string): string => {
     // Check months first
@@ -69,64 +80,69 @@ export default function TransactionHistoryPage() {
         <EmptyAnimation message={t("payment.noHistory")} />
       ) : (
         <Stack gap="sm">
-          {paymentRequests.map((payment) => (
-            <Card
-              key={payment.id}
-              withBorder
-              py="sm"
-              component={Link}
-              href={`/portal/payment/${payment.id}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <Stack gap="xs">
-                <Group justify="space-between" wrap="nowrap">
-                  <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-                    <Text size="sm" fw={500} truncate>
-                      {payment.tuitions.length === 1
-                        ? `${formatPeriod(payment.tuitions[0].period)} ${payment.tuitions[0].year}`
-                        : t("payment.billsCount", {
-                            count: payment.tuitions.length,
-                          })}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {new Date(payment.createdAt).toLocaleDateString("id-ID", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Text>
-                  </Stack>
-                  {getStatusBadge(payment.status)}
-                </Group>
-                <Divider />
-                <Group justify="space-between" wrap="nowrap">
-                  <Stack gap={0}>
-                    <Text size="xs" c="dimmed">
-                      {t("payment.bank")}
-                    </Text>
-                    <Text size="sm">
-                      {payment.bankAccount?.bankName || "-"}
-                    </Text>
-                  </Stack>
-                  <Stack gap={0} align="flex-end">
-                    <Text size="xs" c="dimmed">
-                      {t("payment.nominal")}
-                    </Text>
-                    <Text size="sm" fw={600}>
-                      <NumberFormatter
-                        value={Number(payment.totalAmount)}
-                        prefix="Rp "
-                        thousandSeparator="."
-                        decimalSeparator=","
-                      />
-                    </Text>
-                  </Stack>
-                </Group>
-              </Stack>
-            </Card>
-          ))}
+          {paymentRequests.map((payment) => {
+            return (
+              <Card
+                key={payment.id}
+                withBorder
+                py="sm"
+                component={Link}
+                href={`/portal/payment/${payment.id}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Stack gap="xs">
+                  <Group justify="space-between" wrap="nowrap">
+                    <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+                      <Text size="sm" fw={500} truncate>
+                        {payment.tuitions.length === 1
+                          ? `${formatPeriod(payment.tuitions[0].period)} ${payment.tuitions[0].year}`
+                          : t("payment.billsCount", {
+                              count: payment.tuitions.length,
+                            })}
+                      </Text>
+                      <Text size="xs" c="dimmed">
+                        {new Date(payment.createdAt).toLocaleDateString(
+                          "id-ID",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </Text>
+                    </Stack>
+                    {getStatusBadge(payment.status)}
+                  </Group>
+                  <Divider />
+                  <Group justify="space-between" wrap="nowrap">
+                    <Stack gap={0}>
+                      <Text size="xs" c="dimmed">
+                        {t("payment.bank")}
+                      </Text>
+                      <Text size="sm">
+                        {payment.bankAccount?.bankName || "-"}
+                      </Text>
+                    </Stack>
+                    <Stack gap={0} align="flex-end">
+                      <Text size="xs" c="dimmed">
+                        {t("payment.nominal")}
+                      </Text>
+                      <Text size="sm" fw={600}>
+                        <NumberFormatter
+                          value={Number(payment.totalAmount)}
+                          prefix="Rp "
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Text>
+                    </Stack>
+                  </Group>
+                </Stack>
+              </Card>
+            );
+          })}
         </Stack>
       )}
     </Stack>
