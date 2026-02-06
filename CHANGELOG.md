@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2] - 2026-02-06
+
+### Other
+- chore: setup automated release workflow with changelog
+
+
+
 ## [1.0.1] - 2026-02-06
 
 
