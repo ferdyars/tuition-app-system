@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.3] - 2026-02-06
+
+### Features
+- automated changelog workflow
+
+### Other
+- chore: release v0.1.2
+
+
+
 ## [0.1.2] - 2026-02-06
 
 ### Features
