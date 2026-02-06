@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Bump type (major, minor, patch)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Run Release Script
+        id: run_release
+        env:
+          CI: true
+        run: |
+          bash scripts/release.sh ${{ inputs.bump_type }}
+          VERSION=$(node -p "require('./package.json').version")
+          echo "NEW_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Push Changes
+        run: |
+          git push origin HEAD:main
+          git push --tags
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          tag_name: v${{ env.NEW_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

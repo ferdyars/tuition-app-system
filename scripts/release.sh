@@ -15,11 +15,13 @@ if [[ "$BUMP_TYPE" != "major" && "$BUMP_TYPE" != "minor" && "$BUMP_TYPE" != "pat
   exit 1
 fi
 
-# Ensure we're on main branch
-CURRENT_BRANCH=$(git branch --show-current)
-if [[ "$CURRENT_BRANCH" != "main" ]]; then
-  echo "Error: Must be on 'main' branch to release. Currently on '$CURRENT_BRANCH'"
-  exit 1
+# Ensure we're on main branch (skip check in CI)
+if [[ -z "$CI" ]]; then
+  CURRENT_BRANCH=$(git branch --show-current)
+  if [[ "$CURRENT_BRANCH" != "main" ]]; then
+    echo "Error: Must be on 'main' branch to release. Currently on '$CURRENT_BRANCH'"
+    exit 1
+  fi
 fi
 
 # Ensure working directory is clean
