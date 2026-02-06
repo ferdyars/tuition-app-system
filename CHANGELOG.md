@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0] - 2026-02-06
+
+### Features
+- feat: lottie files
+- feat: pwa
+
+### Fixes
+- fix: change release note
+
+### Other
+- chore: release v1.0.5
+- :wq Merge branch 'main' of github.com:ferdyars/tuition-app-system
+
+
+
 ## [1.0.5] - 2026-02-06
 
 ### Fixes
