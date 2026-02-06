@@ -105,6 +105,9 @@ if [[ -n "$OTHER" ]]; then
   CHANGELOG_ENTRY+="$OTHER"$'\n'
 fi
 
+# Export to file for GitHub Release
+echo "$CHANGELOG_ENTRY" > release_notes.md
+
 # Update CHANGELOG.md
 CHANGELOG_FILE="CHANGELOG.md"
 
