@@ -1,6 +1,9 @@
-## [1.0.3] - 2026-02-06
+## [1.0.4] - 2026-02-06
+
+### Features
+- feat: release note
 
 ### Fixes
-- fix: overlaps sidebar
+- fix: missing locale
 
 
