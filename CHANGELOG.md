@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0] - 2026-02-06
+
+### Fixes
+- fix: cache 6 days
+
+
+
 ## [2.0.0] - 2026-02-06
 
 ### Features
