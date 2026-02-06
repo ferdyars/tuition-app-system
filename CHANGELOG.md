@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0] - 2026-02-06
+
+### Features
+- release note
+
+
+
 ## [1.0.3] - 2026-02-06
 
 ### Fixes
