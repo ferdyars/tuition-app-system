@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.5] - 2026-02-06
+
+### Fixes
+- missing locale
+
+### Other
+- chore: release v1.0.4
+- Merge branch 'main' of github.com:ferdyars/tuition-app-system
+
+
+
 ## [1.0.4] - 2026-02-06
 
 ### Features
