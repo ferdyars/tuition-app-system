@@ -29,7 +29,7 @@ export default function DashboardLayout({
           minHeight: "100vh",
         }}
       >
-        <LoadingAnimation message={t("loading")} />
+        <LoadingAnimation />
       </Box>
     );
   }

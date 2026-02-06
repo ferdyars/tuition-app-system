@@ -137,7 +137,7 @@ export default function StudentPortalLayout({
           backgroundColor: "#f8f9fa",
         }}
       >
-        <LoadingAnimation message={t("common.loading")} />
+        <LoadingAnimation />
       </Box>
     );
   }
