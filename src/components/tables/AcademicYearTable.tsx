@@ -121,7 +121,7 @@ export default function AcademicYearTable() {
                 <Table.Th>{t("academicYear.year")}</Table.Th>
                 <Table.Th>{t("academicYear.startDate")}</Table.Th>
                 <Table.Th>{t("academicYear.endDate")}</Table.Th>
-                <Table.Th>{t("academicYear.classes")}</Table.Th>
+                <Table.Th>{t("class.title")}</Table.Th>
                 <Table.Th>{t("common.status")}</Table.Th>
                 <Table.Th w={140}>{t("common.actions")}</Table.Th>
               </Table.Tr>

@@ -18,6 +18,7 @@ import { modals } from "@mantine/modals";
 import { notifications } from "@mantine/notifications";
 import { IconFilter, IconTrash } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import { useClassAcademics } from "@/hooks/api/useClassAcademics";
@@ -27,6 +28,7 @@ import {
 } from "@/hooks/api/useScholarships";
 
 export default function ScholarshipTable() {
+  const t = useTranslations();
   const [page, setPage] = useState(1);
   const [classAcademicId, setClassAcademicId] = useState<string | null>(null);
   const [isFullScholarship, setIsFullScholarship] = useState<string | null>(
@@ -53,32 +55,34 @@ export default function ScholarshipTable() {
 
   const handleDelete = (id: string, studentName: string) => {
     modals.openConfirmModal({
-      title: "Delete Scholarship",
+      title: t("scholarship.deleteTitle"),
       children: (
         <Stack gap="xs">
           <Text size="sm">
-            Are you sure you want to delete the scholarship for{" "}
-            <strong>{studentName}</strong>?
+            {t.rich("scholarship.deleteConfirm", {
+              name: studentName,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </Text>
           <Text size="sm" c="dimmed">
-            Note: Auto-paid tuitions will not be reverted.
+            {t("scholarship.deleteNote")}
           </Text>
         </Stack>
       ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
+      labels: { confirm: t("common.delete"), cancel: t("common.cancel") },
       confirmProps: { color: "red" },
       onConfirm: () => {
         deleteScholarship.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Deleted",
-              message: "Scholarship deleted successfully",
+              title: t("common.deleted"),
+              message: t("scholarship.deleteSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -99,7 +103,7 @@ export default function ScholarshipTable() {
       <Paper withBorder p="md">
         <Group gap="md">
           <Select
-            placeholder="Filter by class"
+            placeholder={t("scholarship.filterByClass")}
             leftSection={<IconFilter size={16} />}
             data={classOptions}
             value={classAcademicId}
@@ -109,10 +113,10 @@ export default function ScholarshipTable() {
             w={250}
           />
           <Select
-            placeholder="Filter by type"
+            placeholder={t("scholarship.filterByType")}
             data={[
-              { value: "true", label: "Full Scholarship" },
-              { value: "false", label: "Partial Scholarship" },
+              { value: "true", label: t("scholarship.types.FULL") },
+              { value: "false", label: t("scholarship.types.PARTIAL") },
             ]}
             value={isFullScholarship}
             onChange={setIsFullScholarship}
@@ -127,14 +131,14 @@ export default function ScholarshipTable() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Student</Table.Th>
-                <Table.Th>Class</Table.Th>
+                <Table.Th>{t("scholarship.student")}</Table.Th>
+                <Table.Th>{t("scholarship.class")}</Table.Th>
                 <Table.Th ta="right" align="right">
-                  Amount
+                  {t("scholarship.amount")}
                 </Table.Th>
-                <Table.Th>Type</Table.Th>
-                <Table.Th>Created</Table.Th>
-                <Table.Th w={80}>Actions</Table.Th>
+                <Table.Th>{t("scholarship.type")}</Table.Th>
+                <Table.Th>{t("scholarship.created")}</Table.Th>
+                <Table.Th w={80}>{t("common.actions")}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -152,7 +156,7 @@ export default function ScholarshipTable() {
                 <Table.Tr>
                   <Table.Td colSpan={6}>
                     <Text ta="center" c="dimmed" py="md">
-                      No scholarships found
+                      {t("scholarship.notFound")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -187,7 +191,9 @@ export default function ScholarshipTable() {
                       color={scholarship.isFullScholarship ? "green" : "blue"}
                       variant="light"
                     >
-                      {scholarship.isFullScholarship ? "Full" : "Partial"}
+                      {scholarship.isFullScholarship
+                        ? t("scholarship.full")
+                        : t("scholarship.partial")}
                     </Badge>
                   </Table.Td>
                   <Table.Td>
@@ -197,7 +203,7 @@ export default function ScholarshipTable() {
                   </Table.Td>
                   <Table.Td>
                     <Group gap="xs">
-                      <Tooltip label="Delete">
+                      <Tooltip label={t("common.delete")}>
                         <ActionIcon
                           variant="subtle"
                           color="red"

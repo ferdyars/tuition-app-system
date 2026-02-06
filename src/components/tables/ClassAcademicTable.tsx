@@ -23,6 +23,7 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAcademicYears } from "@/hooks/api/useAcademicYears";
 import {
@@ -31,6 +32,7 @@ import {
 } from "@/hooks/api/useClassAcademics";
 
 export default function ClassAcademicTable() {
+  const t = useTranslations();
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -51,27 +53,29 @@ export default function ClassAcademicTable() {
 
   const handleDelete = (id: string, className: string) => {
     modals.openConfirmModal({
-      title: "Delete Class",
+      title: t("class.deleteTitle"),
       children: (
         <Text size="sm">
-          Are you sure you want to delete <strong>{className}</strong>? This
-          action cannot be undone.
+          {t.rich("class.deleteConfirm", {
+            className,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </Text>
       ),
-      labels: { confirm: "Delete", cancel: "Cancel" },
+      labels: { confirm: t("common.delete"), cancel: t("common.cancel") },
       confirmProps: { color: "red" },
       onConfirm: () => {
         deleteClass.mutate(id, {
           onSuccess: () => {
             notifications.show({
-              title: "Deleted",
-              message: "Class deleted successfully",
+              title: t("common.deleted"),
+              message: t("class.deleteSuccess"),
               color: "green",
             });
           },
           onError: (error) => {
             notifications.show({
-              title: "Error",
+              title: t("common.error"),
               message: error.message,
               color: "red",
             });
@@ -91,7 +95,7 @@ export default function ClassAcademicTable() {
     <Stack gap="md">
       <Group>
         <TextInput
-          placeholder="Search classes..."
+          placeholder={t("class.searchPlaceholder")}
           leftSection={<IconSearch size={16} />}
           value={search}
           onChange={(e) => {
@@ -101,7 +105,7 @@ export default function ClassAcademicTable() {
           style={{ flex: 1 }}
         />
         <Select
-          placeholder="Filter by year"
+          placeholder={t("class.filterByYear")}
           data={academicYearOptions}
           value={academicYearFilter}
           onChange={(value) => {
@@ -119,12 +123,12 @@ export default function ClassAcademicTable() {
           <Table striped highlightOnHover>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>Class Name</Table.Th>
-                <Table.Th>Grade</Table.Th>
-                <Table.Th>Section</Table.Th>
-                <Table.Th>Academic Year</Table.Th>
-                <Table.Th>Students</Table.Th>
-                <Table.Th w={120}>Actions</Table.Th>
+                <Table.Th>{t("class.name")}</Table.Th>
+                <Table.Th>{t("class.grade")}</Table.Th>
+                <Table.Th>{t("class.section")}</Table.Th>
+                <Table.Th>{t("class.academicYear")}</Table.Th>
+                <Table.Th>{t("class.students")}</Table.Th>
+                <Table.Th w={120}>{t("common.actions")}</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -142,7 +146,7 @@ export default function ClassAcademicTable() {
                 <Table.Tr>
                   <Table.Td colSpan={6}>
                     <Text ta="center" c="dimmed" py="md">
-                      No classes found
+                      {t("class.notFound")}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
@@ -162,12 +166,14 @@ export default function ClassAcademicTable() {
                         router.push(`/admin/classes/${cls.id}/students`)
                       }
                     >
-                      {cls._count?.studentClasses ?? 0} students
+                      {t("class.studentsCount", {
+                        count: cls._count?.studentClasses ?? 0,
+                      })}
                     </Badge>
                   </Table.Td>
                   <Table.Td>
                     <Group gap="xs">
-                      <Tooltip label="Manage Students">
+                      <Tooltip label={t("class.manageStudents")}>
                         <ActionIcon
                           variant="subtle"
                           color="teal"
@@ -178,7 +184,7 @@ export default function ClassAcademicTable() {
                           <IconUsers size={18} />
                         </ActionIcon>
                       </Tooltip>
-                      <Tooltip label="Edit Class">
+                      <Tooltip label={t("class.edit")}>
                         <ActionIcon
                           variant="subtle"
                           color="blue"
@@ -189,7 +195,7 @@ export default function ClassAcademicTable() {
                           <IconEdit size={18} />
                         </ActionIcon>
                       </Tooltip>
-                      <Tooltip label="Delete Class">
+                      <Tooltip label={t("common.delete")}>
                         <ActionIcon
                           variant="subtle"
                           color="red"
